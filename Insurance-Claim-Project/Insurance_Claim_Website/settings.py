@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
 from pathlib import Path
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -73,13 +74,15 @@ WSGI_APPLICATION = 'Insurance_Claim_Website.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
+print("Password: ", os.getenv('POSTGRES_PASSWORD'))
+
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
-        "NAME": "postgres",
-        "USER": "postgres",
-        "PASSWORD": "postgres",
-        "HOST": "db",  # set in docker-compose.yml
+        "NAME": os.getenv('POSTGRES_DB'),
+        "USER": os.getenv('POSTGRES_USER'),
+        "PASSWORD": os.getenv('POSTGRES_PASSWORD'),
+        "HOST": "db",
         "PORT": 5432,  # default postgres port
     }
 }
