@@ -1,15 +1,30 @@
 services:
-  web:
-    build: .
+  backend:
+    build: ./backend
     ports:
-      - "8000:8000"
+      - "8001:8000"
     environment:
       - POSTGRES_DB=${POSTGRES_DB}
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - SECRET_KEY=${SECRET_KEY}
     command: python manage.py runserver 0.0.0.0:8000
     volumes:
-      - .:/code
+      - ./backend:/app
+    depends_on:
+      - db
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "8000:8000"
+    environment:
+      - SECRET_KEY=${SECRET_KEY}
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - ./frontend:/app
+    depends_on:
+      - backend
 
   db:
     image: postgres:latest

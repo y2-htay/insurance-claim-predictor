@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="98558421-b651-4f06-ae92-880c7e8888d9" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Insurance-Claim-Project/backend/Dockerfile" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Insurance-Claim-Project/backend/backend_app/__init__.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Insurance-Claim-Project/backend/backend_app/admin.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Insurance-Claim-Project/backend/backend_app/apps.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Insurance-Claim-Project/backend/backend_app/migrations/__init__.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Insurance-Claim-Project/backend/backend_app/models.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Insurance-Claim-Project/backend/backend_app/tests.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Insurance-Claim-Project/backend/backend_app/views.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Insurance-Claim-Project/backend/db.sqlite3" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Insurance-Claim-Project/backend/manage.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Insurance-Claim-Project/backend/requirements.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Insurance-Claim-Project/frontend/Dockerfile" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Insurance-Claim-Project/frontend/__init__.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Insurance-Claim-Project/frontend/db.sqlite3" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Insurance-Claim-Project/frontend/frontend_app/__init__.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Insurance-Claim-Project/frontend/frontend_app/admin.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Insurance-Claim-Project/frontend/frontend_app/apps.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Insurance-Claim-Project/frontend/frontend_app/asgi.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Insurance-Claim-Project/frontend/frontend_app/migrations/__init__.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Insurance-Claim-Project/frontend/frontend_app/models.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Insurance-Claim-Project/frontend/frontend_app/settings.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Insurance-Claim-Project/frontend/frontend_app/templates/home.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Insurance-Claim-Project/frontend/frontend_app/tests.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Insurance-Claim-Project/frontend/frontend_app/views.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Insurance-Claim-Project/frontend/frontend_app/wsgi.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Insurance-Claim-Project/frontend/manage.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Insurance-Claim-Project/frontend/requirements.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Insurance-Claim-Project/.env" beforeDir="false" afterPath="$PROJECT_DIR$/Insurance-Claim-Project/.env" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Insurance-Claim-Project/Dockerfile" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Insurance-Claim-Project/Insurance_Claim_Website/.dockerignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Insurance-Claim-Project/Insurance_Claim_Website/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/Insurance-Claim-Project/backend/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Insurance-Claim-Project/Insurance_Claim_Website/__pycache__/urls.cpython-312.pyc" beforeDir="false" afterPath="$PROJECT_DIR$/Insurance-Claim-Project/frontend/frontend_app/urls.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Insurance-Claim-Project/Insurance_Claim_Website/asgi.py" beforeDir="false" afterPath="$PROJECT_DIR$/Insurance-Claim-Project/backend/backend_app/asgi.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Insurance-Claim-Project/Insurance_Claim_Website/settings.py" beforeDir="false" afterPath="$PROJECT_DIR$/Insurance-Claim-Project/backend/backend_app/settings.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Insurance-Claim-Project/Insurance_Claim_Website/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/Insurance-Claim-Project/backend/backend_app/urls.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Insurance-Claim-Project/Insurance_Claim_Website/wsgi.py" beforeDir="false" afterPath="$PROJECT_DIR$/Insurance-Claim-Project/backend/backend_app/wsgi.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Insurance-Claim-Project/db.sqlite3" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Insurance-Claim-Project/docker-compose.yml" beforeDir="false" afterPath="$PROJECT_DIR$/Insurance-Claim-Project/docker-compose.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Insurance-Claim-Project/manage.py" beforeDir="false" afterPath="$PROJECT_DIR$/Insurance-Claim-Project/manage.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Insurance-Claim-Project/requirements.txt" beforeDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="DjangoConsoleOptions" custom-start-script="import sys; print('Python %s on %s' % (sys.version, sys.platform))&#10;import django; print('Django %s' % django.get_version())&#10;sys.path.extend([WORKING_DIR_AND_PYTHON_PATHS])&#10;if 'setup' in dir(django): django.setup()&#10;import django_manage_shell; django_manage_shell.run(PROJECT_ROOT)">
+    <option name="myCustomStartScript" value="import sys; print('Python %s on %s' % (sys.version, sys.platform))&#10;import django; print('Django %s' % django.get_version())&#10;sys.path.extend([WORKING_DIR_AND_PYTHON_PATHS])&#10;if 'setup' in dir(django): django.setup()&#10;import django_manage_shell; django_manage_shell.run(PROJECT_ROOT)" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Python Script" />
+        <option value="Dockerfile" />
+        <option value="HTML File" />
+      </list>
+    </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="GitLabMergeRequestFiltersHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPENED&quot;,
+    &quot;assignee&quot;: {
+      &quot;type&quot;: &quot;org.jetbrains.plugins.gitlab.mergerequest.ui.filters.GitLabMergeRequestsFiltersValue.MergeRequestsMemberFilterValue.MergeRequestsAssigneeFilterValue&quot;,
+      &quot;username&quot;: &quot;w2-forber&quot;,
+      &quot;fullname&quot;: &quot;w2-forber&quot;
+    }
+  }
+}</component>
+  <component name="GitLabMergeRequestsSettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;first&quot;: &quot;https://gitlab.uwe.ac.uk/y2-htay/insurance-claim-predictor.git&quot;,
+    &quot;second&quot;: &quot;53c38b8d-ef71-4a2e-9ef0-8a1dedf0af08&quot;
+  }
+}</component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 5
+}</component>
+  <component name="ProjectId" id="2siH0zjgyjbDXfIcSnSGdLhPYJr" />
+  <component name="ProjectLevelVcsManager">
+    <ConfirmationsSetting value="2" id="Add" />
+  </component>
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ASKED_ADD_EXTERNAL_FILES": "true",
+    "DefaultHtmlFileTemplate": "HTML File",
+    "Docker.Insurance Claim Predictor.executor": "Run",
+    "RunOnceActivity.OpenDjangoStructureViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "deletionFromPopupRequiresConfirmation": "false",
+    "django.template.preview.state": "SHOW_EDITOR_AND_PREVIEW",
+    "git-widget-placeholder": "main",
+    "last_opened_file_path": "C:/Users/William Forber/OneDrive - UWE Bristol/Computer science/Year 3/Distributed and Enterprise Software Development/Course Work/insurance-claim-predictor/Insurance-Claim-Project/frontend",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "settings.editor.selected.configurable": "preferences.pluginManager",
+    "vue.rearranger.settings.migration": "true"
+  }
+}]]></component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Users\William Forber\OneDrive - UWE Bristol\Computer science\Year 3\Distributed and Enterprise Software Development\Course Work\insurance-claim-predictor\Insurance-Claim-Project\frontend" />
+      <recent name="C:\Users\William Forber\OneDrive - UWE Bristol\Computer science\Year 3\Distributed and Enterprise Software Development\Course Work\insurance-claim-predictor\Insurance-Claim-Project\backend" />
+    </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\William Forber\OneDrive - UWE Bristol\Computer science\Year 3\Distributed and Enterprise Software Development\Course Work\insurance-claim-predictor\Insurance-Claim-Project" />
+      <recent name="C:\Users\William Forber\OneDrive - UWE Bristol\Computer science\Year 3\Distributed and Enterprise Software Development\Course Work\insurance-claim-predictor\Insurance-Claim-Project\frontend" />
+      <recent name="C:\Users\William Forber\OneDrive - UWE Bristol\Computer science\Year 3\Distributed and Enterprise Software Development\Course Work\insurance-claim-predictor\Insurance-Claim-Project\frontend\frontend_app\frontend_app" />
+      <recent name="C:\Users\William Forber\OneDrive - UWE Bristol\Computer science\Year 3\Distributed and Enterprise Software Development\Course Work\insurance-claim-predictor\Insurance-Claim-Project\backend\backend_app" />
+    </key>
+  </component>
+  <component name="RunManager">
+    <configuration name="Insurance Claim Predictor" type="docker-deploy" factoryName="docker-compose.yml" server-name="Docker">
+      <deployment type="docker-compose.yml">
+        <settings>
+          <option name="envFilePath" value="" />
+          <option name="sourceFilePath" value="Insurance-Claim-Project/docker-compose.yml" />
+        </settings>
+      </deployment>
+      <method v="2" />
+    </configuration>
+  </component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-js-predefined-1d06a55b98c1-0b3e54e931b4-JavaScript-PY-241.18034.82" />
+        <option value="bundled-python-sdk-975db3bf15a3-2767605e8bc2-com.jetbrains.pycharm.pro.sharedIndexes.bundled-PY-241.18034.82" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="98558421-b651-4f06-ae92-880c7e8888d9" name="Changes" comment="" />
+      <created>1738931256481</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1738931256481</updated>
+      <workItem from="1738931257815" duration="2043000" />
+      <workItem from="1739272298010" duration="144000" />
+      <workItem from="1739272467292" duration="207000" />
+      <workItem from="1739274911929" duration="105000" />
+      <workItem from="1739361656766" duration="8000" />
+      <workItem from="1739361670794" duration="86000" />
+      <workItem from="1739361763540" duration="1000" />
+      <workItem from="1739362721584" duration="2089000" />
+      <workItem from="1739364837409" duration="1958000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <option name="ADD_EXTERNAL_FILES_SILENTLY" value="true" />
+  </component>
+</project>
