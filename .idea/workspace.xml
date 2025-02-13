@@ -4,48 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="98558421-b651-4f06-ae92-880c7e8888d9" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Insurance-Claim-Project/backend/Dockerfile" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Insurance-Claim-Project/backend/backend_app/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Insurance-Claim-Project/backend/backend_app/admin.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Insurance-Claim-Project/backend/backend_app/apps.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Insurance-Claim-Project/backend/backend_app/migrations/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Insurance-Claim-Project/backend/backend_app/models.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Insurance-Claim-Project/backend/backend_app/tests.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Insurance-Claim-Project/backend/backend_app/views.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Insurance-Claim-Project/backend/db.sqlite3" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Insurance-Claim-Project/backend/manage.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Insurance-Claim-Project/backend/requirements.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Insurance-Claim-Project/frontend/Dockerfile" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Insurance-Claim-Project/frontend/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Insurance-Claim-Project/frontend/db.sqlite3" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Insurance-Claim-Project/frontend/frontend_app/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Insurance-Claim-Project/frontend/frontend_app/admin.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Insurance-Claim-Project/frontend/frontend_app/apps.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Insurance-Claim-Project/frontend/frontend_app/asgi.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Insurance-Claim-Project/frontend/frontend_app/migrations/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Insurance-Claim-Project/frontend/frontend_app/models.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Insurance-Claim-Project/frontend/frontend_app/settings.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Insurance-Claim-Project/frontend/frontend_app/templates/home.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Insurance-Claim-Project/frontend/frontend_app/tests.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Insurance-Claim-Project/frontend/frontend_app/views.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Insurance-Claim-Project/frontend/frontend_app/wsgi.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Insurance-Claim-Project/frontend/manage.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Insurance-Claim-Project/frontend/requirements.txt" afterDir="false" />
+    <list default="true" id="98558421-b651-4f06-ae92-880c7e8888d9" name="Changes" comment="Seperated django into front-end and back-end containers.">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Insurance-Claim-Project/.env" beforeDir="false" afterPath="$PROJECT_DIR$/Insurance-Claim-Project/.env" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Insurance-Claim-Project/Dockerfile" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Insurance-Claim-Project/Insurance_Claim_Website/.dockerignore" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Insurance-Claim-Project/Insurance_Claim_Website/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/Insurance-Claim-Project/backend/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Insurance-Claim-Project/Insurance_Claim_Website/__pycache__/urls.cpython-312.pyc" beforeDir="false" afterPath="$PROJECT_DIR$/Insurance-Claim-Project/frontend/frontend_app/urls.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Insurance-Claim-Project/Insurance_Claim_Website/asgi.py" beforeDir="false" afterPath="$PROJECT_DIR$/Insurance-Claim-Project/backend/backend_app/asgi.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Insurance-Claim-Project/Insurance_Claim_Website/settings.py" beforeDir="false" afterPath="$PROJECT_DIR$/Insurance-Claim-Project/backend/backend_app/settings.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Insurance-Claim-Project/Insurance_Claim_Website/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/Insurance-Claim-Project/backend/backend_app/urls.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Insurance-Claim-Project/Insurance_Claim_Website/wsgi.py" beforeDir="false" afterPath="$PROJECT_DIR$/Insurance-Claim-Project/backend/backend_app/wsgi.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Insurance-Claim-Project/db.sqlite3" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Insurance-Claim-Project/docker-compose.yml" beforeDir="false" afterPath="$PROJECT_DIR$/Insurance-Claim-Project/docker-compose.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Insurance-Claim-Project/manage.py" beforeDir="false" afterPath="$PROJECT_DIR$/Insurance-Claim-Project/manage.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Insurance-Claim-Project/requirements.txt" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -101,10 +62,11 @@
     "Docker.Insurance Claim Predictor.executor": "Run",
     "RunOnceActivity.OpenDjangoStructureViewOnStart": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
+    "SONARLINT_PRECOMMIT_ANALYSIS": "true",
     "deletionFromPopupRequiresConfirmation": "false",
     "django.template.preview.state": "SHOW_EDITOR_AND_PREVIEW",
     "git-widget-placeholder": "main",
-    "last_opened_file_path": "C:/Users/William Forber/OneDrive - UWE Bristol/Computer science/Year 3/Distributed and Enterprise Software Development/Course Work/insurance-claim-predictor/Insurance-Claim-Project/frontend",
+    "last_opened_file_path": "C:/Users/William Forber/OneDrive - UWE Bristol/Computer science/Year 3/Distributed and Enterprise Software Development/Course Work/insurance-claim-predictor",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
@@ -126,7 +88,31 @@
       <recent name="C:\Users\William Forber\OneDrive - UWE Bristol\Computer science\Year 3\Distributed and Enterprise Software Development\Course Work\insurance-claim-predictor\Insurance-Claim-Project\backend\backend_app" />
     </key>
   </component>
-  <component name="RunManager">
+  <component name="RunManager" selected="Django Server.insurance-claim-predictor">
+    <configuration name="insurance-claim-predictor" type="Python.DjangoServer" factoryName="Django server">
+      <module name="insurance-claim-predictor" />
+      <option name="ENV_FILES" value="" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="launchJavascriptDebuger" value="false" />
+      <option name="port" value="8000" />
+      <option name="host" value="localhost" />
+      <option name="additionalOptions" value="" />
+      <option name="browserUrl" value="" />
+      <option name="runTestServer" value="false" />
+      <option name="runNoReload" value="false" />
+      <option name="useCustomRunCommand" value="false" />
+      <option name="customRunCommand" value="" />
+      <method v="2" />
+    </configuration>
     <configuration name="Insurance Claim Predictor" type="docker-deploy" factoryName="docker-compose.yml" server-name="Docker">
       <deployment type="docker-compose.yml">
         <settings>
@@ -161,8 +147,18 @@
       <workItem from="1739361670794" duration="86000" />
       <workItem from="1739361763540" duration="1000" />
       <workItem from="1739362721584" duration="2089000" />
-      <workItem from="1739364837409" duration="1958000" />
+      <workItem from="1739364837409" duration="2329000" />
+      <workItem from="1739444268354" duration="73000" />
     </task>
+    <task id="LOCAL-00001" summary="Seperated django into front-end and back-end containers.">
+      <option name="closed" value="true" />
+      <created>1739367149784</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1739367149784</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -170,5 +166,7 @@
   </component>
   <component name="VcsManagerConfiguration">
     <option name="ADD_EXTERNAL_FILES_SILENTLY" value="true" />
+    <MESSAGE value="Seperated django into front-end and back-end containers." />
+    <option name="LAST_COMMIT_MESSAGE" value="Seperated django into front-end and back-end containers." />
   </component>
 </project>
