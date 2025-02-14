@@ -1,6 +1,3 @@
-psycopg2
 Django
-djangorestframework
-bcrypt
 django-cors-headers
 requests
