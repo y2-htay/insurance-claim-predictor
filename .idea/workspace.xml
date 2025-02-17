@@ -4,9 +4,8 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="98558421-b651-4f06-ae92-880c7e8888d9" name="Changes" comment="Using Django Rest Framework for backend now">
+    <list default="true" id="98558421-b651-4f06-ae92-880c7e8888d9" name="Changes" comment="title name change">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Insurance-Claim-Project/frontend/frontend_app/templates/home.html" beforeDir="false" afterPath="$PROJECT_DIR$/Insurance-Claim-Project/frontend/frontend_app/templates/home.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -151,7 +150,7 @@
       <workItem from="1739444268354" duration="477000" />
       <workItem from="1739531005657" duration="1603000" />
       <workItem from="1739532802377" duration="640000" />
-      <workItem from="1739533943318" duration="1609000" />
+      <workItem from="1739533943318" duration="2337000" />
     </task>
     <task id="LOCAL-00001" summary="Seperated django into front-end and back-end containers.">
       <option name="closed" value="true" />
@@ -185,7 +184,15 @@
       <option name="project" value="LOCAL" />
       <updated>1739534865390</updated>
     </task>
-    <option name="localTasksCounter" value="5" />
+    <task id="LOCAL-00005" summary="title name change">
+      <option name="closed" value="true" />
+      <created>1739535613133</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1739535613133</updated>
+    </task>
+    <option name="localTasksCounter" value="6" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -196,6 +203,7 @@
     <MESSAGE value="Seperated django into front-end and back-end containers." />
     <MESSAGE value="Secret key updated to prevent error logs" />
     <MESSAGE value="Using Django Rest Framework for backend now" />
-    <option name="LAST_COMMIT_MESSAGE" value="Using Django Rest Framework for backend now" />
+    <MESSAGE value="title name change" />
+    <option name="LAST_COMMIT_MESSAGE" value="title name change" />
   </component>
 </project>
