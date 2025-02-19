@@ -8,7 +8,10 @@ services:
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
       - SECRET_KEY=${SECRET_KEY}
-    command: bash -c "python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
+    command:
+      bash -c "python manage.py makemigrations backend_app &&
+      python manage.py migrate &&
+      python manage.py runserver 0.0.0.0:8000"
     volumes:
       - ./backend:/app
     depends_on:
@@ -28,6 +31,8 @@ services:
 
   db:
     image: postgres:latest
+    ports:
+      - "5231:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data/
     environment:

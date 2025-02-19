@@ -41,7 +41,7 @@ INSTALLED_APPS = [
     'backend_app',
 ]
 
-AUTH_USER_MODEL = "backend_app.UserProfile"
+AUTH_USER_MODEL = 'backend_app.UserProfile'
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',

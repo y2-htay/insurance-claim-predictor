@@ -65,7 +65,7 @@ class ClaimTrainingData(Model):
 
 
 class UserClaims(Model):
-    user = ForeignKey(UserProfile, on_delete=CASCADE)
+    user = ForeignKey(UserProfile, default=None, on_delete=CASCADE)
     passengers_involved = IntegerField(default=0)
     psychological_injury = BooleanField(default=False)
     exceptional_circumstance = BooleanField(default=False)
