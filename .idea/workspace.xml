@@ -4,8 +4,12 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="98558421-b651-4f06-ae92-880c7e8888d9" name="Changes" comment="Custom users now have their default permission level">
-      <change beforePath="$PROJECT_DIR$/Insurance-Claim-Project/frontend/db.sqlite3" beforeDir="false" />
+    <list default="true" id="98558421-b651-4f06-ae92-880c7e8888d9" name="Changes" comment="Removing unnecessary file">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Insurance-Claim-Project/backend/backend_app/migrations/0001_initial.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Insurance-Claim-Project/backend/backend_app/migrations/__init__.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Insurance-Claim-Project/backend/backend_app/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/Insurance-Claim-Project/backend/backend_app/models.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Insurance-Claim-Project/frontend/frontend_app/migrations/__init__.py" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -151,7 +155,7 @@
       <workItem from="1739531005657" duration="1603000" />
       <workItem from="1739532802377" duration="640000" />
       <workItem from="1739533943318" duration="2337000" />
-      <workItem from="1739964358836" duration="2749000" />
+      <workItem from="1739964358836" duration="3027000" />
     </task>
     <task id="LOCAL-00001" summary="Seperated django into front-end and back-end containers.">
       <option name="closed" value="true" />
@@ -209,7 +213,15 @@
       <option name="project" value="LOCAL" />
       <updated>1739967079732</updated>
     </task>
-    <option name="localTasksCounter" value="8" />
+    <task id="LOCAL-00008" summary="Removing unnecessary file">
+      <option name="closed" value="true" />
+      <created>1739967159473</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1739967159473</updated>
+    </task>
+    <option name="localTasksCounter" value="9" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -223,6 +235,7 @@
     <MESSAGE value="title name change" />
     <MESSAGE value="Adding custom users, and migrations so database is now properly integrated when compose is build and run." />
     <MESSAGE value="Custom users now have their default permission level" />
-    <option name="LAST_COMMIT_MESSAGE" value="Custom users now have their default permission level" />
+    <MESSAGE value="Removing unnecessary file" />
+    <option name="LAST_COMMIT_MESSAGE" value="Removing unnecessary file" />
   </component>
 </project>

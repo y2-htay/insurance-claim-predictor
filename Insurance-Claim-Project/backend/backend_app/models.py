@@ -1,14 +1,13 @@
 from django.contrib.auth.models import AbstractUser
-from django.db import models
-from django.db.models import Model
+from django.db.models import Model, CASCADE, OneToOneField, IntegerField
 
 
 class UserProfile(AbstractUser):
-    permission_level = models.IntegerField(default=0)
+    permission_level = IntegerField(default=0)
 
 
 class EndUser(Model):
-    user = models.OneToOneField(UserProfile, on_delete=models.CASCADE)
+    user = OneToOneField(UserProfile, on_delete=CASCADE)
 
     def save(self, *args, **kwargs):
         if not self.user.permission_level:
@@ -18,7 +17,7 @@ class EndUser(Model):
 
 
 class AiEngineer(Model):
-    user = models.OneToOneField(UserProfile, on_delete=models.CASCADE)
+    user = OneToOneField(UserProfile, on_delete=CASCADE)
 
     def save(self, *args, **kwargs):
         if not self.user.permission_level:
@@ -28,7 +27,7 @@ class AiEngineer(Model):
 
 
 class Finance(Model):
-    user = models.OneToOneField(UserProfile, on_delete=models.CASCADE)
+    user = OneToOneField(UserProfile, on_delete=CASCADE)
 
     def save(self, *args, **kwargs):
         if not self.user.permission_level:
@@ -38,7 +37,7 @@ class Finance(Model):
 
 
 class Administrator(Model):
-    user = models.OneToOneField(UserProfile, on_delete=models.CASCADE)
+    user = OneToOneField(UserProfile, on_delete=CASCADE)
 
     def save(self, *args, **kwargs):
         if not self.user.permission_level:
