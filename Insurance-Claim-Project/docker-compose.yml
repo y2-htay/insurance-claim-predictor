@@ -9,7 +9,9 @@ services:
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
       - SECRET_KEY=${SECRET_KEY}
     command:
-      bash -c "python manage.py runserver 0.0.0.0:8000"
+      bash -c "python manage.py makemigrations backend_app &&
+      python manage.py migrate &&
+      python manage.py runserver 0.0.0.0:8000"
     volumes:
       - ./backend:/app
     depends_on:
