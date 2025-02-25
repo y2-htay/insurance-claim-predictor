@@ -4,14 +4,11 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="98558421-b651-4f06-ae92-880c7e8888d9" name="Changes" comment="Database closer to third normal form now, I think its pretty much done, probably will need changing over time thou.">
-      <change afterPath="$PROJECT_DIR$/Insurance-Claim-Project/build_and_run.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Insurance-Claim-Project/clean_build_and_run.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Insurance-Claim-Project/shutdown.py" afterDir="false" />
+    <list default="true" id="98558421-b651-4f06-ae92-880c7e8888d9" name="Changes" comment="Automated commands can now run on pc and mac">
+      <change afterPath="$PROJECT_DIR$/Insurance-Claim-Project/backend/backend_app/migrations/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/insurance-claim-predictor.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/insurance-claim-predictor.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Insurance-Claim-Project/build_and_run.cmd" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Insurance-Claim-Project/clean_build_and_run.cmd" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Insurance-Claim-Project/shutdown.cmd" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -60,32 +57,32 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "ASKED_ADD_EXTERNAL_FILES": "true",
-    "DefaultHtmlFileTemplate": "HTML File",
-    "Django Server.insurance-claim-predictor.executor": "Run",
-    "Docker.Insurance Claim Predictor.executor": "Run",
-    "Python.build_and_run.executor": "Run",
-    "Python.clean_build_and_run.executor": "Run",
-    "Python.shutdown.executor": "Run",
-    "RunOnceActivity.OpenDjangoStructureViewOnStart": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.pycharm.django.structure.promotion.once.per.project": "true",
-    "SONARLINT_PRECOMMIT_ANALYSIS": "true",
-    "deletionFromPopupRequiresConfirmation": "false",
-    "django.template.preview.state": "SHOW_EDITOR_AND_PREVIEW",
-    "git-widget-placeholder": "main",
-    "last_opened_file_path": "C:/Users/William Forber/OneDrive - UWE Bristol/Computer science/Year 3/Distributed and Enterprise Software Development/Course Work/insurance-claim-predictor",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "settings.editor.selected.configurable": "preferences.pluginManager",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;ASKED_ADD_EXTERNAL_FILES&quot;: &quot;true&quot;,
+    &quot;DefaultHtmlFileTemplate&quot;: &quot;HTML File&quot;,
+    &quot;Django Server.insurance-claim-predictor.executor&quot;: &quot;Run&quot;,
+    &quot;Docker.Insurance Claim Predictor.executor&quot;: &quot;Run&quot;,
+    &quot;Python.build_and_run.executor&quot;: &quot;Run&quot;,
+    &quot;Python.clean_build_and_run.executor&quot;: &quot;Run&quot;,
+    &quot;Python.shutdown.executor&quot;: &quot;Run&quot;,
+    &quot;RunOnceActivity.OpenDjangoStructureViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.pycharm.django.structure.promotion.once.per.project&quot;: &quot;true&quot;,
+    &quot;SONARLINT_PRECOMMIT_ANALYSIS&quot;: &quot;true&quot;,
+    &quot;deletionFromPopupRequiresConfirmation&quot;: &quot;false&quot;,
+    &quot;django.template.preview.state&quot;: &quot;SHOW_EDITOR_AND_PREVIEW&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/Users/William Forber/OneDrive - UWE Bristol/Computer science/Year 3/Distributed and Enterprise Software Development/Course Work/insurance-claim-predictor&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="C:\Users\William Forber\OneDrive - UWE Bristol\Computer science\Year 3\Distributed and Enterprise Software Development\Course Work\insurance-claim-predictor\Insurance-Claim-Project\frontend" />
@@ -98,7 +95,7 @@
       <recent name="C:\Users\William Forber\OneDrive - UWE Bristol\Computer science\Year 3\Distributed and Enterprise Software Development\Course Work\insurance-claim-predictor\Insurance-Claim-Project\backend\backend_app" />
     </key>
   </component>
-  <component name="RunManager">
+  <component name="RunManager" selected="Django Server.insurance-claim-predictor">
     <configuration name="insurance-claim-predictor" type="Python.DjangoServer" factoryName="Django server">
       <module name="insurance-claim-predictor" />
       <option name="ENV_FILES" value="" />
@@ -173,7 +170,11 @@
       <workItem from="1740007040460" duration="1607000" />
       <workItem from="1740128222932" duration="28000" />
       <workItem from="1740128257394" duration="20000" />
-      <workItem from="1740135527865" duration="2843000" />
+      <workItem from="1740135527865" duration="3377000" />
+      <workItem from="1740141102716" duration="173000" />
+      <workItem from="1740397106839" duration="131000" />
+      <workItem from="1740482276389" duration="38000" />
+      <workItem from="1740482994341" duration="372000" />
     </task>
     <task id="LOCAL-00001" summary="Seperated django into front-end and back-end containers.">
       <option name="closed" value="true" />
@@ -271,11 +272,36 @@
       <option name="project" value="LOCAL" />
       <updated>1740008041199</updated>
     </task>
-    <option name="localTasksCounter" value="13" />
+    <task id="LOCAL-00013" summary="Automated commands can now run on pc and mac">
+      <option name="closed" value="true" />
+      <created>1740140106672</created>
+      <option name="number" value="00013" />
+      <option name="presentableId" value="LOCAL-00013" />
+      <option name="project" value="LOCAL" />
+      <updated>1740140106672</updated>
+    </task>
+    <option name="localTasksCounter" value="14" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State>
+              <option name="CUSTOM_BOOLEAN_PROPERTIES">
+                <map>
+                  <entry key="Show.Git.Branches" value="true" />
+                </map>
+              </option>
+            </State>
+          </value>
+        </entry>
+      </map>
+    </option>
   </component>
   <component name="VcsManagerConfiguration">
     <option name="ADD_EXTERNAL_FILES_SILENTLY" value="true" />
@@ -290,7 +316,8 @@
     <MESSAGE value="adding more tables, but errors out :(" />
     <MESSAGE value="Database intialisation completed, docker compose now does migrations properly, postgres opened up so you can access it from outside docker :)" />
     <MESSAGE value="Database closer to third normal form now, I think its pretty much done, probably will need changing over time thou." />
-    <option name="LAST_COMMIT_MESSAGE" value="Database closer to third normal form now, I think its pretty much done, probably will need changing over time thou." />
+    <MESSAGE value="Automated commands can now run on pc and mac" />
+    <option name="LAST_COMMIT_MESSAGE" value="Automated commands can now run on pc and mac" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/insurance_claim_predictor$shutdown.coverage" NAME="shutdown Coverage Results" MODIFIED="1740140066627" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/Insurance-Claim-Project" />
