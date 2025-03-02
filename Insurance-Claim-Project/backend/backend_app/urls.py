@@ -1,10 +1,3 @@
-# from django.urls import path
-# from .views import api_home
-
-# urlpatterns = [
-#     path('api/', api_home),
-# ]
-
 from django.contrib import admin
 from django.urls import path, include
 from .views import api_home
@@ -30,7 +23,5 @@ router.register(r'user_claims', UserClaimsViewSet)
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/home/', api_home, name="api_home"),  # Home API
-    #path('api/', include(router.urls)),  # CRUD APIs
-    path('api/', api_home),
-    #path('home/', api_home, name="api_home"),
+    path('api/', include(router.urls)),  # CRUD APIs
 ]

@@ -5,6 +5,5 @@ from backend.backend_app import urls as backend_urls
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    #path('', home, name='home'),
-    path('api/', include('backend_urls')),  # Make sure your backend app's URLs are included
+    path('', home, name='home'),
 ]

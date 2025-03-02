@@ -38,8 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'corsheaders',
     'rest_framework',
-    'frontend.frontend_app',
-    'backend.backend_app',
+    'backend_app',
 ]
 
 AUTH_USER_MODEL = 'backend_app.UserProfile'
