@@ -3,3 +3,5 @@ Django
 djangorestframework
 bcrypt
 django-cors-headers
+djangorestframework-simplejwt
+djoser
