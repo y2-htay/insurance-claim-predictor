@@ -1,7 +1,8 @@
 from django.contrib import admin
 from django.urls import path, include
-from .views import api_home
+from .views import api_home, protected_view
 from rest_framework.routers import DefaultRouter
+from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView # jwt djoser
 from .views import (
     # api_home,  # Home API
     UserProfileViewSet, EndUserViewSet, AiEngineerViewSet,
@@ -23,5 +24,10 @@ router.register(r'user_claims', UserClaimsViewSet)
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/home/', api_home, name="api_home"),  # Home API
+    path('api/protected/', protected_view, name='protected_view'), # jwt protected view
     path('api/', include(router.urls)),  # CRUD APIs
+    path('api/auth/', include('djoser.urls')), # this include /api/auth/users/, /api/auth/jwt/create/ etc. see documentation
+    path('api/auth/', include('djoser.urls.jwt')),
+    path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
 ]
