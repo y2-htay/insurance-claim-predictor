@@ -7,7 +7,7 @@ import keras_tuner as kt
 from keras import layers
 from baseline_model import base_model
 
-dataset = pd.read_csv('Synthetic_Data_For_Students.csv')
+dataset = pd.read_csv('../Dataset/Synthetic_Data_For_Students.csv')
 
 tf.config.list_physical_devices('GPU')
 
