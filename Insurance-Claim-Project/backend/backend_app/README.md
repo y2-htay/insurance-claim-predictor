@@ -13,13 +13,13 @@
 
 > You should receive a response like:
 
-'''
+``` json
 {
     "id": 1,
     "username": "admin",
     "permission_level": 0
 }
-'''
+```
 
 > 2. To obtain JWT token (login)
 
@@ -31,11 +31,12 @@
 > "username": "example_username", "password": "example_password"
 
 > You should receive a response like:
-'''
+``` json
 "refresh": "your_refresh_token",
 
 "access": "your_access_token"
-'''
+```
+
 
 > This token will be used to access restricted endpoints
 
@@ -53,8 +54,8 @@
 
 > You should receive:
 
-'''
+``` json
 {
     "message": "You have access to this protected endpoint! User: your_username"
 }
-'''
+```
