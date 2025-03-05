@@ -1,4 +1,6 @@
 from rest_framework import viewsets
+from rest_framework.permissions import IsAuthenticated
+from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.response import Response
 from .models import (
     UserProfile, EndUser, AiEngineer, Finance, Administrator,
@@ -11,7 +13,7 @@ from .serializers import (
 )
 
 # Home API
-from rest_framework.decorators import api_view, renderer_classes
+from rest_framework.decorators import api_view, renderer_classes, permission_classes, authentication_classes
 from rest_framework.renderers import JSONRenderer
 
 @api_view(['GET'])
@@ -19,11 +21,22 @@ from rest_framework.renderers import JSONRenderer
 def api_home(request):
     return Response({"message": "Hello from the backend! Through Django Rest Framework!"})
 
+@api_view(['GET'])
+@authentication_classes([JWTAuthentication]) # only for jwt authenticed users 
+@permission_classes([IsAuthenticated]) # checks if authenticated
+def protected_view(request):
+
+    user = request.user
+
+    # this will return a success message, and the username of the user who send the request
+    return Response({"message": f"You have access to this protected endpoint! User: {user.username}",})   
 
 # API ViewSets for CRUD Operations
 class UserProfileViewSet(viewsets.ModelViewSet):
     queryset = UserProfile.objects.all()
     serializer_class = UserProfileSerializer
+    # authentication_classes = [JWTAuthentication] # could add in future to protect the view
+    # permission_classes = [IsAuthenticated] # checks if anuthenticated
 
 
 class EndUserViewSet(viewsets.ModelViewSet):
