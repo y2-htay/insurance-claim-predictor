@@ -1,9 +1,9 @@
 .idea
 .vscode
 .qodo
-.Insurance-Claim-Project/backend/backend_app/__pycache__
-.Insurance-Claim-Project/backend/backend_app/migrations
-.Insurance-Claim-Project/frontend/frontend_app/__pycache__
-.Insurance-Claim-Project/frontend/frontend_app/migrations
+Insurance-Claim-Project/backend/backend_app/__pycache__/
+Insurance-Claim-Project/backend/backend_app/migrations/
+Insurance-Claim-Project/frontend/frontend_app/__pycache__/
+Insurance-Claim-Project/frontend/frontend_app/migrations/
 
 
