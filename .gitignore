@@ -3,8 +3,9 @@
 .qodo
 Insurance-Claim-Project/backend/backend_app/__pycache__/
 Insurance-Claim-Project/backend/backend_app/migrations/
+Insurance-Claim-Project/backend/db.sqlite3
+Insurance-Claim-Project/frontend/db.sqlite3
 Insurance-Claim-Project/frontend/frontend_app/__pycache__/
-Insurance-Claim-Project/frontend/frontend_app/migrations/
 Insurance-Claim-Project/frontend/frontend_app/migrations/
 Insurance-Claim-Project/.idea/
 Insurance-Claim-Project/.vscode/
@@ -14,3 +15,4 @@ AI-Stuff/Yamin/__pycache__/
 AI-Stuff/Jack/__pycache__/
 AI-Stuff/Vanessa/__pycache__/
 AI-Stuff/Muhammad/__pycache__/
+
