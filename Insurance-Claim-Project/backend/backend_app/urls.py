@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.urls import path, include
 from .views import api_home, protected_view
 from rest_framework.routers import DefaultRouter
-from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView # jwt djoser
+from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView, TokenBlacklistView # jwt djoser
 from .views import (
     # api_home,  # Home API
     UserProfileViewSet, EndUserViewSet, AiEngineerViewSet,
@@ -29,5 +29,6 @@ urlpatterns = [
     path('api/auth/', include('djoser.urls')), # this include /api/auth/users/, /api/auth/jwt/create/ etc. see documentation
     path('api/auth/', include('djoser.urls.jwt')),
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
-    path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'), 
+    path('api/token/logout/', TokenBlacklistView.as_view(), name='token_blacklist'),
 ]
