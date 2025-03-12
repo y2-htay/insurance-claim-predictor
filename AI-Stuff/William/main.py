@@ -66,12 +66,18 @@ def build_model(hyper_parameters, input_shape):
     model.add(layers.Dense(hyper_parameters.Int('units_1', min_value=32, max_value=256, step=32),
                            activation=hyper_parameters.Choice(
                                'activation_1', ['relu', 'tanh', 'leaky_relu']),
-                           # Pass input_shape explicitly
                            input_shape=(input_shape,)))
+
+    model.add(layers.Dropout(hyper_parameters.Float(
+        'dropout_1', 0.2, 0.5, step=0.05)))
 
     for i in range(hyper_parameters.Int('num_layers', 1, 3)):
         model.add(layers.Dense(hyper_parameters.Int(f'units_{i+2}', min_value=32, max_value=256, step=32),
                                activation=hyper_parameters.Choice(f'activation_{i+2}', ['relu', 'tanh', 'leaky_relu'])))
+
+        model.add(layers.Dropout(hyper_parameters.Float(
+            f'dropout_{i+2}', 0.2, 0.5, step=0.05)))
+
     model.add(layers.Dense(1))
 
     model.compile(

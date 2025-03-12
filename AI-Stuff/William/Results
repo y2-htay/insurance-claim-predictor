@@ -1,0 +1,13 @@
+Before adding dropouts:
+
+Average Mean Absolute Error for untuned model:
+0.909577214717865
+Average Mean Absolute Error for tuned model:
+0.8463686227798461
+
+After adding dropouts to both:
+
+Average Mean Absolute Error for untuned model:
+0.710367739200592
+Average Mean Absolute Error for tuned model:
+0.6254941701889039
