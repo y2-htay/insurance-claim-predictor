@@ -1,14 +1,18 @@
 from sklearn.preprocessing import StandardScaler
-from sklearn.model_selection import train_test_split
+from sklearn.model_selection import KFold
 import pandas as pd
 import tensorflow as tf
 import keras
 import keras_tuner as kt
 from keras import layers
 from baseline_model import base_model
+import numpy as np
+
+K = 5
+test_results = []
+k_fold = KFold(n_splits=K, shuffle=True, random_state=42)
 
 dataset = pd.read_csv('../Dataset/Synthetic_Data_For_Students.csv')
-
 tf.config.list_physical_devices('GPU')
 
 redundant_labels = ['Accident Description', 'Injury Description', 'Claim Date', 'Accident Date',
@@ -57,12 +61,13 @@ def preprocess_data(data):
     return data
 
 
-def build_model(hyper_parameters):
+def build_model(hyper_parameters, input_shape):
     model = keras.Sequential()
     model.add(layers.Dense(hyper_parameters.Int('units_1', min_value=32, max_value=256, step=32),
                            activation=hyper_parameters.Choice(
                                'activation_1', ['relu', 'tanh', 'leaky_relu']),
-                           input_shape=(X_train_tf.shape[1],)))
+                           # Pass input_shape explicitly
+                           input_shape=(input_shape,)))
 
     for i in range(hyper_parameters.Int('num_layers', 1, 3)):
         model.add(layers.Dense(hyper_parameters.Int(f'units_{i+2}', min_value=32, max_value=256, step=32),
@@ -79,10 +84,33 @@ def build_model(hyper_parameters):
     return model
 
 
-def evaluate_model(model):
-    test_loss, test_mae = model.evaluate(X_test_tf, y_test_tf)
-    print(f'Test Loss: {test_loss}')
-    print(f'Test MAE (Mean Absolute Error): {test_mae}')
+def evaluate_model(model, X_test_tf, y_test_tf):
+    test_mae = model.evaluate(X_test_tf, y_test_tf)
+    return test_mae
+
+
+def cross_validate_model(model_builder, X_np, y_np, k_fold):
+    fold_mae_scores = []
+    for fold_num, (train_index, test_index) in enumerate(k_fold.split(X_np), start=1):
+        print(f"Processing fold {fold_num}/{k_fold.get_n_splits()}")
+        X_train_fold, X_test_fold = X_np[train_index], X_np[test_index]
+        y_train_fold, y_test_fold = y_np[train_index], y_np[test_index]
+
+        X_train_tf = tf.convert_to_tensor(X_train_fold, dtype=tf.float32)
+        X_test_tf = tf.convert_to_tensor(X_test_fold, dtype=tf.float32)
+        y_train_tf = tf.convert_to_tensor(y_train_fold, dtype=tf.float32)
+        y_test_tf = tf.convert_to_tensor(y_test_fold, dtype=tf.float32)
+
+        model = model_builder(X_train_tf)
+        model.fit(X_train_tf, y_train_tf, epochs=50,
+                  batch_size=32, validation_data=(X_test_tf, y_test_tf))
+
+        fold_mae = evaluate_model(model, X_test_tf, y_test_tf)
+        fold_mae_scores.append(fold_mae)
+
+    average_mae = np.mean(fold_mae_scores)
+    print(f'Average MAE across {k_fold.get_n_splits()} folds: {average_mae}')
+    return average_mae
 
 
 dataset = preprocess_data(dataset)
@@ -90,46 +118,43 @@ dataset = preprocess_data(dataset)
 X = dataset.drop('SettlementValue', axis=1)
 y = dataset['SettlementValue']
 
-X_train, X_test, y_train, y_test = train_test_split(
-    X, y, test_size=0.2, random_state=42)
-X_train_np = X_train.values
-X_test_np = X_test.values
-y_train_np = y_train.values
-y_test_np = y_test.values
+X_np = X.values
+y_np = y.values
 
-X_train_tf = tf.convert_to_tensor(X_train_np, dtype=tf.float32)
-X_test_tf = tf.convert_to_tensor(X_test_np, dtype=tf.float32)
-y_train_tf = tf.convert_to_tensor(y_train_np, dtype=tf.float32)
-y_test_tf = tf.convert_to_tensor(y_test_np, dtype=tf.float32)
-
-
-base_model = base_model(X_train_tf)
-base_model.fit(X_train_tf, y_train_tf, epochs=50,
-               batch_size=32, validation_data=(X_test_tf, y_test_tf))
-
-print("Base model results: No hyper parameter tuning:")
-evaluate_model(base_model)
+print("Base model results: No hyperparameter tuning:")
+test_results.append(cross_validate_model(base_model, X_np, y_np, k_fold))
 
 tuner = kt.RandomSearch(
-    build_model,
+    lambda hp: build_model(hp, X_np.shape[1]),
     objective='val_mae',
     max_trials=15,
     executions_per_trial=2,
     directory='tuner_results',
-    project_name='nerual_network_test'
+    project_name='neural_network_test'
 )
 
+# Use a single train-test split for hyperparameter tuning
+X_train_tf = tf.convert_to_tensor(X_np, dtype=tf.float32)
+y_train_tf = tf.convert_to_tensor(y_np, dtype=tf.float32)
+
 tuner.search(X_train_tf, y_train_tf, epochs=50, batch_size=32,
-             validation_data=(X_test_tf, y_test_tf))
+             validation_split=0.2)
 
 best_hyper_parameters = tuner.get_best_hyperparameters(num_trials=1)[0]
 
-tuned_model = tuner.hypermodel.build(best_hyper_parameters)
 
-history = tuned_model.fit(X_train_tf, y_train_tf, epochs=50,
-                          batch_size=32, validation_data=(X_test_tf, y_test_tf))
+def tuned_model_builder(X_train_tf):
+    return build_model(best_hyper_parameters, X_train_tf.shape[1])
 
-print("tuned model results: hyper parameters tuned:")
-evaluate_model(tuned_model)
+
+test_results.append(cross_validate_model(
+    tuned_model_builder, X_np, y_np, k_fold))
+
+
+print("Average Mean Absolute Error for untuned model:")
+print(test_results[0])
+
+print("Average Mean Absolute Error for tuned model:")
+print(test_results[1])
 
 print(f'Best Hyper Parameters \n {best_hyper_parameters.get_config()}')
