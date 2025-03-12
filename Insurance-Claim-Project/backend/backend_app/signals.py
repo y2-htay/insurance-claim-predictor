@@ -1,7 +1,7 @@
 from django.contrib.auth.signals import user_logged_in, user_logged_out
 from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
-from .models import UsageLog, Actions, UserProfile
+from .models import UsageLog, Actions, UserProfile, ClaimTrainingData
 
 
 def log_action(user, action_text):
@@ -31,3 +31,12 @@ def log_user_creation(sender, instance, created, **kwargs):
 @receiver(post_delete, sender=UserProfile)
 def log_user_deletion(sender, instance, **kwargs):
     log_action(instance, "User Deleted")
+
+
+@receiver(post_save, sender=ClaimTrainingData)
+def log_dataset_change(sender, instance, **kwargs):
+    log_action(instance, action_text="Training data changed")
+
+
+def log_dataset_deletion(sender, instance, **kwargs):
+    log_action(instance, "Training data deleted")
