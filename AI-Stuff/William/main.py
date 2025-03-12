@@ -5,6 +5,7 @@ import tensorflow as tf
 import keras
 import keras_tuner as kt
 from keras import layers
+from tf_keras.callbacks import EarlyStopping
 from baseline_model import base_model
 import numpy as np
 
@@ -108,8 +109,21 @@ def cross_validate_model(model_builder, X_np, y_np, k_fold):
         y_test_tf = tf.convert_to_tensor(y_test_fold, dtype=tf.float32)
 
         model = model_builder(X_train_tf)
-        model.fit(X_train_tf, y_train_tf, epochs=50,
-                  batch_size=32, validation_data=(X_test_tf, y_test_tf))
+
+        early_stopping = EarlyStopping(
+            monitor='val_mae',
+            patience=10,
+            restore_best_weights=True,
+            verbose=1
+        )
+
+        model.fit(
+            X_train_tf, y_train_tf,
+            epochs=50,
+            batch_size=32,
+            validation_data=(X_test_tf, y_test_tf),
+            callbacks=[early_stopping]  # Apply early stopping
+        )
 
         fold_mae = evaluate_model(model, X_test_tf, y_test_tf)
         fold_mae_scores.append(fold_mae)
@@ -143,8 +157,11 @@ tuner = kt.RandomSearch(
 X_train_tf = tf.convert_to_tensor(X_np, dtype=tf.float32)
 y_train_tf = tf.convert_to_tensor(y_np, dtype=tf.float32)
 
+early_stopping = EarlyStopping(
+    monitor='val_mae', patience=10, restore_best_weights=True, verbose=1)
+
 tuner.search(X_train_tf, y_train_tf, epochs=50, batch_size=32,
-             validation_split=0.2)
+             validation_split=0.2, callbacks=[early_stopping])
 
 best_hyper_parameters = tuner.get_best_hyperparameters(num_trials=1)[0]
 

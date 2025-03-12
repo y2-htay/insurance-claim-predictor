@@ -11,3 +11,10 @@ Average Mean Absolute Error for untuned model:
 0.710367739200592
 Average Mean Absolute Error for tuned model:
 0.6254941701889039
+
+After adding early stopping for epochs:
+
+Average Mean Absolute Error for untuned model:
+0.6266720831394196
+Average Mean Absolute Error for tuned model:
+0.6372802019119262
