@@ -18,3 +18,12 @@ Average Mean Absolute Error for untuned model:
 0.6266720831394196
 Average Mean Absolute Error for tuned model:
 0.6372802019119262
+
+
+Adding R^2 evaluation:
+
+Average R² Score across 5 folds: 0.28223594427108767
+Average Mean Absolute Error for untuned model: 0.6359216392040252
+Average R² Score for untuned model: 0.2847268104553223
+Average Mean Absolute Error for tuned model: 0.6263577282428742
+Average R² Score for tuned model: 0.28223594427108767

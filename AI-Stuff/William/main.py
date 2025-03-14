@@ -1,5 +1,6 @@
 from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import KFold
+from sklearn.metrics import r2_score
 import pandas as pd
 import tensorflow as tf
 import keras
@@ -8,6 +9,8 @@ from keras import layers
 from tf_keras.callbacks import EarlyStopping
 from baseline_model import base_model
 import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
 
 K = 5
 test_results = []
@@ -92,12 +95,22 @@ def build_model(hyper_parameters, input_shape):
 
 
 def evaluate_model(model, X_test_tf, y_test_tf):
-    test_mae = model.evaluate(X_test_tf, y_test_tf)
-    return test_mae
+    y_pred_tf = model.predict(X_test_tf)
+    y_pred_np = y_pred_tf.flatten()
+    y_test_np = y_test_tf.numpy().flatten()
+
+    test_mae = model.evaluate(X_test_tf, y_test_tf, verbose=0)
+    test_r2 = r2_score(y_test_np, y_pred_np)
+
+    return test_mae, test_r2, y_test_np, y_pred_np
 
 
 def cross_validate_model(model_builder, X_np, y_np, k_fold):
     fold_mae_scores = []
+    fold_r2_scores = []
+    actual_values = []
+    predicted_values = []
+
     for fold_num, (train_index, test_index) in enumerate(k_fold.split(X_np), start=1):
         print(f"Processing fold {fold_num}/{k_fold.get_n_splits()}")
         X_train_fold, X_test_fold = X_np[train_index], X_np[test_index]
@@ -122,15 +135,39 @@ def cross_validate_model(model_builder, X_np, y_np, k_fold):
             epochs=50,
             batch_size=32,
             validation_data=(X_test_tf, y_test_tf),
-            callbacks=[early_stopping]  # Apply early stopping
+            callbacks=[early_stopping]
         )
 
-        fold_mae = evaluate_model(model, X_test_tf, y_test_tf)
+        fold_mae, fold_r2, y_actual, y_pred = evaluate_model(
+            model, X_test_tf, y_test_tf)
         fold_mae_scores.append(fold_mae)
+        fold_r2_scores.append(fold_r2)
+
+        actual_values.extend(y_actual)
+        predicted_values.extend(y_pred)
 
     average_mae = np.mean(fold_mae_scores)
+    average_r2 = np.mean(fold_r2_scores)
+
     print(f'Average MAE across {k_fold.get_n_splits()} folds: {average_mae}')
-    return average_mae
+    print(
+        f'Average R² Score across {k_fold.get_n_splits()} folds: {average_r2}')
+
+    return average_mae, average_r2, actual_values, predicted_values
+
+
+def plot_predicted_vs_actual(y_actual, y_predicted, title="Predicted vs Actual Settlement Values"):
+    plt.figure(figsize=(8, 6))
+    sns.scatterplot(x=y_actual, y=y_predicted, alpha=0.6)
+
+    # Plot the perfect prediction line (y = x)
+    plt.plot([min(y_actual), max(y_actual)], [min(y_actual),
+             max(y_actual)], color='red', linestyle='--')
+
+    plt.xlabel("Actual Settlement Values")
+    plt.ylabel("Predicted Settlement Values")
+    plt.title(title)
+    plt.show()
 
 
 dataset = preprocess_data(dataset)
@@ -142,7 +179,8 @@ X_np = X.values
 y_np = y.values
 
 print("Base model results: No hyperparameter tuning:")
-test_results.append(cross_validate_model(base_model, X_np, y_np, k_fold))
+base_mae, base_r2, base_actual, base_predicted = cross_validate_model(
+    base_model, X_np, y_np, k_fold)
 
 tuner = kt.RandomSearch(
     lambda hp: build_model(hp, X_np.shape[1]),
@@ -170,14 +208,20 @@ def tuned_model_builder(X_train_tf):
     return build_model(best_hyper_parameters, X_train_tf.shape[1])
 
 
-test_results.append(cross_validate_model(
-    tuned_model_builder, X_np, y_np, k_fold))
+tuned_mae, tuned_r2, tuned_actual, tuned_predicted = cross_validate_model(
+    tuned_model_builder, X_np, y_np, k_fold)
 
 
-print("Average Mean Absolute Error for untuned model:")
-print(test_results[0])
+print("Average Mean Absolute Error for untuned model:", base_mae)
+print("Average R² Score for untuned model:", base_r2)
 
-print("Average Mean Absolute Error for tuned model:")
-print(test_results[1])
+print("Average Mean Absolute Error for tuned model:", tuned_mae)
+print("Average R² Score for tuned model:", tuned_r2)
 
-print(f'Best Hyper Parameters \n {best_hyper_parameters.get_config()}')
+print(f'Best Hyper Parameters: \n {best_hyper_parameters.get_config()}')
+
+# Plot results
+plot_predicted_vs_actual(base_actual, base_predicted,
+                         "Base Model: Predicted vs Actual")
+plot_predicted_vs_actual(tuned_actual, tuned_predicted,
+                         "Tuned Model: Predicted vs Actual")
