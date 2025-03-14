@@ -62,6 +62,14 @@ def preprocess_data(data):
     data = scale_data(data)
     for label in category_labels:
         data = categorise_data(data, label)
+
+    # outlier removal
+    upper_limit = data['SettlementValue'].quantile(0.99)
+    lower_limit = data['SettlementValue'].quantile(0.01)
+
+    data['SettlementValue'] = data['SettlementValue'].clip(
+        lower=lower_limit, upper=upper_limit)
+
     return data
 
 
@@ -87,7 +95,7 @@ def build_model(hyper_parameters, input_shape):
     model.compile(
         optimizer=keras.optimizers.Adam(
             learning_rate=hyper_parameters.Choice('learning_rate', [0.01, 0.001, 0.0001])),
-        loss='mse',
+        loss='mae',
         metrics=['mae']
     )
 

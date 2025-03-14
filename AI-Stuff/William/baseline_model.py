@@ -13,5 +13,5 @@ def base_model(X_train_tf):
         layers.Dropout(0.2),
         layers.Dense(1)
     ])
-    model.compile(optimizer='adam', loss='mse', metrics=['mae'])
+    model.compile(optimizer='adam', loss='mae', metrics=['mae'])
     return model
