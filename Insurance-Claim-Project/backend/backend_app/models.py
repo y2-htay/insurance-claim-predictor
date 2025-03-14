@@ -96,6 +96,5 @@ class Actions(Model):
 
 
 class UsageLog(Model):
-    user = ForeignKey(UserProfile, on_delete=CASCADE)
     action = ForeignKey(Actions, on_delete=CASCADE)
     time = DateTimeField(default=timezone.now)

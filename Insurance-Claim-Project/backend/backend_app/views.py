@@ -2,6 +2,9 @@ from rest_framework import viewsets, status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.response import Response
+from rest_framework.decorators import api_view, renderer_classes, permission_classes, authentication_classes, action
+from rest_framework.renderers import JSONRenderer
+from django.db import DatabaseError
 from .models import (
     UserProfile, EndUser, AiEngineer, Finance, Administrator,
     VehicleType, WeatherCondition, ClaimTrainingData, UserClaims
@@ -12,9 +15,8 @@ from .serializers import (
     WeatherConditionSerializer, ClaimTrainingDataSerializer, UserClaimsSerializer
 )
 
+
 # Home API
-from rest_framework.decorators import api_view, renderer_classes, permission_classes, authentication_classes, action
-from rest_framework.renderers import JSONRenderer
 
 
 @api_view(['GET'])
@@ -63,16 +65,29 @@ class AdministratorViewSet(viewsets.ModelViewSet):
 class VehicleTypeViewSet(viewsets.ModelViewSet):
     queryset = VehicleType.objects.all()
     serializer_class = VehicleTypeSerializer
+    def create(self, request):
+        serializer_class = VehicleTypeSerializer(data=request.data)
+        if serializer_class.is_valid():
+            serializer_class.save()
+            return Response(serializer_class.data, status=status.HTTP_201_CREATED)
+        return Response(serializer_class.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class WeatherConditionViewSet(viewsets.ModelViewSet):
     queryset = WeatherCondition.objects.all()
     serializer_class = WeatherConditionSerializer
 
+    def create(self, request):
+        serializer_class = WeatherConditionSerializer(data=request.data)
+        if serializer_class.is_valid():
+            serializer_class.save()
+            return Response(serializer_class.data, status=status.HTTP_201_CREATED)
+        return Response(serializer_class.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 class ClaimTrainingDataViewSet(viewsets.ModelViewSet):
     def create(self, request):
-        serializer_class = ClaimTrainingDataSerializer
+        serializer_class = ClaimTrainingDataSerializer(data=request.data)
         if serializer_class.is_valid():
             serializer_class.save()
             return Response(serializer_class.data, status=status.HTTP_201_CREATED)
@@ -83,7 +98,7 @@ class ClaimTrainingDataViewSet(viewsets.ModelViewSet):
         try:
             ClaimTrainingData.objects.all().delete()
             return Response({"message": f"Claim training data has been deleted!"})
-        except:
+        except DatabaseError:
             return Response({"error": "Claim training data could not be deleted!"})
 
 
