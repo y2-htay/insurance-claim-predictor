@@ -2,7 +2,7 @@ from rest_framework import serializers
 from djoser.serializers import UserCreateSerializer, UserSerializer
 from .models import (
     UserProfile, EndUser, AiEngineer, Finance, Administrator,
-    VehicleType, WeatherCondition, ClaimTrainingData, UserClaims
+    VehicleType, WeatherCondition, ClaimTrainingData, UserClaims, Invoice
 )
 
 
@@ -68,4 +68,10 @@ class ClaimTrainingDataSerializer(serializers.ModelSerializer):
 class UserClaimsSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserClaims
+        fields = '__all__'
+
+# invoice
+class InvoiceSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Invoice
         fields = '__all__'

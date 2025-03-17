@@ -7,7 +7,8 @@ from .views import (
     # api_home,  # Home API
     UserProfileViewSet, EndUserViewSet, AiEngineerViewSet,
     FinanceViewSet, AdministratorViewSet, VehicleTypeViewSet,
-    WeatherConditionViewSet, ClaimTrainingDataViewSet, UserClaimsViewSet
+    WeatherConditionViewSet, ClaimTrainingDataViewSet, UserClaimsViewSet,
+    InvoiceViewSet
 )
 
 router = DefaultRouter()
@@ -20,6 +21,8 @@ router.register(r'vehicle_types', VehicleTypeViewSet)
 router.register(r'weather_conditions', WeatherConditionViewSet)
 router.register(r'claim_training_data', ClaimTrainingDataViewSet, basename='claimtrainingdata')
 router.register(r'user_claims', UserClaimsViewSet)
+router.register(r'invoices', InvoiceViewSet)
+
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -33,4 +36,5 @@ urlpatterns = [
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('api/token/logout/', TokenBlacklistView.as_view(), name='token_blacklist'),
     path('api/upload-training-data', include('djoser.urls.jwt'), name="ai_data"),
+    
 ]
