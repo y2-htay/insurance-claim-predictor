@@ -1,6 +1,6 @@
 from django.contrib.auth.models import AbstractUser
 from django.db.models import Model, CASCADE, OneToOneField, IntegerField, BooleanField, CharField, ForeignKey, \
-    DateTimeField
+    DateTimeField, Sum
 from django.utils import timezone
 
 
@@ -98,3 +98,16 @@ class Actions(Model):
 class UsageLog(Model):
     action = ForeignKey(Actions, on_delete=CASCADE)
     time = DateTimeField(default=timezone.now)
+
+
+class Invoice(Model):
+    user = ForeignKey(UserProfile, on_delete=CASCADE)  # Link to the user
+    total_amount = IntegerField(default=0)  # Sum of all claims
+    created_at = DateTimeField(default=timezone.now)
+
+    # currently only uses example data !
+    # eventually change to settlement sum ! + additional info
+    def calculate_total(self):
+        claims = UserClaims.objects.filter(user=self.user)
+        self.total_amount = claims.aggregate(Sum('passengers_involved'))['passengers_involved__sum'] or 0
+        self.save()

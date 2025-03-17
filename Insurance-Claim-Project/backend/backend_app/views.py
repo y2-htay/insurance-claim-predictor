@@ -7,12 +7,14 @@ from rest_framework.renderers import JSONRenderer
 from django.db import DatabaseError
 from .models import (
     UserProfile, EndUser, AiEngineer, Finance, Administrator,
-    VehicleType, WeatherCondition, ClaimTrainingData, UserClaims
+    VehicleType, WeatherCondition, ClaimTrainingData, UserClaims,
+    Invoice
 )
 from .serializers import (
     UserProfileSerializer, EndUserSerializer, AiEngineerSerializer,
     FinanceSerializer, AdministratorSerializer, VehicleTypeSerializer,
-    WeatherConditionSerializer, ClaimTrainingDataSerializer, UserClaimsSerializer
+    WeatherConditionSerializer, ClaimTrainingDataSerializer, UserClaimsSerializer,
+    InvoiceSerializer
 )
 
 
@@ -105,3 +107,27 @@ class ClaimTrainingDataViewSet(viewsets.ModelViewSet):
 class UserClaimsViewSet(viewsets.ModelViewSet):
     queryset = UserClaims.objects.all()
     serializer_class = UserClaimsSerializer
+
+# invoice view
+class InvoiceViewSet(viewsets.ModelViewSet):
+    queryset = Invoice.objects.all()
+    serializer_class = InvoiceSerializer
+
+    def create(self, request):
+        user_id = request.data.get("user_id")
+        
+        try:
+            user = UserProfile.objects.get(id=user_id)   # check user exists
+        except UserProfile.DoesNotExist:
+            return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+
+        # get claims for the user
+        claims = UserClaims.objects.filter(user=user)
+        if not claims.exists():
+            return Response({"error": "No claims found for this user"}, status=status.HTTP_400_BAD_REQUEST)
+
+        # create invoice and calculate total
+        invoice = Invoice.objects.create(user=user)
+        invoice.calculate_total()
+
+        return Response(InvoiceSerializer(invoice).data, status=status.HTTP_201_CREATED)
