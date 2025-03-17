@@ -2,9 +2,21 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from .forms import UserProfileForm 
 from .models import UserProfile
+from functools import wraps
 import requests
 from .forms import ClaimUploadForm
 from .models import ClaimUpload
+
+
+# --------- custom decorators ---------
+def authenticated_required(view_func):
+    @wraps(view_func)
+    def wrapper(request, *args, **kwargs):
+        if request.session.get("access_token"):
+            return view_func(request, *args, **kwargs)
+        return redirect("login")  # redirect to login if not authenticated
+    return wrapper
+# -------------------------------------
 
 def home(request):
     try:
@@ -13,23 +25,57 @@ def home(request):
     except Exception as e:
         data = {"error": str(e)}
 
-    message = data.get("message", "No message available")
+    message = data.get("message", "Welcome to the frontend!")
     return render(request, "home.html", {"message": message})
 
+# --------- LOGIN & LOGOUT -----------
 
-@login_required
-def profile(request):
-    user_profile, created = UserProfile.objects.get_or_create(user=request.user)
+def login_view(request):
+    # handles user login, gets jwt token and stores it locally
     if request.method == "POST":
-        form = UserProfileForm(request.POST, instance=user_profile)
-        if form.is_valid():
-            form.save()
-            return redirect("profile")
+        username = request.POST.get("username")
+        password = request.POST.get("password")
+
+        response = requests.post(f"http://backend:8000/api/token/", json={
+            "username": username,
+            "password": password
+        })
+
+        if response.status_code == 200:
+            tokens = response.json()
+            request.session["access_token"] = tokens["access"]  # store access token in user session
+            request.session["refresh_token"] = tokens["refresh"]
+            return redirect("profile")  # once user logged in, redirect then to their profile
+        else:
+            return render(request, "login.html", {"error": "Invalid credentials"})
+
+    return render(request, "login.html")
+
+def logout_view(request):
+    request.session.flush()  # clear session data
+    return redirect("login")  # redirect to login page
+
+# --------------------------------------------
+
+@authenticated_required
+def profile(request):
+
+    headers = {"Authorization": f"Bearer {request.session.get('access_token')}"}
+
+    # get user details from backend
+    response = requests.get(f"http://backend:8000/api/auth/users/me", headers=headers)
+
+    if response.status_code == 200:
+        user_data = response.json()  # user info
     else:
-        form = UserProfileForm(instance=user_profile)
-    return render(request, "frontend_app/profile.html", {"form": form})
+        user_data = {"error": "Could not retrieve user details"}
+
+    return render(request, "profile.html", {"user_data": user_data})
  
-@login_required
+
+# this below will need revisiting vvvvvv
+
+
 def upload_claim(request):
     if request.method == "POST":
         form = ClaimUploadForm(request.POST, request.FILES)
@@ -41,9 +87,8 @@ def upload_claim(request):
     else:
         form = ClaimUploadForm()
     
-    return render(request, "frontend_app/upload_claim.html", {"form": form})
+    return render(request, "upload_claim.html", {"form": form})
 
-@login_required
 def claim_list(request):
     claims = ClaimUpload.objects.filter(user=request.user)  
-    return render(request, "frontend_app/claim_list.html", {"claims": claims})
+    return render(request, "claim_list.html", {"claims": claims})
