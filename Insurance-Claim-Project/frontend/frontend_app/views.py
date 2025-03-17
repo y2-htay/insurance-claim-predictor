@@ -3,7 +3,8 @@ from django.contrib.auth.decorators import login_required
 from .forms import UserProfileForm 
 from .models import UserProfile
 import requests
-
+from .forms import ClaimUploadForm
+from .models import ClaimUpload
 
 def home(request):
     try:
@@ -28,3 +29,21 @@ def profile(request):
         form = UserProfileForm(instance=user_profile)
     return render(request, "frontend_app/profile.html", {"form": form})
  
+@login_required
+def upload_claim(request):
+    if request.method == "POST":
+        form = ClaimUploadForm(request.POST, request.FILES)
+        if form.is_valid():
+            claim = form.save(commit=False)
+            claim.user = request.user  
+            claim.save()
+            return redirect("claim_list")  
+    else:
+        form = ClaimUploadForm()
+    
+    return render(request, "frontend_app/upload_claim.html", {"form": form})
+
+@login_required
+def claim_list(request):
+    claims = ClaimUpload.objects.filter(user=request.user)  
+    return render(request, "frontend_app/claim_list.html", {"claims": claims})

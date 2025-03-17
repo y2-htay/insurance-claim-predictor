@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>My Claims</title>
+</head>
+<body>
+    <h1>My Claims</h1>
+    <ul>
+        {% for claim in claims %}
+            <li>
+                <strong>{{ claim.title }}</strong> - {{ claim.timestamp }}
+                <br>
+                <a href="{{ claim.document.url }}" target="_blank">View File</a>
+            </li>
+        {% endfor %}
+    </ul>
+    <a href="{% url 'upload_claim' %}">Upload New Claim</a>
+</body>
+</html>
