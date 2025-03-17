@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
-from .forms import UserProfileForm 
+from .forms import UserProfileForm, UserRegistrationForm
 from .models import UserProfile
 from functools import wraps
 import requests
@@ -28,7 +28,7 @@ def home(request):
     message = data.get("message", "Welcome to the frontend!")
     return render(request, "home.html", {"message": message})
 
-# --------- LOGIN & LOGOUT -----------
+# --------- LOGIN & LOGOUT & REGISTER -----------
 
 def login_view(request):
     # handles user login, gets jwt token and stores it locally
@@ -54,6 +54,28 @@ def login_view(request):
 def logout_view(request):
     request.session.flush()  # clear session data
     return redirect("login")  # redirect to login page
+
+def register_view(request):
+    if request.method == "POST":
+        form = UserRegistrationForm(request.POST)
+        if form.is_valid():
+            data = {
+                "username": form.data["username"],
+                "password": form.data["password"],
+                "permission_level":form.data["permission_level"]
+            }
+
+            response = requests.post("http://backend:8000/api/auth/users/", json=data)
+
+            if response.status_code == 201:
+                return redirect("login")  # redirect to login after successful registration
+            else:
+                error_message = response.json().get("error", "Registration failed. Please try again.")
+                return render(request, "register.html", {"form": form, "error": error_message})
+    else:
+        form = UserRegistrationForm()
+
+    return render(request, "register.html", {"form": form})
 
 # --------------------------------------------
 

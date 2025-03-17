@@ -10,3 +10,9 @@ class ClaimUploadForm(forms.ModelForm):
     class Meta:
         model = ClaimUpload
         fields = ['title', 'description', 'document']
+
+class UserRegistrationForm(forms.Form):
+    username = forms.CharField(max_length=150, required=True)
+    password = forms.CharField(widget=forms.PasswordInput, required=True)
+    permission_level = forms.IntegerField(required=False)
+
