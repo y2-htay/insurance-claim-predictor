@@ -5,9 +5,9 @@ from django.dispatch import receiver
 from .models import UsageLog, Actions, UserProfile, ClaimTrainingData, WeatherCondition, VehicleType
 
 
-def log_action(action_text):
+def log_action(action_text, user=None):
     action, _ = Actions.objects.get_or_create(action=action_text)
-    UsageLog.objects.create(action=action)
+    UsageLog.objects.create(action=action, user=user)
 
 
 @receiver(user_logged_in)
@@ -16,21 +16,21 @@ def log_user_login(**kwargs):
 
 
 @receiver(user_logged_out)
-def log_user_logout(**kwargs):
-    log_action("User Logged Out")
+def log_user_logout(user, **kwargs):
+    log_action("User Logged Out", user=user)
 
 
 @receiver(post_save, sender=UserProfile)
-def log_user_change(created, **kwargs):
+def log_user_change(sender, instance, created, **kwargs):
     if created:
-        log_action("User Created")
+        log_action("User Created", user=instance.user)
     else:
-        log_action("User Updated")
+        log_action("User Updated", user=instance.user)
 
 
 @receiver(post_delete, sender=UserProfile)
-def log_user_deletion(**kwargs):
-    log_action("User Deleted")
+def log_user_deletion(sender, instance, **kwargs):
+    log_action("User Deleted", user=instance.user)
 
 
 @receiver(post_save, sender=ClaimTrainingData)
