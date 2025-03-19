@@ -17,28 +17,28 @@ def log_user_login(**kwargs):
 
 @receiver(user_logged_out)
 def log_user_logout(user, **kwargs):
-    log_action("User Logged Out", user=user)
+    log_action("User Logged Out", user)
 
 
 @receiver(post_save, sender=UserProfile)
 def log_user_change(sender, instance, created, **kwargs):
     if created:
-        log_action("User Created", user=instance.user)
+        log_action("User Created", instance)
     else:
-        log_action("User Updated", user=instance.user)
+        log_action("User Updated", instance)
 
 
 @receiver(post_delete, sender=UserProfile)
 def log_user_deletion(sender, instance, **kwargs):
-    log_action("User Deleted", user=instance.user)
+    log_action("User Deleted", instance)
 
 
 @receiver(post_save, sender=ClaimTrainingData)
 def log_dataset_change(created, **kwargs):
     if created:
-        log_action("Training data created")
+        log_action("Training data created", user)
     else:
-        log_action("Training data updated")
+        log_action("Training data updated", user)
 
 
 @receiver(post_delete, sender=ClaimTrainingData)
