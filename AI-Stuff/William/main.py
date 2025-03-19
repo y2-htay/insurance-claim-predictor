@@ -1,12 +1,12 @@
-from sklearn.preprocessing import StandardScaler
+from sklearn.preprocessing import RobustScaler
 from sklearn.model_selection import KFold
-from sklearn.metrics import r2_score
+from sklearn.metrics import r2_score, mean_absolute_percentage_error
 import pandas as pd
 import tensorflow as tf
 import keras
 import keras_tuner as kt
 from keras import layers
-from tf_keras.callbacks import EarlyStopping
+from tensorflow.keras.callbacks import EarlyStopping
 from baseline_model import base_model
 import numpy as np
 import matplotlib.pyplot as plt
@@ -51,26 +51,26 @@ def extract_months(prognosis):
 
 
 def scale_data(data):
-    scaler = StandardScaler()
+    scaler = RobustScaler()
     data[numerical_labels] = scaler.fit_transform(data[numerical_labels])
-    return data
+    return data, scaler
 
 
 def preprocess_data(data):
     data = clean_dataset(data)
     data['Injury_Prognosis'] = data['Injury_Prognosis'].apply(extract_months)
-    data = scale_data(data)
+    data, scaler = scale_data(data)
     for label in category_labels:
         data = categorise_data(data, label)
 
     # outlier removal
-    upper_limit = data['SettlementValue'].quantile(0.99)
-    lower_limit = data['SettlementValue'].quantile(0.01)
+    upper_limit = data['SettlementValue'].quantile(0.90)
+    lower_limit = data['SettlementValue'].quantile(0.10)
 
     data['SettlementValue'] = data['SettlementValue'].clip(
         lower=lower_limit, upper=upper_limit)
 
-    return data
+    return data, scaler
 
 
 def build_model(hyper_parameters, input_shape):
@@ -102,18 +102,26 @@ def build_model(hyper_parameters, input_shape):
     return model
 
 
-def evaluate_model(model, X_test_tf, y_test_tf):
+def evaluate_model(model, X_test_tf, y_test_tf, scaler):
     y_pred_tf = model.predict(X_test_tf)
     y_pred_np = y_pred_tf.flatten()
     y_test_np = y_test_tf.numpy().flatten()
 
-    test_mae = model.evaluate(X_test_tf, y_test_tf, verbose=0)
-    test_r2 = r2_score(y_test_np, y_pred_np)
+    # Find the index of 'SettlementValue' in numerical_labels to get the correct scale factor
+    settlement_value_index = numerical_labels.index('SettlementValue')
 
-    return test_mae, test_r2, y_test_np, y_pred_np
+    # Inverse scale the predictions and true values to the original scale
+    y_pred_unscaled = y_pred_np * scaler.scale_[settlement_value_index]
+    y_test_unscaled = y_test_np * scaler.scale_[settlement_value_index]
+
+    test_mae = np.mean(
+        np.abs(y_pred_unscaled - y_test_unscaled))  # Unscaled MAE
+    test_r2 = r2_score(y_test_unscaled, y_pred_unscaled)
+
+    return test_mae, test_r2, y_test_unscaled, y_pred_unscaled
 
 
-def cross_validate_model(model_builder, X_np, y_np, k_fold):
+def cross_validate_model(model_builder, X_np, y_np, k_fold, scaler):
     fold_mae_scores = []
     fold_r2_scores = []
     actual_values = []
@@ -147,7 +155,7 @@ def cross_validate_model(model_builder, X_np, y_np, k_fold):
         )
 
         fold_mae, fold_r2, y_actual, y_pred = evaluate_model(
-            model, X_test_tf, y_test_tf)
+            model, X_test_tf, y_test_tf, scaler)
         fold_mae_scores.append(fold_mae)
         fold_r2_scores.append(fold_r2)
 
@@ -178,7 +186,8 @@ def plot_predicted_vs_actual(y_actual, y_predicted, title="Predicted vs Actual S
     plt.show()
 
 
-dataset = preprocess_data(dataset)
+# Preprocess the dataset and get the scaler
+dataset, scaler = preprocess_data(dataset)
 
 X = dataset.drop('SettlementValue', axis=1)
 y = dataset['SettlementValue']
@@ -188,7 +197,7 @@ y_np = y.values
 
 print("Base model results: No hyperparameter tuning:")
 base_mae, base_r2, base_actual, base_predicted = cross_validate_model(
-    base_model, X_np, y_np, k_fold)
+    base_model, X_np, y_np, k_fold, scaler)
 
 tuner = kt.RandomSearch(
     lambda hp: build_model(hp, X_np.shape[1]),
@@ -217,7 +226,7 @@ def tuned_model_builder(X_train_tf):
 
 
 tuned_mae, tuned_r2, tuned_actual, tuned_predicted = cross_validate_model(
-    tuned_model_builder, X_np, y_np, k_fold)
+    tuned_model_builder, X_np, y_np, k_fold, scaler)
 
 
 print("Average Mean Absolute Error for untuned model:", base_mae)

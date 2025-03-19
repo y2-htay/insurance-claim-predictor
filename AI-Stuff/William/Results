@@ -42,9 +42,36 @@ Average Mean Absolute Error for tuned model: 0.5241966784000397
 Average R² Score for tuned model: 0.26431413888931277
 
 
-Adding outlier removal:
+Adding outlier removal 99th percentile:
 
 Average Mean Absolute Error for untuned model: 0.5171842515468598
 Average R² Score for untuned model: 0.27210656404495237
 Average Mean Absolute Error for tuned model: 0.5292864203453064
 Average R² Score for tuned model: 0.23928396701812743
+
+Outlier change to 90th percentile:
+Average Mean Absolute Error for untuned model: 0.42082430720329284
+Average R² Score for untuned model: 0.2751872897148132
+Average Mean Absolute Error for tuned model: 0.4176287055015564
+Average R² Score for tuned model: 0.2862529754638672
+
+
+Changing to RobustScaler:
+Average Mean Absolute Error for untuned model: 0.5225597500801087
+Average R² Score for untuned model: 0.24604195356369019
+Average Mean Absolute Error for tuned model: 0.5190935611724854
+Average R² Score for tuned model: 0.2653561353683472
+
+
+RobustScaler scaler with 90th percentile:
+Average Mean Absolute Error for untuned model: 0.41582151055336
+Average R² Score for untuned model: 0.2703899621963501
+Average Mean Absolute Error for tuned model: 0.41296082735061646
+Average R² Score for tuned model: 0.29787797927856446
+
+
+Unscaled errors instead:
+Average Mean Absolute Error for untuned model: £346.95566
+Average R² Score for untuned model: 0.27561972141265867
+Average Mean Absolute Error for tuned model: £346.51096
+Average R² Score for tuned model: 0.2907838702201843
