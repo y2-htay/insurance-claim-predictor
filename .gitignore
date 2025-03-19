@@ -16,6 +16,10 @@ AI-Stuff/Jack/__pycache__/
 AI-Stuff/Vanessa/__pycache__/
 AI-Stuff/Muhammad/__pycache__/
 
+# macOS Trash folder (to prevent permission errors)
+.Trash/
+.Trashes/
+
 venv/
 __pycache__/
 *.pyc
@@ -37,4 +41,3 @@ __pycache__/
 *.sublime-workspace
 .DS_Store
 .env
-

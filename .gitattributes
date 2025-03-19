@@ -1,0 +1,8 @@
+# Ensure consistent line endings
+* text=auto
+
+# Handle line endings for specific file types
+*.py text eol=lf
+*.sh text eol=lf
+*.bat text eol=crlf
+*.md text eol=lf
