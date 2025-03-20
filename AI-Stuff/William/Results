@@ -75,3 +75,16 @@ Average Mean Absolute Error for untuned model: £346.95566
 Average R² Score for untuned model: 0.27561972141265867
 Average Mean Absolute Error for tuned model: £346.51096
 Average R² Score for tuned model: 0.2907838702201843
+
+
+Huberloss function and delta tuning:
+Average Mean Absolute Error for untuned model: £346.59668
+Average R² Score for untuned model: 0.2732342123985291
+Average Mean Absolute Error for tuned model: £354.75262
+Average R² Score for tuned model: 0.307450544834137
+
+Hyperband tuning:
+Average Mean Absolute Error for untuned model: 346.04968
+Average R² Score for untuned model: 0.27844809293746947
+Average Mean Absolute Error for tuned model: 345.2353
+Average R² Score for tuned model: 0.3064002633094788

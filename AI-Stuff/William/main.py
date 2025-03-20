@@ -92,10 +92,13 @@ def build_model(hyper_parameters, input_shape):
 
     model.add(layers.Dense(1))
 
+    delta_value = hyper_parameters.Float(
+        'huber_delta', min_value=0.5, max_value=5.0, step=0.5)
+
     model.compile(
         optimizer=keras.optimizers.Adam(
             learning_rate=hyper_parameters.Choice('learning_rate', [0.01, 0.001, 0.0001])),
-        loss='mae',
+        loss=tf.keras.losses.Huber(delta=delta_value),
         metrics=['mae']
     )
 
@@ -199,13 +202,14 @@ print("Base model results: No hyperparameter tuning:")
 base_mae, base_r2, base_actual, base_predicted = cross_validate_model(
     base_model, X_np, y_np, k_fold, scaler)
 
-tuner = kt.RandomSearch(
+tuner = kt.Hyperband(
     lambda hp: build_model(hp, X_np.shape[1]),
     objective='val_mae',
-    max_trials=15,
-    executions_per_trial=2,
+    max_epochs=75,
+    factor=2,
     directory='tuner_results',
-    project_name='neural_network_test'
+    project_name='neural_network_test',
+    seed=42
 )
 
 # Use a single train-test split for hyperparameter tuning
@@ -215,7 +219,7 @@ y_train_tf = tf.convert_to_tensor(y_np, dtype=tf.float32)
 early_stopping = EarlyStopping(
     monitor='val_mae', patience=10, restore_best_weights=True, verbose=1)
 
-tuner.search(X_train_tf, y_train_tf, epochs=50, batch_size=32,
+tuner.search(X_train_tf, y_train_tf, epochs=75, batch_size=32,
              validation_split=0.2, callbacks=[early_stopping])
 
 best_hyper_parameters = tuner.get_best_hyperparameters(num_trials=1)[0]
