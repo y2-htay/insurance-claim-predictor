@@ -1,5 +1,6 @@
 .qodo
 .idea
+.DS_Store
 frontend/frontend_app/__pycache__/
 frontend/frontend_app/migrations/
 backend/backend_app/__pycache__/
