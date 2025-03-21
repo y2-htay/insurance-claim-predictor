@@ -53,7 +53,7 @@ def login_view(request):
 
 def logout_view(request):
     request.session.flush()  # clear session data
-    return redirect("login")  # redirect to login page
+    return redirect("login")  # redirect to login page   # Can we do home page instead?
 
 def register_view(request):
     if request.method == "POST":
@@ -65,10 +65,23 @@ def register_view(request):
                 "permission_level":form.data["permission_level"]
             }
 
+            # Register the user via the backend API
             response = requests.post("http://backend:8000/api/auth/users/", json=data)
 
             if response.status_code == 201:
-                return redirect("login")  # redirect to login after successful registration
+                # Automatically log in the user after successful registration
+                login_response = requests.post(f"http://backend:8000/api/token/", json={
+                    "username": data["username"],
+                    "password": data["password"]
+                })
+
+                if login_response.status_code == 200:
+                    tokens = login_response.json()
+                    request.session["access_token"] = tokens["access"]  # Store access token in user session
+                    request.session["refresh_token"] = tokens["refresh"]
+                    return redirect("profile")  # Redirect to profile page
+                else:
+                    return render(request, "register.html", {"form": form, "error": "Registration succeeded, but login failed. Please try logging in manually."})
             else:
                 error_message = response.json().get("error", "Registration failed. Please try again.")
                 return render(request, "register.html", {"form": form, "error": error_message})
@@ -76,6 +89,7 @@ def register_view(request):
         form = UserRegistrationForm()
 
     return render(request, "register.html", {"form": form})
+
 
 # --------------------------------------------
 
