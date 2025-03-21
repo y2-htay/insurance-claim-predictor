@@ -16,11 +16,11 @@ from .serializers import (
     WeatherConditionSerializer, ClaimTrainingDataSerializer, UserClaimsSerializer,
     InvoiceSerializer
 )
+from .logging import log_action
+from .utils import get_current_user
 
 
 # Home API
-
-
 @api_view(['GET'])
 @renderer_classes([JSONRenderer])
 def api_home(request):
@@ -67,10 +67,13 @@ class AdministratorViewSet(viewsets.ModelViewSet):
 class VehicleTypeViewSet(viewsets.ModelViewSet):
     queryset = VehicleType.objects.all()
     serializer_class = VehicleTypeSerializer
+
     def create(self, request):
         serializer_class = VehicleTypeSerializer(data=request.data)
         if serializer_class.is_valid():
             serializer_class.save()
+            user_profile = get_current_user(request)
+            log_action("Created a new vehicle type!", user_profile)
             return Response(serializer_class.data, status=status.HTTP_201_CREATED)
         return Response(serializer_class.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -83,6 +86,8 @@ class WeatherConditionViewSet(viewsets.ModelViewSet):
         serializer_class = WeatherConditionSerializer(data=request.data)
         if serializer_class.is_valid():
             serializer_class.save()
+            user_profile = get_current_user(request)
+            log_action("Created a new weather condition!", user_profile)
             return Response(serializer_class.data, status=status.HTTP_201_CREATED)
         return Response(serializer_class.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -92,13 +97,17 @@ class ClaimTrainingDataViewSet(viewsets.ModelViewSet):
         serializer_class = ClaimTrainingDataSerializer(data=request.data)
         if serializer_class.is_valid():
             serializer_class.save()
+            user_profile = get_current_user(request)
+            log_action("Added to claim training data!", user_profile)
             return Response(serializer_class.data, status=status.HTTP_201_CREATED)
         return Response(serializer_class.errors, status=status.HTTP_400_BAD_REQUEST)
 
     @action(detail=False, methods=['delete'])
     def delete(self, request):
+        user_profile = get_current_user(request)
         try:
             ClaimTrainingData.objects.all().delete()
+            log_action("Deleted all claim training data!", user_profile)
             return Response({"message": f"Claim training data has been deleted!"})
         except DatabaseError:
             return Response({"error": "Claim training data could not be deleted!"})
@@ -108,6 +117,7 @@ class UserClaimsViewSet(viewsets.ModelViewSet):
     queryset = UserClaims.objects.all()
     serializer_class = UserClaimsSerializer
 
+
 # invoice view
 class InvoiceViewSet(viewsets.ModelViewSet):
     queryset = Invoice.objects.all()
@@ -115,9 +125,8 @@ class InvoiceViewSet(viewsets.ModelViewSet):
 
     def create(self, request):
         user_id = request.data.get("user_id")
-        
         try:
-            user = UserProfile.objects.get(id=user_id)   # check user exists
+            user = UserProfile.objects.get(id=user_id)  # check user exists
         except UserProfile.DoesNotExist:
             return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
 
@@ -128,6 +137,7 @@ class InvoiceViewSet(viewsets.ModelViewSet):
 
         # create invoice and calculate total
         invoice = Invoice.objects.create(user=user)
+        log_action("Invoice created!", user)
         invoice.calculate_total()
 
         return Response(InvoiceSerializer(invoice).data, status=status.HTTP_201_CREATED)
