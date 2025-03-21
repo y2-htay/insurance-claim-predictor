@@ -39,29 +39,53 @@ def protected_view(request):
 # API ViewSets for CRUD Operations
 class UserProfileViewSet(viewsets.ModelViewSet):
     queryset = UserProfile.objects.all()
-    serializer_class = UserProfileSerializer
+    def create(self, request):
+        user_profile = get_current_user(request)
+        serializer_class = UserProfileSerializer
+        serializer_class.save()
+        log_action("Created a new user profile!", user_profile)
     # authentication_classes = [JWTAuthentication] # could add in future to protect the view
     # permission_classes = [IsAuthenticated] # checks if anuthenticated
 
 
 class EndUserViewSet(viewsets.ModelViewSet):
     queryset = EndUser.objects.all()
-    serializer_class = EndUserSerializer
+
+    def create(self, request):
+        user_profile = get_current_user(request)
+        serializer_class = EndUserSerializer
+        serializer_class.save()
+        log_action("Created a new end-user account!", user_profile)
 
 
 class AiEngineerViewSet(viewsets.ModelViewSet):
     queryset = AiEngineer.objects.all()
-    serializer_class = AiEngineerSerializer
+
+    def create(self, request):
+        user_profile = get_current_user(request)
+        serializer_class = AiEngineerSerializer
+        serializer_class.save()
+        log_action("Created a new ai-engineer account!", user_profile)
 
 
 class FinanceViewSet(viewsets.ModelViewSet):
     queryset = Finance.objects.all()
-    serializer_class = FinanceSerializer
+
+    def create(self, request):
+        user_profile = get_current_user(request)
+        serializer_class = FinanceSerializer
+        serializer_class.save()
+        log_action("Created a new finance account!", user_profile)
 
 
 class AdministratorViewSet(viewsets.ModelViewSet):
     queryset = Administrator.objects.all()
-    serializer_class = AdministratorSerializer
+
+    def create(self, request):
+        user_profile = get_current_user(request)
+        serializer_class = AdministratorSerializer
+        serializer_class.save()
+        log_action("Created a new admin account!", user_profile)
 
 
 class VehicleTypeViewSet(viewsets.ModelViewSet):
@@ -115,7 +139,12 @@ class ClaimTrainingDataViewSet(viewsets.ModelViewSet):
 
 class UserClaimsViewSet(viewsets.ModelViewSet):
     queryset = UserClaims.objects.all()
-    serializer_class = UserClaimsSerializer
+
+    def create(self, request):
+        serializer_class = UserClaimsSerializer
+        user_profile = get_current_user(request)
+        serializer_class.save()
+        log_action("User claim created", user_profile)
 
     def create(self, request, *args, **kwargs):
         # on creatine of user claim, serialize with request
