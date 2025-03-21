@@ -8,9 +8,31 @@
   {% else %}
       <!-- using form data, display the users details ! -->
       <p><strong>Username:</strong> {{ user_data.username }}</p>
+      <p><strong>Email:</strong> {{ user_data.email }} </p>
+      <p><strong>Bio:</strong> {{ user_data.bio }}</p>
+      <p><strong>Location:</strong> {{ user_data.location }}</p>
+      <p><strong>Birth Date:</strong> {{ user_data.birth_date }}</p>
+
 
       <!-- logout button -->
       <a href="{% url 'logout' %}">Logout</a>
-      
+
+      <hr>
+
+      <!-- Display user's claims -->
+      <h2>Your Claims</h2>
+      {% if claims %}
+          <ul>
+              {% for claim in claims %}
+                  <li>
+                      <strong>{{ claim.title }}</strong> - {{ claim.timestamp }}
+                      <p>{{ claim.description }}</p>
+                      <a href="{{ claim.document.url }}" download>Download Document</a>
+                  </li>
+              {% endfor %}
+          </ul>
+      {% else %}
+          <p>You have not uploaded any claims yet.</p>
+      {% endif %}
   {% endif %}
 {% endblock %}

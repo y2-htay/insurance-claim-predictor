@@ -92,7 +92,14 @@ def profile(request):
     else:
         user_data = {"error": "Could not retrieve user details"}
 
-    return render(request, "profile.html", {"user_data": user_data})
+
+    #Get user's Claim
+    claims = ClaimUpload.objects.filter(user=request.user)
+
+    return render(request, "profile.html", {
+        "user_data": user_data,
+        "claims" : claims,
+    })
  
 
 # this below will need revisiting vvvvvv
