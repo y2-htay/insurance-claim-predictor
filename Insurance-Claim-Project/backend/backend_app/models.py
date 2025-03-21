@@ -2,7 +2,7 @@ from django.contrib.auth.models import AbstractUser
 from django.db.models import Model, CASCADE, OneToOneField, IntegerField, BooleanField, CharField, ForeignKey, \
     DateTimeField, Sum
 from django.utils import timezone
-
+from django.db.models import FileField
 
 class UserProfile(AbstractUser):
     permission_level = IntegerField(default=0)
@@ -89,7 +89,7 @@ class UserClaims(Model):
     police_report = BooleanField(default=False)
     witness_present = BooleanField(default=False)
     gender = IntegerField(default=0)
-
+    supporting_documents = FileField(upload_to='documents/', null=True, blank=True)
 
 class Actions(Model):
     action = CharField()
