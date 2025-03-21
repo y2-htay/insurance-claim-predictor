@@ -88,3 +88,9 @@ Average Mean Absolute Error for untuned model: 346.04968
 Average R² Score for untuned model: 0.27844809293746947
 Average Mean Absolute Error for tuned model: 345.2353
 Average R² Score for tuned model: 0.3064002633094788
+
+Adding regularisation, better activation function tuning, and batch normalisation:
+Average Mean Absolute Error for untuned model: 346.4284
+Average R² Score for untuned model: 0.2765626072883606
+Average Mean Absolute Error for tuned model: 345.70502
+Average R² Score for tuned model: 0.3159836530685425

@@ -73,31 +73,48 @@ def preprocess_data(data):
     return data, scaler
 
 
-def build_model(hyper_parameters, input_shape):
+def build_model(hp, input_shape):
     model = keras.Sequential()
-    model.add(layers.Dense(hyper_parameters.Int('units_1', min_value=32, max_value=256, step=32),
-                           activation=hyper_parameters.Choice(
-                               'activation_1', ['relu', 'tanh', 'leaky_relu']),
+
+    # First layer activation handling
+    activation_name = hp.Choice('activation_1', ['relu', 'tanh', 'leaky_relu'])
+    activation = layers.LeakyReLU() if activation_name == 'leaky_relu' else activation_name
+
+    model.add(layers.Dense(hp.Int('units_1', 32, 128, step=32),
+                           activation=activation,
+                           kernel_regularizer=tf.keras.regularizers.l2(
+                               hp.Float('l2_reg', 1e-5, 1e-2, sampling='log')),
                            input_shape=(input_shape,)))
 
-    model.add(layers.Dropout(hyper_parameters.Float(
-        'dropout_1', 0.2, 0.5, step=0.05)))
+    if hp.Boolean('batch_norm'):
+        model.add(layers.BatchNormalization())
 
-    for i in range(hyper_parameters.Int('num_layers', 1, 3)):
-        model.add(layers.Dense(hyper_parameters.Int(f'units_{i+2}', min_value=32, max_value=256, step=32),
-                               activation=hyper_parameters.Choice(f'activation_{i+2}', ['relu', 'tanh', 'leaky_relu'])))
+    model.add(layers.Dropout(hp.Float('dropout_1', 0.2, 0.5, step=0.05)))
 
-        model.add(layers.Dropout(hyper_parameters.Float(
-            f'dropout_{i+2}', 0.2, 0.5, step=0.05)))
+    # Additional layers
+    for i in range(hp.Int('num_layers', 1, 3)):
+        act_name = hp.Choice(
+            f'activation_{i+2}', ['relu', 'tanh', 'leaky_relu'])
+        act = layers.LeakyReLU() if act_name == 'leaky_relu' else act_name
+
+        model.add(layers.Dense(hp.Int(f'units_{i+2}', 32, 128, step=32),
+                               activation=act,
+                               kernel_regularizer=tf.keras.regularizers.l2(hp.Float(f'l2_reg_{i+2}', 1e-5, 1e-2, sampling='log'))))
+
+        if hp.Boolean(f'batch_norm_{i+2}'):
+            model.add(layers.BatchNormalization())
+
+        model.add(layers.Dropout(
+            hp.Float(f'dropout_{i+2}', 0.2, 0.5, step=0.05)))
 
     model.add(layers.Dense(1))
 
-    delta_value = hyper_parameters.Float(
-        'huber_delta', min_value=0.5, max_value=5.0, step=0.5)
+    # Huber loss delta
+    delta_value = hp.Float('huber_delta', 0.5, 5.0, step=0.5)
 
     model.compile(
         optimizer=keras.optimizers.Adam(
-            learning_rate=hyper_parameters.Choice('learning_rate', [0.01, 0.001, 0.0001])),
+            learning_rate=hp.Choice('learning_rate', [0.01, 0.001, 0.0001])),
         loss=tf.keras.losses.Huber(delta=delta_value),
         metrics=['mae']
     )
