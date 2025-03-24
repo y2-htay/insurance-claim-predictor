@@ -3,6 +3,7 @@ Django
 djangorestframework
 scikit-learn
 tensorflow
+joblib
 django-cors-headers
 djangorestframework-simplejwt
 djoser

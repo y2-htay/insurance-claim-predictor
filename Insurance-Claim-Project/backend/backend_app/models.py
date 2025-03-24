@@ -1,4 +1,5 @@
 from django.contrib.auth.models import AbstractUser
+from django.db import models
 from django.db.models import Model, CASCADE, OneToOneField, IntegerField, BooleanField, CharField, ForeignKey, \
     DateTimeField, Sum, FileField
 from django.utils import timezone
@@ -113,3 +114,7 @@ class Invoice(Model):
         claims = UserClaims.objects.filter(user=self.user)
         self.total_amount = claims.aggregate(Sum('passengers_involved'))['passengers_involved__sum'] or 0
         self.save()
+
+
+class InsuranceModel(Model):
+    model_file = models.FileField(upload_to='models/')
