@@ -8,7 +8,7 @@ from .views import (
     UserProfileViewSet, EndUserViewSet, AiEngineerViewSet,
     FinanceViewSet, AdministratorViewSet, VehicleTypeViewSet,
     WeatherConditionViewSet, ClaimTrainingDataViewSet, UserClaimsViewSet,
-    InvoiceViewSet
+    InvoiceViewSet, UserFeedbackViewSet
 )
 
 router = DefaultRouter()
@@ -22,6 +22,7 @@ router.register(r'weather_conditions', WeatherConditionViewSet)
 router.register(r'claim_training_data', ClaimTrainingDataViewSet, basename='claimtrainingdata')
 router.register(r'user_claims', UserClaimsViewSet)
 router.register(r'invoices', InvoiceViewSet)
+router.register(r'user_feedback', UserFeedbackViewSet)
 
 
 urlpatterns = [

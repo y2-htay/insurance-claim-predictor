@@ -1,4 +1,4 @@
-from rest_framework import viewsets, status
+from rest_framework import viewsets, status, permissions
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.response import Response
@@ -8,13 +8,13 @@ from django.db import DatabaseError
 from .models import (
     UserProfile, EndUser, AiEngineer, Finance, Administrator,
     VehicleType, WeatherCondition, ClaimTrainingData, UserClaims,
-    Invoice
+    Invoice, UserFeedback
 )
 from .serializers import (
     UserProfileSerializer, EndUserSerializer, AiEngineerSerializer,
     FinanceSerializer, AdministratorSerializer, VehicleTypeSerializer,
     WeatherConditionSerializer, ClaimTrainingDataSerializer, UserClaimsSerializer,
-    InvoiceSerializer
+    InvoiceSerializer, UserFeedbackSerializer
 )
 from .logging import log_action
 from .utils import get_current_user
@@ -181,3 +181,25 @@ class InvoiceViewSet(viewsets.ModelViewSet):
         invoice.calculate_total()
 
         return Response(InvoiceSerializer(invoice).data, status=status.HTTP_201_CREATED)
+    
+
+class UserFeedbackViewSet(viewsets.ModelViewSet):
+    queryset = UserFeedback.objects.all()
+    serializer_class = UserFeedbackSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+
+        if serializer.is_valid():
+            serializer.save(user=request.user)
+
+            try:
+                user_profile = get_current_user(request)
+                log_action("User submitted feedback", user_profile)
+            except Exception as e:
+                print(f"Logging failed: {e}")  # optional logging fallback
+
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

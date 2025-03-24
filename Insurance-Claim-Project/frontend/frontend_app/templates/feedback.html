@@ -1,0 +1,12 @@
+{% extends "base_generic.html" %}
+{% block content %}
+  <h2>Submit Feedback</h2>
+  {% if error %}<p style="color:red;">{{ error }}</p>{% endif %}
+  {% if success %}<p style="color:green;">{{ success }}</p>{% endif %}
+  <form method="POST">
+    {% csrf_token %}
+    <label for="message">Your Feedback:</label><br>
+    <textarea name="message" rows="5" cols="50" required></textarea><br><br>
+    <input type="submit" value="Submit Feedback">
+  </form>
+{% endblock %}

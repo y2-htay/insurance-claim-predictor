@@ -2,8 +2,9 @@ from django.contrib.auth.models import AbstractUser
 from django.db.models import Model, CASCADE, OneToOneField, IntegerField, BooleanField, CharField, ForeignKey, \
     DateTimeField, Sum, FileField
 from django.utils import timezone
-
-
+from django.contrib.auth.models import User
+from django.db import models
+from django.conf import settings
 class UserProfile(AbstractUser):
     permission_level = IntegerField(default=0)
 
@@ -113,3 +114,12 @@ class Invoice(Model):
         claims = UserClaims.objects.filter(user=self.user)
         self.total_amount = claims.aggregate(Sum('passengers_involved'))['passengers_involved__sum'] or 0
         self.save()
+
+
+class UserFeedback(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    message = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Feedback from {self.user} on {self.created_at.strftime('%Y-%m-%d')}"
