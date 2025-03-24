@@ -8,13 +8,13 @@ from django.db import DatabaseError
 from .models import (
     UserProfile, EndUser, AiEngineer, Finance, Administrator,
     VehicleType, WeatherCondition, ClaimTrainingData, UserClaims,
-    Invoice
+    Invoice, UsageLog
 )
 from .serializers import (
     UserProfileSerializer, EndUserSerializer, AiEngineerSerializer,
     FinanceSerializer, AdministratorSerializer, VehicleTypeSerializer,
     WeatherConditionSerializer, ClaimTrainingDataSerializer, UserClaimsSerializer,
-    InvoiceSerializer
+    InvoiceSerializer, UsageLogSerializer
 )
 from .logging import log_action
 from .utils import get_current_user
@@ -40,6 +40,7 @@ def protected_view(request):
 # API ViewSets for CRUD Operations
 class UserProfileViewSet(viewsets.ModelViewSet):
     queryset = UserProfile.objects.all()
+    serializer_class = UserProfileSerializer
 
     def create(self, request):
         user_profile = get_current_user(request)
@@ -48,6 +49,17 @@ class UserProfileViewSet(viewsets.ModelViewSet):
         log_action("Created a new user profile!", user_profile)
     # authentication_classes = [JWTAuthentication] # could add in future to protect the view
     # permission_classes = [IsAuthenticated] # checks if anuthenticated
+
+    #  DELETE THE USER
+    def destroy(self, request, pk=None):
+        try:
+            user = UserProfile.objects.get(pk=pk)
+            user.delete()
+            return Response({'message': 'User deleted successfully.'}, status=status.HTTP_204_NO_CONTENT)
+        except UserProfile.DoesNotExist:
+            return Response({'error': 'User not found.'}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class EndUserViewSet(viewsets.ModelViewSet):
@@ -194,3 +206,19 @@ class TrainModelViewSet(viewsets.ModelViewSet):
         train_new_model(training_data)
         # url stuff
         return Response({"status": "Model training initiated"})
+
+
+
+#usage logs viewset - to display on the admin dashboard
+
+class UsageLogViewSet(viewsets.ViewSet):
+    def list(self, request):
+        user_id = request.query_params.get('user_id', None) # get user id
+        
+        if user_id:
+            logs = UsageLog.objects.filter(user__id=user_id) # filter logs by user if user_id is provided
+        else:
+            logs = UsageLog.objects.all()    # otherwise fetch all logs
+
+        serializer = UsageLogSerializer(logs, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
