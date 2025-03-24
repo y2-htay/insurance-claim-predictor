@@ -18,6 +18,7 @@ from .serializers import (
 )
 from .logging import log_action
 from .utils import get_current_user
+from .ai_model import train_new_model
 
 
 # Home API
@@ -39,6 +40,7 @@ def protected_view(request):
 # API ViewSets for CRUD Operations
 class UserProfileViewSet(viewsets.ModelViewSet):
     queryset = UserProfile.objects.all()
+
     def create(self, request):
         user_profile = get_current_user(request)
         serializer_class = UserProfileSerializer
@@ -181,3 +183,14 @@ class InvoiceViewSet(viewsets.ModelViewSet):
         invoice.calculate_total()
 
         return Response(InvoiceSerializer(invoice).data, status=status.HTTP_201_CREATED)
+
+
+class TrainModelViewSet(viewsets.ModelViewSet):
+    queryset = ClaimTrainingData.objects.all()
+
+    @action(detail=False, methods=['post'])
+    def train_model(self, request):
+        training_data = ClaimTrainingData.objects.all().values()
+        train_new_model(training_data)
+        # url stuff
+        return Response({"status": "Model training initiated"})

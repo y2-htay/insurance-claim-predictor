@@ -12,16 +12,19 @@ class UserProfileCreateSerializer(UserCreateSerializer):
         model = UserProfile
         fields = ('id', 'username', 'password', 'permission_level')
 
-# serializer for user retrieval using djoser 
+
+# serializer for user retrieval using djoser
 class UserProfileAuthSerializer(UserSerializer):
     class Meta(UserSerializer.Meta):
         model = UserProfile
         fields = ('id', 'username', 'password', 'permission_level')
 
+
 class UserProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserProfile
         fields = '__all__'
+
 
 class EndUserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -69,6 +72,7 @@ class UserClaimsSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserClaims
         fields = '__all__'
+
 
 # invoice
 class InvoiceSerializer(serializers.ModelSerializer):
