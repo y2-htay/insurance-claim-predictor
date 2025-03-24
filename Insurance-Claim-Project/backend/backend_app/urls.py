@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.urls import path, include
-from .views import api_home, protected_view
+from .views import api_home, protected_view, TrainModelViewSet
 from rest_framework.routers import DefaultRouter
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView, TokenBlacklistView  # jwt djoser
 from .views import (
@@ -22,7 +22,7 @@ router.register(r'weather_conditions', WeatherConditionViewSet)
 router.register(r'claim_training_data', ClaimTrainingDataViewSet, basename='claimtrainingdata')
 router.register(r'user_claims', UserClaimsViewSet)
 router.register(r'invoices', InvoiceViewSet)
-
+router.register(r'train_model', TrainModelViewSet, basename='trainmodel')
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -36,5 +36,6 @@ urlpatterns = [
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('api/token/logout/', TokenBlacklistView.as_view(), name='token_blacklist'),
     path('api/upload-training-data', include('djoser.urls.jwt'), name="ai_data"),
-    
+    path('api/train_model', include('djoser.urls.jwt'), name="ai_train"),
+
 ]
