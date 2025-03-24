@@ -1,0 +1,102 @@
+{% extends "base_generic.html" %}
+
+{% block content %}
+    <h1>Admin Dashboard</h1>
+
+    <!---------- display current User ------------>
+    {% if current_user %}
+        <h2>Currently logged In As: {{ current_user.username }}</h2>
+    {% endif %}
+
+    <!------------- display users ------------->
+    <h2>Users</h2>
+    {% if error %}
+        <p style="color: red;">{{ error }}</p>
+    {% endif %}
+    <table border="1">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Username</th>
+                <th>Permission Level</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for user in users %}
+            <tr>
+                <td>{{ user.id }}</td>
+                <td>{{ user.username }}</td>
+                <td>{{ user.permission_level }}</td>
+                <td>
+                    {% if user.id != current_user.id %}
+                        <!------------- delete users ------------->
+                        <form method="POST" style="display:inline;">
+                            {% csrf_token %}
+                            <input type="hidden" name="user_id" value="{{ user.id }}">
+                            <button type="submit">Delete</button>
+                        </form>
+                    {% else %}
+                        <span>(You)</span>
+                    {% endif %}
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+
+
+    </br></br>
+
+    <!--------------- register new user ---------------------->
+    <h2>Register New User</h2>
+    <form method="POST">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Register</button>
+    </form>
+
+
+
+    </br></br>
+
+
+
+    <!--------------------- usage logs -------------------------> 
+    <h2>Usage Logs</h2>
+    <form method="GET" action=".">
+        <label for="user_filter">Filter by User:</label>
+        <select name="user_filter" id="user_filter">
+            <option value="">All Users</option>
+            {% for user in users %}
+                <option value="{{ user.id }}" {% if user_filter|add:'0' == user.id|add:'0' %}selected{% endif %}>{{ user.username }}</option>
+            {% endfor %}
+        </select>
+        <button type="submit">Filter</button>
+    </form>
+
+
+    <table border="1">
+        <thead>
+            <tr>
+                <th>LogId</th>
+                <th>UserId</th>
+                <th>Username</th>
+                <th>Action</th>
+                <th>Timestamp</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for log in logs %}
+                <tr>
+                    <td>{{ log.id }}</td>
+                    <td>{{ log.user }}</td>
+                    <td>{{ log.username }}</td>
+                    <td>{{ log.action_text }}</td>
+                    <td>{{ log.time }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}
