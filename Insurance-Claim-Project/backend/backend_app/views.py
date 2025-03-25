@@ -1,4 +1,4 @@
-from rest_framework import viewsets, status
+from rest_framework import viewsets, status, permissions
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.response import Response
@@ -8,13 +8,13 @@ from django.db import DatabaseError
 from .models import (
     UserProfile, EndUser, AiEngineer, Finance, Administrator,
     VehicleType, WeatherCondition, ClaimTrainingData, UserClaims,
-    Invoice
+    Invoice, UsageLog, UserFeedback
 )
 from .serializers import (
     UserProfileSerializer, EndUserSerializer, AiEngineerSerializer,
     FinanceSerializer, AdministratorSerializer, VehicleTypeSerializer,
     WeatherConditionSerializer, ClaimTrainingDataSerializer, UserClaimsSerializer,
-    InvoiceSerializer
+    InvoiceSerializer, UsageLogSerializer, UserFeedbackSerializer
 )
 from .utils import get_current_user, log_action
 from .ai_model import train_new_model
@@ -39,6 +39,7 @@ def protected_view(request):
 # API ViewSets for CRUD Operations
 class UserProfileViewSet(viewsets.ModelViewSet):
     queryset = UserProfile.objects.all()
+    serializer_class = UserProfileSerializer
 
     def create(self, request):
         user_profile = get_current_user(request)
@@ -47,6 +48,17 @@ class UserProfileViewSet(viewsets.ModelViewSet):
         log_action("Created a new user profile!", user_profile)
     # authentication_classes = [JWTAuthentication] # could add in future to protect the view
     # permission_classes = [IsAuthenticated] # checks if anuthenticated
+
+    #  DELETE THE USER
+    def destroy(self, request, pk=None):
+        try:
+            user = UserProfile.objects.get(pk=pk)
+            user.delete()
+            return Response({'message': 'User deleted successfully.'}, status=status.HTTP_204_NO_CONTENT)
+        except UserProfile.DoesNotExist:
+            return Response({'error': 'User not found.'}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class EndUserViewSet(viewsets.ModelViewSet):
@@ -193,3 +205,41 @@ class TrainModelViewSet(viewsets.ModelViewSet):
         train_new_model(training_data)
         # url stuff
         return Response({"status": "Model training initiated"})
+
+
+
+#usage logs viewset - to display on the admin dashboard
+
+class UsageLogViewSet(viewsets.ViewSet):
+    def list(self, request):
+        user_id = request.query_params.get('user_id', None) # get user id
+        
+        if user_id:
+            logs = UsageLog.objects.filter(user__id=user_id) # filter logs by user if user_id is provided
+        else:
+            logs = UsageLog.objects.all()    # otherwise fetch all logs
+
+        serializer = UsageLogSerializer(logs, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    
+# feedback view
+class UserFeedbackViewSet(viewsets.ModelViewSet):
+    queryset = UserFeedback.objects.all()
+    serializer_class = UserFeedbackSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+
+        if serializer.is_valid():
+            serializer.save(user=request.user)
+
+            try:
+                user_profile = get_current_user(request)
+                log_action("User submitted feedback", user_profile)
+            except Exception as e:
+                print(f"Logging failed: {e}")  # optional logging fallback
+
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

@@ -2,7 +2,8 @@ from rest_framework import serializers
 from djoser.serializers import UserCreateSerializer, UserSerializer
 from .models import (
     UserProfile, EndUser, AiEngineer, Finance, Administrator,
-    VehicleType, WeatherCondition, ClaimTrainingData, UserClaims, Invoice
+    VehicleType, WeatherCondition, ClaimTrainingData, UserClaims, Invoice,
+    UsageLog, Actions, UserFeedback
 )
 
 
@@ -79,3 +80,22 @@ class InvoiceSerializer(serializers.ModelSerializer):
     class Meta:
         model = Invoice
         fields = '__all__'
+
+
+# usage log serializer 
+class UsageLogSerializer(serializers.ModelSerializer):
+    action_text = serializers.CharField(source='action.action', read_only=True)  # get associated action text to given log
+    username = serializers.CharField(source='user.username', read_only=True) # get associated username to given log
+    
+    class Meta:
+        model = UsageLog
+        fields = ['id', 'user', 'username', 'action_text', 'time'] # return necessary display detaiils
+
+#feedback serializer
+class UserFeedbackSerializer(serializers.ModelSerializer):
+    user = serializers.StringRelatedField(read_only=True)  # Shows username in response
+
+    class Meta:
+        model = UserFeedback
+        fields = ['id', 'user', 'message', 'created_at']
+        read_only_fields = ['id', 'user', 'created_at']

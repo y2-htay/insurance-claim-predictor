@@ -181,3 +181,114 @@ def submit_claim_view(request):
         "vehicle_types": vehicle_types,
         "weather_conditions": weather_conditions
     })
+
+
+
+#-----------------Admin Dash---------------------
+
+@authenticated_required
+def admin_dashboard(request):
+    headers = {
+        "Authorization": f"Bearer {request.session.get('access_token')}"
+    }
+    backend_url = "http://backend:8000/api"
+
+    # fetch all user profiles
+    users_response = requests.get(f"{backend_url}/user_profiles/", headers=headers)
+    users_data = users_response.json() if users_response.status_code == 200 else []
+
+    # fetch the currently logged-in user
+    current_user_response = requests.get(f"{backend_url}/auth/users/me/", headers=headers)
+    current_user = current_user_response.json() if current_user_response.status_code == 200 else None
+
+    # fetch logs
+    user_filter = request.GET.get("user_filter", "")
+    logs_url = f"{backend_url}/usage_logs/"
+    if user_filter:     
+        logs_url += f"?user_id={user_filter}" # filter logs by user (optional)
+    
+    logs_response = requests.get(logs_url, headers=headers)
+    logs_data = logs_response.json() if logs_response.status_code == 200 else []
+
+    # handle deletion of a user
+    if request.method == "POST" and "user_id" in request.POST:
+        user_id = request.POST.get("user_id")
+
+        if int(user_id) == current_user.get("id"):      # so you can't delete youself
+            return render(request, "admin.html", {
+                "error": "You cannot delete yourself.",
+                "users": users_data,
+                "current_user": current_user,
+                "form": UserRegistrationForm(),
+                "logs": logs_data,
+                "user_filter": user_filter
+            })
+
+        delete_response = requests.delete(f"{backend_url}/user_profiles/{user_id}/", headers=headers)   # DELETE the user
+
+        if delete_response.status_code == 204:
+            return redirect("admin")
+        else:
+            return render(request, "admin.html", {
+                "error": "User deletion failed. Please try again.",
+                "users": users_data,
+                "current_user": current_user,
+                "form": UserRegistrationForm(),
+                "logs": logs_data,
+                "user_filter": user_filter
+            })
+        
+    # register a new user (same as register_view but for admin)
+    if request.method == "POST" and "username" in request.POST:
+        form = UserRegistrationForm(request.POST)
+        
+        if form.is_valid():
+            data = {
+                "username": form.cleaned_data["username"],
+                "password": form.cleaned_data["password"],
+                "permission_level": form.cleaned_data["permission_level"]
+            }
+            create_response = requests.post(f"{backend_url}/auth/users/", json=data, headers=headers) # post to backend
+
+            if create_response.status_code == 201:
+                return redirect("admin")     # redirect to the admin dashboard
+            else:
+                error_message = create_response.json().get("error", "User creation failed. Please try again.")
+                return render(request, "admin.html", {
+                    "users": users_data,
+                    "current_user": current_user,
+                    "form": form,
+                    "logs": logs_data,
+                    "user_filter": user_filter,
+                    "error": error_message
+                })
+    else:
+        form = UserRegistrationForm()
+
+    return render(request, "admin.html", {
+        "users": users_data,
+        "current_user": current_user,
+        "form": form,
+        "logs": logs_data,
+        "user_filter": user_filter
+    })
+
+# ---------------- feedback ----------------
+@authenticated_required
+def feedback_view(request):
+    if request.method == "POST":
+        message = request.POST.get("message")
+        headers = {
+            "Authorization": f"Bearer {request.session.get('access_token')}",
+            "Content-Type": "application/json"
+        }
+        payload = {"message": message}
+
+        response = requests.post("http://backend:8000/api/user_feedback/", json=payload, headers=headers)
+
+        if response.status_code == 201:
+            return render(request, "feedback.html", {"success": "Thank you for your feedback!"})
+        else:
+            return render(request, "feedback.html", {"error": "Could not submit feedback. Please try again."})
+
+    return render(request, "feedback.html")
