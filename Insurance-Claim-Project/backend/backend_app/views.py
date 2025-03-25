@@ -16,8 +16,7 @@ from .serializers import (
     WeatherConditionSerializer, ClaimTrainingDataSerializer, UserClaimsSerializer,
     InvoiceSerializer
 )
-from .logging import log_action
-from .utils import get_current_user
+from .utils import get_current_user, log_action
 from .ai_model import train_new_model
 
 
