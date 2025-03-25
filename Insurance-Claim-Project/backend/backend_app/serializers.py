@@ -3,7 +3,7 @@ from djoser.serializers import UserCreateSerializer, UserSerializer
 from .models import (
     UserProfile, EndUser, AiEngineer, Finance, Administrator,
     VehicleType, WeatherCondition, ClaimTrainingData, UserClaims, Invoice,
-    UsageLog, Actions
+    UsageLog, Actions, UserFeedback
 )
 
 
@@ -90,3 +90,12 @@ class UsageLogSerializer(serializers.ModelSerializer):
     class Meta:
         model = UsageLog
         fields = ['id', 'user', 'username', 'action_text', 'time'] # return necessary display detaiils
+
+#feedback serializer
+class UserFeedbackSerializer(serializers.ModelSerializer):
+    user = serializers.StringRelatedField(read_only=True)  # Shows username in response
+
+    class Meta:
+        model = UserFeedback
+        fields = ['id', 'user', 'message', 'created_at']
+        read_only_fields = ['id', 'user', 'created_at']

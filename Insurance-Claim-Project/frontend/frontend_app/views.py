@@ -272,3 +272,23 @@ def admin_dashboard(request):
         "logs": logs_data,
         "user_filter": user_filter
     })
+
+# ---------------- feedback ----------------
+@authenticated_required
+def feedback_view(request):
+    if request.method == "POST":
+        message = request.POST.get("message")
+        headers = {
+            "Authorization": f"Bearer {request.session.get('access_token')}",
+            "Content-Type": "application/json"
+        }
+        payload = {"message": message}
+
+        response = requests.post("http://backend:8000/api/user_feedback/", json=payload, headers=headers)
+
+        if response.status_code == 201:
+            return render(request, "feedback.html", {"success": "Thank you for your feedback!"})
+        else:
+            return render(request, "feedback.html", {"error": "Could not submit feedback. Please try again."})
+
+    return render(request, "feedback.html")

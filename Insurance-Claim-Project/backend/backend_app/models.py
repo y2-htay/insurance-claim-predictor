@@ -3,6 +3,7 @@ from django.db import models
 from django.db.models import Model, CASCADE, OneToOneField, IntegerField, BooleanField, CharField, ForeignKey, \
     DateTimeField, Sum, FileField
 from django.utils import timezone
+from django.conf import settings
 
 
 class UserProfile(AbstractUser):
@@ -118,3 +119,12 @@ class Invoice(Model):
 
 class InsuranceModel(Model):
     model_file = models.FileField(upload_to='models/')
+
+# feedback model
+class UserFeedback(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    message = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Feedback from {self.user} on {self.created_at.strftime('%Y-%m-%d')}"

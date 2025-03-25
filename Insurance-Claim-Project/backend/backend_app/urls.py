@@ -8,7 +8,7 @@ from .views import (
     UserProfileViewSet, EndUserViewSet, AiEngineerViewSet,
     FinanceViewSet, AdministratorViewSet, VehicleTypeViewSet,
     WeatherConditionViewSet, ClaimTrainingDataViewSet, UserClaimsViewSet,
-    InvoiceViewSet, UsageLogViewSet
+    InvoiceViewSet, UsageLogViewSet, UserFeedbackViewSet
 )
 
 router = DefaultRouter()
@@ -24,6 +24,7 @@ router.register(r'user_claims', UserClaimsViewSet)
 router.register(r'invoices', InvoiceViewSet)
 router.register(r'train_model', TrainModelViewSet, basename='trainmodel')
 router.register(r'usage_logs', UsageLogViewSet, basename='usage_logs')
+router.register(r'user_feedback', UserFeedbackViewSet)
 
 urlpatterns = [
     path('admin/', admin.site.urls),
