@@ -94,3 +94,15 @@ Average Mean Absolute Error for untuned model: 346.4284
 Average R² Score for untuned model: 0.2765626072883606
 Average Mean Absolute Error for tuned model: 345.70502
 Average R² Score for tuned model: 0.3159836530685425
+
+Dropout range change and batch size increase:
+Average Mean Absolute Error for untuned model: 346.58237
+Average R² Score for untuned model: 0.2783873200416565
+Average Mean Absolute Error for tuned model: 344.05328
+Average R² Score for tuned model: 0.28949469327926636
+
+Back to previous batch size:
+Average Mean Absolute Error for untuned model: 346.9632
+Average R² Score for untuned model: 0.2750850677490234
+Average Mean Absolute Error for tuned model: 351.1199
+Average R² Score for tuned model: 0.29611810445785525

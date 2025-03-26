@@ -19,7 +19,7 @@ k_fold = KFold(n_splits=K, shuffle=True, random_state=42)
 dataset = pd.read_csv('../Dataset/Synthetic_Data_For_Students.csv')
 tf.config.list_physical_devices('GPU')
 
-redundant_labels = ['Accident Description', 'Injury Description', 'Claim Date', 'Accident Date',
+redundant_labels = ['Accident Description', 'Claim Date', 'Accident Date',
                     'SpecialHealthExpenses', 'SpecialReduction', 'SpecialOverage', 'GeneralRest',
                     'SpecialAdditionalInjury', 'SpecialEarningsLoss', 'SpecialUsageLoss', 'SpecialMedications',
                     'SpecialAssetDamage', 'SpecialRehabilitation', 'SpecialFixes', 'GeneralFixed', 'GeneralUplift',
@@ -27,7 +27,7 @@ redundant_labels = ['Accident Description', 'Injury Description', 'Claim Date', 
 
 category_labels = ['AccidentType', 'Exceptional_Circumstances', 'Minor_Psychological_Injury', 'Dominant injury',
                    'Whiplash', 'Vehicle Type', 'Weather Conditions',
-                   'Police Report Filed', 'Witness Present', 'Gender']
+                   'Police Report Filed', 'Witness Present', 'Gender', 'Injury Description']
 
 numerical_labels = ['SettlementValue', 'Injury_Prognosis',
                     'Vehicle Age', 'Driver Age', 'Number of Passengers']
@@ -105,7 +105,7 @@ def build_model(hp, input_shape):
             model.add(layers.BatchNormalization())
 
         model.add(layers.Dropout(
-            hp.Float(f'dropout_{i+2}', 0.2, 0.5, step=0.05)))
+            hp.Float(f'dropout_{i+2}', 0.1, 0.3, step=0.05)))
 
     model.add(layers.Dense(1))
 
