@@ -6,15 +6,25 @@ from functools import wraps
 import requests
 from .forms import ClaimUploadForm
 from .models import ClaimUpload
+import pdfkit
+import io
+from django.http import FileResponse
 
 
 # --------- custom decorators ---------
 def authenticated_required(view_func):
     @wraps(view_func)
     def wrapper(request, *args, **kwargs):
-        if request.session.get("access_token"):
-            return view_func(request, *args, **kwargs)
-        return redirect("login")  # redirect to login if not authenticated
+        access_token = request.session.get("access_token")
+        if access_token:
+            # verify token is valid
+            headers = {"Authorization": f"Bearer {access_token}"}
+            response = requests.get("http://backend:8000/api/auth/users/me", headers=headers)
+            
+            if response.status_code == 200:  # Token is valid
+                return view_func(request, *args, **kwargs)
+        # if missing or no token
+        return redirect("login")  
     return wrapper
 # -------------------------------------
 
@@ -292,3 +302,52 @@ def feedback_view(request):
             return render(request, "feedback.html", {"error": "Could not submit feedback. Please try again."})
 
     return render(request, "feedback.html")
+
+
+
+#------------------Finance Dashboard---------------------
+@authenticated_required
+def finance_dashboard(request):
+
+    headers = {
+        "Authorization": f"Bearer {request.session.get('access_token')}"
+    }
+    backend_url = "http://backend:8000/api"
+
+    # get all users
+    users_response = requests.get(f"{backend_url}/user_profiles/", headers=headers)
+    users = users_response.json() if users_response.status_code == 200 else []
+
+    selected_user_id = request.GET.get("user_id", None)
+    claims = []
+    if selected_user_id:
+        claims_response = requests.get(f"{backend_url}/user_claims/?user_id={selected_user_id}", headers=headers) # list a specific users claims
+        claims = claims_response.json() if claims_response.status_code == 200 else []
+
+    if request.method == "POST" and selected_user_id:
+        total_amount = sum(claim['passengers_involved'] for claim in claims) * 5
+        invoice_data = {
+            "user_id": selected_user_id,
+            "total_amount": total_amount
+        }
+        invoice_response = requests.post(f"{backend_url}/invoices/", json=invoice_data, headers=headers)
+
+        if invoice_response.status_code == 201:
+            invoice = invoice_response.json()
+            pdf_content = f"Invoice ID: {invoice['id']}\nTotal Amount: ${invoice['total_amount']}\nCreated At: {invoice['created_at']}" # make pdf content
+            
+            # reender and convert to pdf
+            pdf_binary = pdfkit.from_string(pdf_content, output_path=False)
+            pdf_buffer = io.BytesIO(pdf_binary)
+            pdf_buffer.seek(0)
+
+            # save the pdf
+            response = FileResponse(pdf_buffer, as_attachment=True, filename=f"invoice_{invoice['id']}.pdf")
+            return response
+        else:
+            return render(request, "finance.html", {"error": "Could not generate pdf invoice. Please try again."})
+
+    return render(request, "finance.html", {
+        "users": users,
+        "claims": claims
+    })
