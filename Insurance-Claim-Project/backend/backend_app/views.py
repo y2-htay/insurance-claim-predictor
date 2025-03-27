@@ -152,6 +152,7 @@ class ClaimTrainingDataViewSet(viewsets.ModelViewSet):
 
 class UserClaimsViewSet(viewsets.ModelViewSet):
     queryset = UserClaims.objects.all()
+    serializer_class = UserClaimsSerializer
 
     def create(self, request):
         serializer_class = UserClaimsSerializer
