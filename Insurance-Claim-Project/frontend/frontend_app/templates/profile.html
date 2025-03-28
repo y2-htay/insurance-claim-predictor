@@ -1,38 +1,71 @@
+
 {% extends "base_generic.html" %}
 
 {% block content %}
-  <h1>User Profile</h1>
+    <h1>User Profile</h1>
+    {% if user_data.error %}
+        <p style="color: red;">{{ user_data.error }}</p>
+    {% else %}
+        <!-- using form data, display the users details ! -->
+        <p><strong>Username:</strong> {{ user_data.username }}</p>
+        <p><strong>Email:</strong> {{ user_data.email }} </p>
+        <p><strong>Bio:</strong> {{ user_data.bio }}</p>
+        <p><strong>Location:</strong> {{ user_data.location }}</p>
+        <p><strong>Birth Date:</strong> {{ user_data.birth_date }}</p>
 
-  {% if user_data.error %}
-      <p style="color: red;">{{ user_data.error }}</p>
-  {% else %}
-      <!-- using form data, display the users details ! -->
-      <p><strong>Username:</strong> {{ user_data.username }}</p>
-      <p><strong>Email:</strong> {{ user_data.email }} </p>
-      <p><strong>Bio:</strong> {{ user_data.bio }}</p>
-      <p><strong>Location:</strong> {{ user_data.location }}</p>
-      <p><strong>Birth Date:</strong> {{ user_data.birth_date }}</p>
 
+        <!-- logout button -->
+        <a href="{% url 'logout' %}">Logout</a>
 
-      <!-- logout button -->
-      <a href="{% url 'logout' %}">Logout</a>
+        <hr>
 
-      <hr>
-
-      <!-- Display user's claims -->
-      <h2>Your Claims</h2>
-      {% if claims %}
-          <ul>
-              {% for claim in claims %}
-                  <li>
-                      <strong>{{ claim.title }}</strong> - {{ claim.timestamp }}
-                      <p>{{ claim.description }}</p>
-                      <a href="{{ claim.document.url }}" download>Download Document</a>
-                  </li>
-              {% endfor %}
-          </ul>
-      {% else %}
-          <p>You have not uploaded any claims yet.</p>
-      {% endif %}
-  {% endif %}
+        <!-- Display user's claims -->
+        <h2>Your Claims</h2>
+        {% if claims %}
+            <table>
+                <thead>
+                <tr>
+                    <th>Claim_No</th>
+                    <th>Passengers Involved</th>
+                    <th>Psychological Injury</th>
+                    <th>Prognosis</th>
+                    <th>Exceptional Circumstance</th>
+                    <th>Dominant Injury</th>
+                    <th>Whiplash</th>
+                    <th>Driver Age</th>
+                    <th>Vehicle Age</th>
+                    <th>Police Report</th>
+                    <th>Whitness Present</th>
+                    <th>Gender</th>
+                    <th>Evidence Documents</th>
+                    <th>Vehicle</th>
+                    <th>Weather Condition</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for claim in claims %}
+                    <tr>
+                        <td> {{ claim.id }} </td>
+                        <td>{{ claim.passengers_involved }}</td>
+                        <td>{{ claim.psychological_injury }}</td>
+                        <td>{{ claim.injury_prognosis_months }}</td>
+                        <td>{{ claim.exceptional_circumstance }}</td>
+                        <td>{{ claim.dominant_injury }}</td>
+                        <td>{{ claim.whiplash }}</td>
+                        <td>{{ claim.driver_age }}</td>
+                        <td>{{ claim.vehicle_age }}</td>
+                        <td>{{ claim.police_report }}</td>
+                        <td>{{ claim.witness_present }}</td>
+                        <td>{{ claim.gender }}</td>
+                        <td>{{ claim.supporting_documents }}</td>
+                        <td>{{ claim.vehicle_type }}</td>
+                        <td>{{ claim.weather_condition }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p>You have not uploaded any claims yet.</p>
+        {% endif %}
+    {% endif %}
 {% endblock %}
