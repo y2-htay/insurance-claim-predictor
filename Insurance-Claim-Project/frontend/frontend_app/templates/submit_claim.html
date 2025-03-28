@@ -5,69 +5,69 @@
     <title>Submit Insurance Claim</title>
 </head>
 <body>
-    <h2>Submit Insurance Claim</h2>
+<h2>Submit Insurance Claim</h2>
 
-    {% if error %}
-        <p style="color: red;">{{ error }}</p>
-    {% endif %}
+{% if error %}
+    <p style="color: red;">{{ error }}</p>
+{% endif %}
 
-    <form method="POST" enctype="multipart/form-data">
-        {% csrf_token %}
+<form method="POST" enctype="multipart/form-data">
+    {% csrf_token %}
 
-        <label>Passengers Involved:</label>
-        <input type="number" name="passengers_involved" required><br>
+    <label>Passengers Involved:</label>
+    <input type="number" name="passengers_involved" required><br>
 
-        <label>Psychological Injury:</label>
-        <input type="checkbox" name="psychological_injury"><br>
+    <label>Psychological Injury:</label>
+    <input type="checkbox" name="psychological_injury"><br>
 
-        <label>Injury Prognosis (Months):</label>
-        <input type="number" name="injury_prognosis_months"><br>
+    <label>Injury Prognosis (Months):</label>
+    <input type="number" name="injury_prognosis_months"><br>
 
-        <label>Exceptional Circumstance:</label>
-        <input type="checkbox" name="exceptional_circumstance"><br>
+    <label>Exceptional Circumstance:</label>
+    <input type="checkbox" name="exceptional_circumstance"><br>
 
-        <label>Dominant Injury:</label>
-        <input type="number" name="dominant_injury"><br>
+    <label>Dominant Injury:</label>
+    <input type="text" name="dominant_injury"><br>
 
-        <label>Whiplash:</label>
-        <input type="checkbox" name="whiplash"><br>
+    <label>Whiplash:</label>
+    <input type="checkbox" name="whiplash"><br>
 
-        <label>Vehicle Type:</label>
-        <select name="vehicle_type">
-            {% for vt in vehicle_types %}
-                <option value="{{ vt.id }}">{{ vt.vehicle_name }}</option>
-            {% endfor %}
-        </select><br>
+    <label>Vehicle Type:</label>
+    <select name="vehicle_type">
+        {% for vt in vehicle_types %}
+            <option value="{{ vt.id }}">{{ vt.vehicle_name }}</option>
+        {% endfor %}
+    </select><br>
 
-        <label>Weather Condition:</label>
-        <select name="weather_condition">
-            {% for wc in weather_conditions %}
-                <option value="{{ wc.id }}">{{ wc.condition }}</option>
-            {% endfor %}
-        </select><br>
+    <label>Weather Condition:</label>
+    <select name="weather_condition">
+        {% for wc in weather_conditions %}
+            <option value="{{ wc.id }}">{{ wc.condition }}</option>
+        {% endfor %}
+    </select><br>
 
-        <label>Driver Age:</label>
-        <input type="number" name="driver_age" required><br>
+    <label>Driver Age:</label>
+    <input type="number" name="driver_age" required><br>
 
-        <label>Vehicle Age:</label>
-        <input type="number" name="vehicle_age" required><br>
+    <label>Vehicle Age:</label>
+    <input type="number" name="vehicle_age" required><br>
 
-        <label>Police Report:</label>
-        <input type="checkbox" name="police_report"><br>
+    <label>Police Report:</label>
+    <input type="checkbox" name="police_report"><br>
 
-        <label>Witness Present:</label>
-        <input type="checkbox" name="witness_present"><br>
+    <label>Witness Present:</label>
+    <input type="checkbox" name="witness_present"><br>
 
-        <label>Gender:</label>
-        <select name="gender">
-            <option value="0">Male</option>
-            <option value="1">Female</option>
-        </select><br>
+    <label>Gender:</label>
+    <select name="gender">
+        <option value="0">Male</option>
+        <option value="1">Female</option>
+    </select><br>
 
-        <label>Upload Supporting Documents:</label>
-        <input type="file" name="supporting_documents"><br><br>
+    <label>Upload Supporting Documents:</label>
+    <input type="file" name="supporting_documents"><br><br>
 
-        <button type="submit">Submit Claim</button>
-    </form>
+    <button type="submit">Submit Claim</button>
+</form>
 </body>
 </html>
