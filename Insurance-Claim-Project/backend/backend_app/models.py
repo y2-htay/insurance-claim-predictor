@@ -51,11 +51,11 @@ class Administrator(Model):
 
 
 class VehicleType(Model):
-    vehicle_name = CharField()
+    vehicle_name = CharField(unique=True)
 
 
 class WeatherCondition(Model):
-    condition = CharField()
+    condition = CharField(unique=True)
 
 
 class ClaimTrainingData(Model):
@@ -82,7 +82,7 @@ class UserClaims(Model):
     psychological_injury = BooleanField(default=False)
     injury_prognosis_months = IntegerField(default=0)
     exceptional_circumstance = BooleanField(default=False)
-    dominant_injury = IntegerField(default=0)
+    dominant_injury = CharField()
     whiplash = BooleanField(default=False)
     vehicle_type = ForeignKey(VehicleType, on_delete=CASCADE)
     weather_condition = ForeignKey(WeatherCondition, on_delete=CASCADE)
@@ -120,8 +120,9 @@ class Invoice(Model):
 class InsuranceModel(Model):
     model_file = models.FileField(upload_to='models/')
 
+
 # feedback model
-class UserFeedback(models.Model):
+class UserFeedback(Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     message = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
