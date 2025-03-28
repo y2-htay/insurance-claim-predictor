@@ -20,12 +20,15 @@ def authenticated_required(view_func):
             # verify token is valid
             headers = {"Authorization": f"Bearer {access_token}"}
             response = requests.get("http://backend:8000/api/auth/users/me", headers=headers)
-            
+
             if response.status_code == 200:  # Token is valid
                 return view_func(request, *args, **kwargs)
         # if missing or no token
-        return redirect("login")  
+        return redirect("login")
+
     return wrapper
+
+
 # -------------------------------------
 
 def home(request):
@@ -37,6 +40,7 @@ def home(request):
 
     message = data.get("message", "Welcome to the frontend!")
     return render(request, "home.html", {"message": message})
+
 
 # --------- LOGIN & LOGOUT & REGISTER -----------
 
@@ -61,9 +65,11 @@ def login_view(request):
 
     return render(request, "login.html")
 
+
 def logout_view(request):
     request.session.flush()  # clear session data
     return redirect("login")  # redirect to login page   # Can we do home page instead?
+
 
 def register_view(request):
     if request.method == "POST":
@@ -72,7 +78,7 @@ def register_view(request):
             data = {
                 "username": form.data["username"],
                 "password": form.data["password"],
-                "permission_level":form.data["permission_level"]
+                "permission_level": form.data["permission_level"]
             }
 
             # Register the user via the backend API
@@ -91,7 +97,8 @@ def register_view(request):
                     request.session["refresh_token"] = tokens["refresh"]
                     return redirect("profile")  # Redirect to profile page
                 else:
-                    return render(request, "register.html", {"form": form, "error": "Registration succeeded, but login failed. Please try logging in manually."})
+                    return render(request, "register.html", {"form": form,
+                                                             "error": "Registration succeeded, but login failed. Please try logging in manually."})
             else:
                 error_message = response.json().get("error", "Registration failed. Please try again.")
                 return render(request, "register.html", {"form": form, "error": error_message})
@@ -105,7 +112,6 @@ def register_view(request):
 
 @authenticated_required
 def profile(request):
-
     headers = {"Authorization": f"Bearer {request.session.get('access_token')}"}
 
     # get user details from backend
@@ -116,18 +122,20 @@ def profile(request):
     else:
         user_data = {"error": "Could not retrieve user details"}
 
-
-    #Get user's Claim
-    #claims = ClaimUpload.objects.filter(user=request.user)
+    # Get user's Claim
+    claim_response = requests.get('http://backend:8000/api/user_claims/', headers=headers)
+    if claim_response.status_code == 200:
+        claim_data = claim_response.json()
+    else:
+        claim_data = {"error": "Can not retrieve claims"}
 
     return render(request, "profile.html", {
         "user_data": user_data,
-        #"claims" : claims,             # need fixing to new claims
+        "claims": claim_data
     })
- 
 
 
-#-----------------User Claims---------------------
+# -----------------User Claims---------------------
 @authenticated_required
 def submit_claim_view(request):
     backend_url = "http://backend:8000/api"
@@ -153,7 +161,7 @@ def submit_claim_view(request):
         files = request.FILES
 
         payload = {
-            #"user": request.user.id,
+            # "user": request.user.id,
             "passengers_involved": data.get("passengers_involved"),
             "psychological_injury": data.get("psychological_injury") == "on",
             "injury_prognosis_months": data.get("injury_prognosis_months"),
@@ -169,7 +177,8 @@ def submit_claim_view(request):
             "gender": data.get("gender"),
         }
 
-        files_data = {"supporting_documents": files.get("supporting_documents")} if files.get("supporting_documents") else None
+        files_data = {"supporting_documents": files.get("supporting_documents")} if files.get(
+            "supporting_documents") else None
 
         response = requests.post(
             f"{backend_url}/user_claims/",
@@ -193,8 +202,7 @@ def submit_claim_view(request):
     })
 
 
-
-#-----------------Admin Dash---------------------
+# -----------------Admin Dash---------------------
 
 @authenticated_required
 def admin_dashboard(request):
@@ -214,9 +222,9 @@ def admin_dashboard(request):
     # fetch logs
     user_filter = request.GET.get("user_filter", "")
     logs_url = f"{backend_url}/usage_logs/"
-    if user_filter:     
-        logs_url += f"?user_id={user_filter}" # filter logs by user (optional)
-    
+    if user_filter:
+        logs_url += f"?user_id={user_filter}"  # filter logs by user (optional)
+
     logs_response = requests.get(logs_url, headers=headers)
     logs_data = logs_response.json() if logs_response.status_code == 200 else []
 
@@ -224,7 +232,7 @@ def admin_dashboard(request):
     if request.method == "POST" and "user_id" in request.POST:
         user_id = request.POST.get("user_id")
 
-        if int(user_id) == current_user.get("id"):      # so you can't delete youself
+        if int(user_id) == current_user.get("id"):  # so you can't delete youself
             return render(request, "admin.html", {
                 "error": "You cannot delete yourself.",
                 "users": users_data,
@@ -234,7 +242,7 @@ def admin_dashboard(request):
                 "user_filter": user_filter
             })
 
-        delete_response = requests.delete(f"{backend_url}/user_profiles/{user_id}/", headers=headers)   # DELETE the user
+        delete_response = requests.delete(f"{backend_url}/user_profiles/{user_id}/", headers=headers)  # DELETE the user
 
         if delete_response.status_code == 204:
             return redirect("admin")
@@ -247,21 +255,21 @@ def admin_dashboard(request):
                 "logs": logs_data,
                 "user_filter": user_filter
             })
-        
+
     # register a new user (same as register_view but for admin)
     if request.method == "POST" and "username" in request.POST:
         form = UserRegistrationForm(request.POST)
-        
+
         if form.is_valid():
             data = {
                 "username": form.cleaned_data["username"],
                 "password": form.cleaned_data["password"],
                 "permission_level": form.cleaned_data["permission_level"]
             }
-            create_response = requests.post(f"{backend_url}/auth/users/", json=data, headers=headers) # post to backend
+            create_response = requests.post(f"{backend_url}/auth/users/", json=data, headers=headers)  # post to backend
 
             if create_response.status_code == 201:
-                return redirect("admin")     # redirect to the admin dashboard
+                return redirect("admin")  # redirect to the admin dashboard
             else:
                 error_message = create_response.json().get("error", "User creation failed. Please try again.")
                 return render(request, "admin.html", {
@@ -282,6 +290,7 @@ def admin_dashboard(request):
         "logs": logs_data,
         "user_filter": user_filter
     })
+
 
 # ---------------- feedback ----------------
 @authenticated_required
@@ -304,11 +313,9 @@ def feedback_view(request):
     return render(request, "feedback.html")
 
 
-
-#------------------Finance Dashboard---------------------
+# ------------------Finance Dashboard---------------------
 @authenticated_required
 def finance_dashboard(request):
-
     headers = {
         "Authorization": f"Bearer {request.session.get('access_token')}"
     }
@@ -321,7 +328,8 @@ def finance_dashboard(request):
     selected_user_id = request.GET.get("user_id", None)
     claims = []
     if selected_user_id:
-        claims_response = requests.get(f"{backend_url}/user_claims/?user_id={selected_user_id}", headers=headers) # list a specific users claims
+        claims_response = requests.get(f"{backend_url}/user_claims/?user_id={selected_user_id}",
+                                       headers=headers)  # list a specific users claims
         claims = claims_response.json() if claims_response.status_code == 200 else []
 
     if request.method == "POST" and selected_user_id:
@@ -334,8 +342,8 @@ def finance_dashboard(request):
 
         if invoice_response.status_code == 201:
             invoice = invoice_response.json()
-            pdf_content = f"Invoice ID: {invoice['id']}\nTotal Amount: ${invoice['total_amount']}\nCreated At: {invoice['created_at']}" # make pdf content
-            
+            pdf_content = f"Invoice ID: {invoice['id']}\nTotal Amount: ${invoice['total_amount']}\nCreated At: {invoice['created_at']}"  # make pdf content
+
             # reender and convert to pdf
             pdf_binary = pdfkit.from_string(pdf_content, output_path=False)
             pdf_buffer = io.BytesIO(pdf_binary)
