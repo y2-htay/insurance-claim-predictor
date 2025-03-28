@@ -55,6 +55,7 @@ class UserProfileViewSet(viewsets.ModelViewSet):
         try:
             user = UserProfile.objects.get(pk=pk)
             user.delete()
+            log_action("User profile deleted successfully.", None)
             return Response({'message': 'User deleted successfully.'}, status=status.HTTP_204_NO_CONTENT)
         except UserProfile.DoesNotExist:
             return Response({'error': 'User not found.'}, status=status.HTTP_404_NOT_FOUND)
