@@ -115,10 +115,10 @@ def profile(request):
     headers = {"Authorization": f"Bearer {request.session.get('access_token')}"}
 
     # get user details from backend
-    response = requests.get(f"http://backend:8000/api/auth/users/me", headers=headers)
+    user_response = requests.get(f"http://backend:8000/api/auth/users/me", headers=headers)
 
-    if response.status_code == 200:
-        user_data = response.json()  # user info
+    if user_response.status_code == 200:
+        user_data = user_response.json()  # user info
     else:
         user_data = {"error": "Could not retrieve user details"}
 
