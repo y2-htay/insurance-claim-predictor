@@ -46,6 +46,7 @@ class UserProfileViewSet(viewsets.ModelViewSet):
         serializer_class = UserProfileSerializer
         serializer_class.save()
         log_action("Created a new user profile!", user_profile)
+
     # authentication_classes = [JWTAuthentication] # could add in future to protect the view
     # permission_classes = [IsAuthenticated] # checks if anuthenticated
 
@@ -54,6 +55,7 @@ class UserProfileViewSet(viewsets.ModelViewSet):
         try:
             user = UserProfile.objects.get(pk=pk)
             user.delete()
+            log_action("User profile deleted successfully.", None)
             return Response({'message': 'User deleted successfully.'}, status=status.HTTP_204_NO_CONTENT)
         except UserProfile.DoesNotExist:
             return Response({'error': 'User not found.'}, status=status.HTTP_404_NOT_FOUND)
@@ -154,19 +156,14 @@ class UserClaimsViewSet(viewsets.ModelViewSet):
     queryset = UserClaims.objects.all()
     serializer_class = UserClaimsSerializer
 
-    def create(self, request):
-        serializer_class = UserClaimsSerializer
-        user_profile = get_current_user(request)
-        serializer_class.save()
-        log_action("User claim created", user_profile)
-
     def create(self, request, *args, **kwargs):
         # on creatine of user claim, serialize with request
         serializer = self.get_serializer(data=request.data)
-
+        user_profile = get_current_user(request)
         if serializer.is_valid():
             # save the user claim request with the associated user !
             serializer.save(user=request.user)
+            log_action("User Claim Uploaded!", user_profile)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -208,21 +205,21 @@ class TrainModelViewSet(viewsets.ModelViewSet):
         return Response({"status": "Model training initiated"})
 
 
-
-#usage logs viewset - to display on the admin dashboard
+# usage logs viewset - to display on the admin dashboard
 
 class UsageLogViewSet(viewsets.ViewSet):
     def list(self, request):
-        user_id = request.query_params.get('user_id', None) # get user id
-        
+        user_id = request.query_params.get('user_id', None)  # get user id
+
         if user_id:
-            logs = UsageLog.objects.filter(user__id=user_id) # filter logs by user if user_id is provided
+            logs = UsageLog.objects.filter(user__id=user_id)  # filter logs by user if user_id is provided
         else:
-            logs = UsageLog.objects.all()    # otherwise fetch all logs
+            logs = UsageLog.objects.all()  # otherwise fetch all logs
 
         serializer = UsageLogSerializer(logs, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
-    
+
+
 # feedback view
 class UserFeedbackViewSet(viewsets.ModelViewSet):
     queryset = UserFeedback.objects.all()
