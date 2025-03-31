@@ -1,6 +1,6 @@
 from sklearn.preprocessing import RobustScaler
 from sklearn.model_selection import KFold
-from sklearn.metrics import r2_score, mean_absolute_percentage_error
+from sklearn.metrics import r2_score
 import pandas as pd
 import tensorflow as tf
 import keras
@@ -17,6 +17,7 @@ test_results = []
 k_fold = KFold(n_splits=K, shuffle=True, random_state=42)
 
 dataset = pd.read_csv('../Dataset/Synthetic_Data_For_Students.csv')
+dataset.head(10)
 tf.config.list_physical_devices('GPU')
 
 redundant_labels = ['Accident Description', 'Claim Date', 'Accident Date',
