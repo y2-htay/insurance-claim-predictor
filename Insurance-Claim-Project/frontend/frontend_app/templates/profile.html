@@ -94,8 +94,8 @@
                         <div class="claim-bar">
                         <p><strong>Weather Condition:</strong> {{ claim.weather_condition }}</p>
                         </div>
-                        <div class="claim-bar">
-                        <a href="{% url 'edit_claim' claim.id %}" class="btn edit-claim-btn">Edit</a>
+                        <div class="edit-claim-container">
+                            <a href="{% url 'edit_claim' claim.id %}" class="btn edit-claim-btn">Edit Claim</a>
                         </div>
                     </div>
                 {% endfor %}
