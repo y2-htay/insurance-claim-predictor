@@ -202,6 +202,8 @@ def submit_claim_view(request):
         "weather_conditions": weather_conditions
     })
 
+
+
 #-----------------edit/delete claim for GDPR------
 @authenticated_required
 def edit_or_delete_claim_view(request, claim_id):
@@ -210,13 +212,13 @@ def edit_or_delete_claim_view(request, claim_id):
         "Authorization": f"Bearer {request.session.get('access_token')}"
     }
 
-    # ✅ Fetch the claim
+   
     claim_response = requests.get(f"{backend_url}/user_claims/{claim_id}/", headers=headers)
     if claim_response.status_code != 200:
         return render(request, "error.html", {"message": "Could not retrieve claim data."})
     claim_data = claim_response.json()
 
-    # ✅ Fetch vehicle types and weather conditions using same working pattern
+   
     vehicle_types = []
     weather_conditions = []
 
@@ -229,7 +231,7 @@ def edit_or_delete_claim_view(request, claim_id):
     if wc_response.status_code == 200:
         weather_conditions = wc_response.json()
 
-    # ✅ Handle POST: Edit or Delete
+    
     if request.method == "POST":
         if "delete" in request.POST:
             delete_response = requests.delete(f"{backend_url}/user_claims/{claim_id}/", headers=headers)
@@ -282,7 +284,7 @@ def edit_or_delete_claim_view(request, claim_id):
                 "error": "Failed to update claim."
             })
 
-    # ✅ GET: show pre-filled form
+    
     return render(request, "edit_claim.html", {
         "claim": claim_data,
         "vehicle_types": vehicle_types,
