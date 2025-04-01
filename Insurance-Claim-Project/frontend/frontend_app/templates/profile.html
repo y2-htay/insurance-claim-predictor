@@ -30,8 +30,7 @@
 
         <!-- Logout Button -->
         <a href="{% url 'logout' %}" class="btn logout-btn">Logout</a>
-        <a href="{% url 'feedback' %}" class="btn feedback-btn">Give Feedback</a>
-
+        
 
         <hr>
 
@@ -60,6 +59,14 @@
         {% else %}
             <p>You have not uploaded any claims yet.</p>
         {% endif %}
+
+
+        <hr>
+
+        <!-- Feedback Button at the Bottom -->
+        <div class="feedback-container">
+            <a href="{% url 'feedback' %}" class="btn feedback-btn">Give Feedback</a>
+        </div>
     {% endif %}
 </div>
 

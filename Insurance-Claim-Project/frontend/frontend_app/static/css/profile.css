@@ -31,7 +31,11 @@ html, body {
     border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     min-height: calc(100vh - 100px); /* Ensure the container stretches to fill the viewport */
+    justify-content: space-between; /* Push the feedback button to the bottom */
+    
+    
 }
+
 
 /* Header Styles */
 h1, h2 {
@@ -79,6 +83,11 @@ h1, h2 {
     background-color: #e65c00;
 }
 
+/* Feedback Button Container */
+.feedback-container {
+    text-align: center;
+    margin-top: 20px;
+}
 
 /* Feedback Button */
 .feedback-btn {
