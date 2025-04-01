@@ -60,6 +60,9 @@
                         <td>{{ claim.supporting_documents }}</td>
                         <td>{{ claim.vehicle_type }}</td>
                         <td>{{ claim.weather_condition }}</td>
+                        <td>
+                            <a href="{% url 'edit_claim' claim.id %}" class="btn btn-sm btn-primary">Edit</a>
+                        </td>
                     </tr>
                 {% endfor %}
                 </tbody>

@@ -1,12 +1,33 @@
 {% extends "base_generic.html" %}
+{% load static %}
+<link rel="stylesheet" href="{% static 'css/feedback.css' %}">
+
 {% block content %}
+<div class="feedback-container">
   <h2>Submit Feedback</h2>
-  {% if error %}<p style="color:red;">{{ error }}</p>{% endif %}
-  {% if success %}<p style="color:green;">{{ success }}</p>{% endif %}
+
+  {% if error %}
+    <p class="error">{{ error }}</p>
+  {% endif %}
+
+  {% if success %}
+    <p class="success">{{ success }}</p>
+  {% endif %}
+
   <form method="POST">
     {% csrf_token %}
-    <label for="message">Your Feedback:</label><br>
-    <textarea name="message" rows="5" cols="50" required></textarea><br><br>
-    <input type="submit" value="Submit Feedback">
+
+    <div class="form-group">
+      <label for="message">Your Feedback:</label>
+      <textarea name="message" id="message" rows="5" required></textarea>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Submit Feedback</button>
   </form>
+
+  <p class="consent-note">
+    Your feedback may be stored along with your user ID for service improvement purposes.
+    For more details, see our <a href="{% url 'privacy_policy' %}" target="_blank">Privacy Policy</a>.
+  </p>
+</div>
 {% endblock %}

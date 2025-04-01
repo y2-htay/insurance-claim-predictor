@@ -1,73 +1,138 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Submit Insurance Claim</title>
-</head>
-<body>
-    <h2>Submit Insurance Claim</h2>
+{% extends "base_generic.html" %}
+{% load static %}
+<link rel="stylesheet" href="{% static 'css/edit_claim.css' %}">
 
-    {% if error %}
-        <p style="color: red;">{{ error }}</p>
-    {% endif %}
+{% block content %}
+<div class="back-wrapper">
+  <a href="{% url 'profile' %}" class="btn-back">← Back</a>
+</div>
 
-    <form method="POST" enctype="multipart/form-data">
-        {% csrf_token %}
+<div class="edit-container">
+  <h2>Submit Insurance Claim</h2>
 
-        <label>Passengers Involved:</label>
-        <input type="number" name="passengers_involved" required><br>
+  {% if error %}
+    <p class="error">{{ error }}</p>
+  {% endif %}
 
-        <label>Psychological Injury:</label>
-        <input type="checkbox" name="psychological_injury"><br>
+  <form method="POST" enctype="multipart/form-data" id="submitClaimForm">
+    {% csrf_token %}
 
-        <label>Injury Prognosis (Months):</label>
-        <input type="number" name="injury_prognosis_months"><br>
+    <div class="form-group">
+      <label>Passengers Involved:</label>
+      <input type="number" name="passengers_involved" required>
+    </div>
 
-        <label>Exceptional Circumstance:</label>
-        <input type="checkbox" name="exceptional_circumstance"><br>
+    <div class="form-group checkbox-group">
+      <label>
+        <input type="checkbox" name="psychological_injury">
+        Psychological Injury
+      </label>
+    </div>
 
-        <label>Dominant Injury:</label>
-        <input type="text" name="dominant_injury"><br>
+    <div class="form-group">
+      <label>Injury Prognosis (Months):</label>
+      <input type="number" name="injury_prognosis_months">
+    </div>
 
-        <label>Whiplash:</label>
-        <input type="checkbox" name="whiplash"><br>
+    <div class="form-group checkbox-group">
+      <label>
+        <input type="checkbox" name="exceptional_circumstance">
+        Exceptional Circumstance
+      </label>
+    </div>
 
-        <label>Vehicle Type:</label>
-        <select name="vehicle_type">
-            {% for vt in vehicle_types %}
-                <option value="{{ vt.id }}">{{ vt.vehicle_name }}</option>
-            {% endfor %}
-        </select><br>
+    <div class="form-group">
+      <label>Dominant Injury:</label>
+      <input type="text" name="dominant_injury">
+    </div>
 
-        <label>Weather Condition:</label>
-        <select name="weather_condition">
-            {% for wc in weather_conditions %}
-                <option value="{{ wc.id }}">{{ wc.condition }}</option>
-            {% endfor %}
-        </select><br>
+    <div class="form-group checkbox-group">
+      <label>
+        <input type="checkbox" name="whiplash">
+        Whiplash
+      </label>
+    </div>
 
-        <label>Driver Age:</label>
-        <input type="number" name="driver_age" required><br>
+    <div class="form-group">
+      <label>Vehicle Type:</label>
+      <select name="vehicle_type">
+        {% for vt in vehicle_types %}
+          <option value="{{ vt.id }}">{{ vt.vehicle_name }}</option>
+        {% endfor %}
+      </select>
+    </div>
 
-        <label>Vehicle Age:</label>
-        <input type="number" name="vehicle_age" required><br>
+    <div class="form-group">
+      <label>Weather Condition:</label>
+      <select name="weather_condition">
+        {% for wc in weather_conditions %}
+          <option value="{{ wc.id }}">{{ wc.condition }}</option>
+        {% endfor %}
+      </select>
+    </div>
 
-        <label>Police Report:</label>
-        <input type="checkbox" name="police_report"><br>
+    <div class="form-group">
+      <label>Driver Age:</label>
+      <input type="number" name="driver_age" required>
+    </div>
 
-        <label>Witness Present:</label>
-        <input type="checkbox" name="witness_present"><br>
+    <div class="form-group">
+      <label>Vehicle Age:</label>
+      <input type="number" name="vehicle_age" required>
+    </div>
 
-        <label>Gender:</label>
-        <select name="gender">
-            <option value="0">Male</option>
-            <option value="1">Female</option>
-        </select><br>
+    <div class="form-group checkbox-group">
+      <label>
+        <input type="checkbox" name="police_report">
+        Police Report
+      </label>
+    </div>
 
-        <label>Upload Supporting Documents:</label>
-        <input type="file" name="supporting_documents"><br><br>
+    <div class="form-group checkbox-group">
+      <label>
+        <input type="checkbox" name="witness_present">
+        Witness Present
+      </label>
+    </div>
 
-        <button type="submit">Submit Claim</button>
-    </form>
-</body>
-</html>
+    <div class="form-group">
+      <label>Gender:</label>
+      <select name="gender">
+        <option value="male">Male</option>
+        <option value="female">Female</option>
+        <option value="other">Other</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label>Upload Supporting Documents:</label>
+      <input type="file" name="supporting_documents" id="supporting_documents">
+      <small id="fileName" class="file-name"></small>
+    </div>
+
+    <div class="form-group checkbox-group consent">
+      <label>
+        <input type="checkbox" name="consent" id="consentCheckbox" required>
+        I give my explicit consent to the processing of my personal and health-related data in accordance with the
+        <a href="{% url 'privacy_policy' %}" target="_blank">Privacy Policy</a>.
+      </label>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Submit Claim</button>
+  </form>
+</div>
+
+<script>
+  document.getElementById("supporting_documents").addEventListener("change", function () {
+    const fileLabel = document.getElementById("fileName");
+    fileLabel.innerText = this.files.length ? `Selected file: ${this.files[0].name}` : "";
+  });
+
+  document.getElementById("submitClaimForm").addEventListener("submit", function (e) {
+    if (!document.getElementById("consentCheckbox").checked) {
+      alert("You must provide explicit consent to submit this form.");
+      e.preventDefault();
+    }
+  });
+</script>
+{% endblock %}

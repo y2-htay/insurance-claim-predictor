@@ -1,27 +1,47 @@
 {% extends "base_generic.html" %}
+{% load static %}
+<link rel="stylesheet" href="{% static 'css/login.css' %}">
 
 {% block content %}
+<div class="login-page-wrapper">
+  <div class="login-container">
+
     <h1>Login</h1>
+
     {% if error %}
-        <p style="color: red;">{{ error }}</p>
+      <p class="error">{{ error }}</p>
     {% endif %}
+
     <form method="post">
-        {% csrf_token %}
-        <label>Username:</label>
-        <input type="text" name="username" required><br>
+      {% csrf_token %}
+      <div class="form-group">
+        <label for="username">Username:</label>
+        <input type="text" name="username" id="username" required>
+      </div>
 
-        <label>Password:</label>
-        <input type="password" name="password" required><br>
+      <div class="form-group">
+        <label for="password">Password:</label>
+        <input type="password" name="password" id="password" required>
+      </div>
 
-        <button type="submit">Login</button>
+      <button type="submit" class="btn btn-primary">Login</button>
     </form>
 
-    <script>
-        // if already logged in, redirect to profile
-        document.addEventListener("DOMContentLoaded", function () {
-            if (localStorage.getItem("access_token")) {
-                window.location.href = "/profile";  // redirect
-            }
-        });
-    </script>
+    <p class="legal-text">
+      By signing up, you agree to our
+      <a href="{% url 'privacy_policy' %}">Privacy Policy</a> and
+      <a href="{% url 'terms' %}">Terms of Service</a>.
+    </p>
+
+    
+  </div>
+</div> 
 {% endblock %}
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    if (localStorage.getItem("access_token")) {
+      window.location.href = "/profile";
+    }
+  });
+</script>
+
