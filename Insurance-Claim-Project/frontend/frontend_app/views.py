@@ -9,6 +9,7 @@ from .models import ClaimUpload
 import pdfkit
 import io
 from django.http import FileResponse
+from django.http import HttpResponseForbidden
 
 
 # --------- custom decorators ---------
@@ -201,38 +202,130 @@ def submit_claim_view(request):
         "weather_conditions": weather_conditions
     })
 
+#-----------------edit/delete claim for GDPR------
+@authenticated_required
+def edit_or_delete_claim_view(request, claim_id):
+    backend_url = "http://backend:8000/api"
+    headers = {
+        "Authorization": f"Bearer {request.session.get('access_token')}"
+    }
+
+    # ✅ Fetch the claim
+    claim_response = requests.get(f"{backend_url}/user_claims/{claim_id}/", headers=headers)
+    if claim_response.status_code != 200:
+        return render(request, "error.html", {"message": "Could not retrieve claim data."})
+    claim_data = claim_response.json()
+
+    # ✅ Fetch vehicle types and weather conditions using same working pattern
+    vehicle_types = []
+    weather_conditions = []
+
+    vt_response = requests.get(f"{backend_url}/vehicle_types/", headers=headers)
+    wc_response = requests.get(f"{backend_url}/weather_conditions/", headers=headers)
+
+    if vt_response.status_code == 200:
+        vehicle_types = vt_response.json()
+
+    if wc_response.status_code == 200:
+        weather_conditions = wc_response.json()
+
+    # ✅ Handle POST: Edit or Delete
+    if request.method == "POST":
+        if "delete" in request.POST:
+            delete_response = requests.delete(f"{backend_url}/user_claims/{claim_id}/", headers=headers)
+            if delete_response.status_code == 204:
+                return redirect("profile")
+            else:
+                return render(request, "edit_claim.html", {
+                    "claim": claim_data,
+                    "vehicle_types": vehicle_types,
+                    "weather_conditions": weather_conditions,
+                    "error": "Failed to delete claim."
+                })
+
+        # Edit claim logic
+        data = request.POST
+        files = request.FILES
+
+        payload = {
+            "passengers_involved": data.get("passengers_involved"),
+            "psychological_injury": data.get("psychological_injury") == "on",
+            "injury_prognosis_months": data.get("injury_prognosis_months"),
+            "exceptional_circumstance": data.get("exceptional_circumstance") == "on",
+            "dominant_injury": data.get("dominant_injury"),
+            "whiplash": data.get("whiplash") == "on",
+            "vehicle_type": data.get("vehicle_type"),
+            "weather_condition": data.get("weather_condition"),
+            "driver_age": data.get("driver_age"),
+            "vehicle_age": data.get("vehicle_age"),
+            "police_report": data.get("police_report") == "on",
+            "witness_present": data.get("witness_present") == "on",
+            "gender": data.get("gender"),
+        }
+
+        files_data = {"supporting_documents": files.get("supporting_documents")} if files.get("supporting_documents") else None
+
+        update_response = requests.put(
+            f"{backend_url}/user_claims/{claim_id}/",
+            data=payload,
+            files=files_data,
+            headers=headers
+        )
+
+        if update_response.status_code == 200:
+            return redirect("profile")
+        else:
+            return render(request, "edit_claim.html", {
+                "claim": claim_data,
+                "vehicle_types": vehicle_types,
+                "weather_conditions": weather_conditions,
+                "error": "Failed to update claim."
+            })
+
+    # ✅ GET: show pre-filled form
+    return render(request, "edit_claim.html", {
+        "claim": claim_data,
+        "vehicle_types": vehicle_types,
+        "weather_conditions": weather_conditions
+    })
+
 
 # -----------------Admin Dash---------------------
 
 @authenticated_required
 def admin_dashboard(request):
+    backend_url = "http://backend:8000/api"  
     headers = {
         "Authorization": f"Bearer {request.session.get('access_token')}"
     }
-    backend_url = "http://backend:8000/api"
 
-    # fetch all user profiles
+    # Fetch current user
+    current_user_response = requests.get(f"{backend_url}/auth/users/me/", headers=headers)
+    if current_user_response.status_code != 200:
+        return HttpResponseForbidden("Authentication failed.")
+    current_user = current_user_response.json()
+
+    #  Enforce admin access only
+    if current_user.get("permission_level") != "admin":
+        return HttpResponseForbidden("You do not have admin privileges.")
+
+    # Fetch all users and logs
     users_response = requests.get(f"{backend_url}/user_profiles/", headers=headers)
     users_data = users_response.json() if users_response.status_code == 200 else []
 
-    # fetch the currently logged-in user
-    current_user_response = requests.get(f"{backend_url}/auth/users/me/", headers=headers)
-    current_user = current_user_response.json() if current_user_response.status_code == 200 else None
-
-    # fetch logs
     user_filter = request.GET.get("user_filter", "")
     logs_url = f"{backend_url}/usage_logs/"
     if user_filter:
-        logs_url += f"?user_id={user_filter}"  # filter logs by user (optional)
+        logs_url += f"?user_id={user_filter}"
 
     logs_response = requests.get(logs_url, headers=headers)
     logs_data = logs_response.json() if logs_response.status_code == 200 else []
 
-    # handle deletion of a user
+    # Handle user deletion
     if request.method == "POST" and "user_id" in request.POST:
         user_id = request.POST.get("user_id")
 
-        if int(user_id) == current_user.get("id"):  # so you can't delete youself
+        if int(user_id) == current_user.get("id"):
             return render(request, "admin.html", {
                 "error": "You cannot delete yourself.",
                 "users": users_data,
@@ -242,8 +335,8 @@ def admin_dashboard(request):
                 "user_filter": user_filter
             })
 
-        delete_response = requests.delete(f"{backend_url}/user_profiles/{user_id}/", headers=headers)  # DELETE the user
-
+        
+        delete_response = requests.delete(f"{backend_url}/user_profiles/{user_id}/", headers=headers)
         if delete_response.status_code == 204:
             return redirect("admin")
         else:
@@ -256,29 +349,28 @@ def admin_dashboard(request):
                 "user_filter": user_filter
             })
 
-    # register a new user (same as register_view but for admin)
+    # Register new user (same as admin-created registration)
     if request.method == "POST" and "username" in request.POST:
         form = UserRegistrationForm(request.POST)
-
         if form.is_valid():
             data = {
                 "username": form.cleaned_data["username"],
                 "password": form.cleaned_data["password"],
                 "permission_level": form.cleaned_data["permission_level"]
             }
-            create_response = requests.post(f"{backend_url}/auth/users/", json=data, headers=headers)  # post to backend
 
+            create_response = requests.post(f"{backend_url}/auth/users/", json=data, headers=headers)
             if create_response.status_code == 201:
-                return redirect("admin")  # redirect to the admin dashboard
+                return redirect("admin")
             else:
                 error_message = create_response.json().get("error", "User creation failed. Please try again.")
                 return render(request, "admin.html", {
+                    "error": error_message,
                     "users": users_data,
                     "current_user": current_user,
                     "form": form,
                     "logs": logs_data,
-                    "user_filter": user_filter,
-                    "error": error_message
+                    "user_filter": user_filter
                 })
     else:
         form = UserRegistrationForm()
@@ -359,3 +451,11 @@ def finance_dashboard(request):
         "users": users,
         "claims": claims
     })
+
+#---------------privacy policy-----------
+def privacy_policy_view(request):
+    return render(request, "privacy_policy.html")
+#---------------terms--------------------
+
+def terms_view(request):
+    return render(request, "terms.html")
