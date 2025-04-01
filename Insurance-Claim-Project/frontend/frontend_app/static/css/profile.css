@@ -66,8 +66,15 @@ h1, h2 {
     color: #333;
 }
 
+/* Logout Button Container */
+.logout-container {
+    text-align: center;
+    margin-top: 20px;
+}
+
 /* Logout Button */
 .logout-btn {
+    
     display: inline-block;
     padding: 10px 20px;
     background-color: #ff6600;
