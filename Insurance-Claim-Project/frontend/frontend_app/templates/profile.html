@@ -37,6 +37,14 @@
 
         <!-- Claims Section -->
         <h2>Your Claims</h2>
+
+        <!-- Upload Claim Button -->
+        <div class="upload-claim-container">
+            <a href="{% url 'submit_claim' %}" class="btn upload-claim-btn">Upload Claim</a>
+        </div>
+
+
+
         {% if claims %}
             {% for claim in claims %}
                 <div class="claim-bar">

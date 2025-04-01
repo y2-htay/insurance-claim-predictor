@@ -90,6 +90,28 @@ h1, h2 {
     background-color: #e65c00;
 }
 
+/* Upload Claim Button Container */
+.upload-claim-container {
+    text-align: center;
+    margin-bottom: 20px; /* Add spacing below the button */
+}
+
+/* Upload Claim Button */
+.upload-claim-btn {
+    display: inline-block;
+    padding: 10px 20px;
+    background-color: #ff6600; /* Green background */
+    color: #fff; /* White text */
+    text-decoration: none;
+    border-radius: 4px;
+    font-weight: bold;
+    text-align: center;
+}
+
+.upload-claim-btn:hover {
+    background-color: #e65c00; /* Darker green on hover */
+}
+
 /* Feedback Button Container */
 .feedback-container {
     text-align: center;
