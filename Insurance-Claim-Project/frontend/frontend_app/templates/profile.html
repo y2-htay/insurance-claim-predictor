@@ -1,71 +1,63 @@
-
 {% extends "base_generic.html" %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/profile.css' %}">
+{% endblock %}
 
 {% block content %}
+<div class="profile-container">
     <h1>User Profile</h1>
     {% if user_data.error %}
-        <p style="color: red;">{{ user_data.error }}</p>
+        <p class="error">{{ user_data.error }}</p>
     {% else %}
-        <!-- using form data, display the users details ! -->
-        <p><strong>Username:</strong> {{ user_data.username }}</p>
-        <p><strong>Email:</strong> {{ user_data.email }} </p>
-        <p><strong>Bio:</strong> {{ user_data.bio }}</p>
-        <p><strong>Location:</strong> {{ user_data.location }}</p>
-        <p><strong>Birth Date:</strong> {{ user_data.birth_date }}</p>
+        <!-- User Details -->
+        <div class="profile-bar">
+            <p><strong>Username:</strong> {{ user_data.username }}</p>
+        </div>
+        <div class="profile-bar">
+            <p><strong>Email:</strong> {{ user_data.email }}</p>
+        </div>
+        <div class="profile-bar">
+            <p><strong>Bio:</strong> {{ user_data.bio }}</p>
+        </div>
+        <div class="profile-bar">
+            <p><strong>Location:</strong> {{ user_data.location }}</p>
+        </div>
+        <div class="profile-bar">
+            <p><strong>Birth Date:</strong> {{ user_data.birth_date }}</p>
+        </div>
 
-
-        <!-- logout button -->
-        <a href="{% url 'logout' %}">Logout</a>
+        <!-- Logout Button -->
+        <a href="{% url 'logout' %}" class="btn logout-btn">Logout</a>
 
         <hr>
 
-        <!-- Display user's claims -->
+        <!-- Claims Section -->
         <h2>Your Claims</h2>
         {% if claims %}
-            <table>
-                <thead>
-                <tr>
-                    <th>Claim_No</th>
-                    <th>Passengers Involved</th>
-                    <th>Psychological Injury</th>
-                    <th>Prognosis</th>
-                    <th>Exceptional Circumstance</th>
-                    <th>Dominant Injury</th>
-                    <th>Whiplash</th>
-                    <th>Driver Age</th>
-                    <th>Vehicle Age</th>
-                    <th>Police Report</th>
-                    <th>Whitness Present</th>
-                    <th>Gender</th>
-                    <th>Evidence Documents</th>
-                    <th>Vehicle</th>
-                    <th>Weather Condition</th>
-                </tr>
-                </thead>
-                <tbody>
-                {% for claim in claims %}
-                    <tr>
-                        <td> {{ claim.id }} </td>
-                        <td>{{ claim.passengers_involved }}</td>
-                        <td>{{ claim.psychological_injury }}</td>
-                        <td>{{ claim.injury_prognosis_months }}</td>
-                        <td>{{ claim.exceptional_circumstance }}</td>
-                        <td>{{ claim.dominant_injury }}</td>
-                        <td>{{ claim.whiplash }}</td>
-                        <td>{{ claim.driver_age }}</td>
-                        <td>{{ claim.vehicle_age }}</td>
-                        <td>{{ claim.police_report }}</td>
-                        <td>{{ claim.witness_present }}</td>
-                        <td>{{ claim.gender }}</td>
-                        <td>{{ claim.supporting_documents }}</td>
-                        <td>{{ claim.vehicle_type }}</td>
-                        <td>{{ claim.weather_condition }}</td>
-                    </tr>
-                {% endfor %}
-                </tbody>
-            </table>
+            {% for claim in claims %}
+                <div class="claim-bar">
+                    <p><strong>Claim No:</strong> {{ claim.id }}</p>
+                    <p><strong>Passengers Involved:</strong> {{ claim.passengers_involved }}</p>
+                    <p><strong>Psychological Injury:</strong> {{ claim.psychological_injury }}</p>
+                    <p><strong>Prognosis:</strong> {{ claim.injury_prognosis_months }}</p>
+                    <p><strong>Exceptional Circumstance:</strong> {{ claim.exceptional_circumstance }}</p>
+                    <p><strong>Dominant Injury:</strong> {{ claim.dominant_injury }}</p>
+                    <p><strong>Whiplash:</strong> {{ claim.whiplash }}</p>
+                    <p><strong>Driver Age:</strong> {{ claim.driver_age }}</p>
+                    <p><strong>Vehicle Age:</strong> {{ claim.vehicle_age }}</p>
+                    <p><strong>Police Report:</strong> {{ claim.police_report }}</p>
+                    <p><strong>Witness Present:</strong> {{ claim.witness_present }}</p>
+                    <p><strong>Gender:</strong> {{ claim.gender }}</p>
+                    <p><strong>Evidence Documents:</strong> {{ claim.supporting_documents }}</p>
+                    <p><strong>Vehicle:</strong> {{ claim.vehicle_type }}</p>
+                    <p><strong>Weather Condition:</strong> {{ claim.weather_condition }}</p>
+                </div>
+            {% endfor %}
         {% else %}
             <p>You have not uploaded any claims yet.</p>
         {% endif %}
     {% endif %}
+</div>
 {% endblock %}
