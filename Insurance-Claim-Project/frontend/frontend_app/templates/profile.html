@@ -55,52 +55,52 @@
                 {% for claim in claims %}
                     <div class="claim-card">
                         <div class="claim-bar">
-                        <p><strong>Claim No:</strong> {{ claim.id }}</p>
+                            <p><strong>Claim No:</strong> {{ claim.id }}</p>
                         </div>
                         <div class="claim-bar">
-                        <p><strong>Passengers Involved:</strong> {{ claim.passengers_involved }}</p>
+                            <p><strong>Passengers Involved:</strong> {{ claim.passengers_involved }}</p>
                         </div>
                         <div class="claim-bar">
-                        <p><strong>Psychological Injury:</strong> {{ claim.psychological_injury }}</p>
+                            <p><strong>Psychological Injury:</strong> {{ claim.psychological_injury }}</p>
                         </div>
                         <div class="claim-bar">
-                        <p><strong>Prognosis (Months):</strong> {{ claim.injury_prognosis_months }}</p>
+                            <p><strong>Prognosis (Months):</strong> {{ claim.injury_prognosis_months }}</p>
                         </div>
                         <div class="claim-bar">
-                        <p><strong>Exceptional Circumstance:</strong> {{ claim.exceptional_circumstance }}</p>
+                            <p><strong>Exceptional Circumstance:</strong> {{ claim.exceptional_circumstance }}</p>
                         </div>
                         <div class="claim-bar">
-                        <p><strong>Dominant Injury:</strong> {{ claim.dominant_injury }}</p>
+                            <p><strong>Dominant Injury:</strong> {{ claim.dominant_injury }}</p>
                         </div>
                         <div class="claim-bar">
-                        <p><strong>Whiplash:</strong> {{ claim.whiplash }}</p>
+                            <p><strong>Whiplash:</strong> {{ claim.whiplash }}</p>
                         </div>
                         <div class="claim-bar">
-                        <p><strong>Driver Age:</strong> {{ claim.driver_age }}</p>
+                            <p><strong>Driver Age:</strong> {{ claim.driver_age }}</p>
                         </div>
                         <div class="claim-bar">
-                        <p><strong>Vehicle Age:</strong> {{ claim.vehicle_age }}</p>
+                            <p><strong>Vehicle Age:</strong> {{ claim.vehicle_age }}</p>
                         </div>
                         <div class="claim-bar">
-                        <p><strong>Police Report:</strong> {{ claim.police_report }}</p>
+                            <p><strong>Police Report:</strong> {{ claim.police_report }}</p>
                         </div>
                         <div class="claim-bar">
-                        <p><strong>Witness Present:</strong> {{ claim.witness_present }}</p>
+                            <p><strong>Witness Present:</strong> {{ claim.witness_present }}</p>
                         </div>
                         <div class="claim-bar">
-                        <p><strong>Gender:</strong> {{ claim.gender }}</p>
+                            <p><strong>Gender:</strong> {{ claim.gender }}</p>
                         </div>
                         <div class="claim-bar">
-                        <p><strong>Evidence Documents:</strong> <a href="{{ claim.supporting_documents }}" target="_blank">View</a></p>
+                            <p><strong>Evidence Documents:</strong> <a href="{{ claim.supporting_documents }}" target="_blank">View</a></p>
                         </div>
                         <div class="claim-bar">
-                        <p><strong>Vehicle:</strong> {{ claim.vehicle_type }}</p>
+                            <p><strong>Vehicle:</strong> {{ claim.vehicle_type }}</p>
                         </div>
                         <div class="claim-bar">
-                        <p><strong>Weather Condition:</strong> {{ claim.weather_condition }}</p>
+                            <p><strong>Weather Condition:</strong> {{ claim.weather_condition }}</p>
                         </div>
-                        <div class="edit-claim-container">
-                            <a href="{% url 'edit_claim' claim.id %}" class="btn edit-claim-btn">Edit Claim</a>
+                        <div class="claim-bar">
+                            <a href="{% url 'edit_claim' claim.id %}" class="btn edit-claim-btn">Edit</a>
                         </div>
                     </div>
                 {% endfor %}
