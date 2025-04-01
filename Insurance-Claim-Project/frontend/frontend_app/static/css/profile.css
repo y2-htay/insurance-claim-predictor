@@ -66,6 +66,31 @@ h1, h2 {
     color: #333;
 }
 
+/* Header Container */
+.header-container {
+    display: flex;
+    justify-content: space-between; /* Align the button to the right */
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+/* Switch Account Button */
+.switch-account-btn {
+    display: inline-block;
+    padding: 10px 20px;
+    background-color: #ff6600; /* Blue background */
+    color: #fff; /* White text */
+    text-decoration: none;
+    border-radius: 4px;
+    font-weight: bold;
+    text-align: center;
+}
+
+.switch-account-btn:hover {
+    background-color: #e65c00; /* Darker blue on hover */
+}
+
+
 /* Logout Button Container */
 .logout-container {
     text-align: center;

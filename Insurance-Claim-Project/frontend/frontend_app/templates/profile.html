@@ -7,7 +7,12 @@
 
 {% block content %}
 <div class="profile-container">
-    <h1>User Profile</h1>
+    <!-- Header Section -->
+    <div class="header-container">
+        <h1>User Profile</h1>
+        <a href="{% url 'login' %}" class="btn switch-account-btn">Switch Account</a>
+    </div>
+    
     {% if user_data.error %}
         <p class="error">{{ user_data.error }}</p>
     {% else %}
