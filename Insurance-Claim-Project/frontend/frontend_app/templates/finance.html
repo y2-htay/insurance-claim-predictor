@@ -1,61 +1,64 @@
 {% extends "base_generic.html" %}
+{% load static %}
+<link rel="stylesheet" href="{% static 'css/finance_dashboard.css' %}">
 
 {% block content %}
-    <h1>Finance User Dashboard</h1>
+<div class="finance-container">
 
-    <!-- success/error -->
-    {% if success %}
-        <p style="color: green;">{{ success }}</p>
-    {% endif %}
-    {% if error %}
-        <p style="color: red;">{{ error }}</p>
-    {% endif %}
+  <h1>Finance User Dashboard</h1>
 
-    <!-- select a user -->
-    <h2>Select a User</h2>
-    <form method="GET" action=".">
-        <label for="user_id">User:</label>
-        <select name="user_id" id="user_id">
-            <option value="">-- Select a User --</option>
-            {% for user in users %}
-                <option value="{{ user.id }}" {% if user.id|stringformat:"s" == request.GET.user_id %}selected{% endif %}>
-                    {{ user.username }}
-                </option>
-            {% endfor %}
-        </select>
-        <button type="submit">Fetch Claims</button>
+  {% if success %}
+    <p class="success">{{ success }}</p>
+  {% endif %}
+  {% if error %}
+    <p class="error">{{ error }}</p>
+  {% endif %}
+
+  <h2>Select a User</h2>
+  <form method="GET" action=".">
+    <div class="form-group">
+      <label for="user_id">User:</label>
+      <select name="user_id" id="user_id">
+        <option value="">-- Select a User --</option>
+        {% for user in users %}
+          <option value="{{ user.id }}" {% if user.id|stringformat:"s" == request.GET.user_id %}selected{% endif %}>
+            {{ user.username }}
+          </option>
+        {% endfor %}
+      </select>
+      <button type="submit" class="btn btn-primary">Fetch Claims</button>
+    </div>
+  </form>
+
+  {% if claims %}
+    <h2>Claims Overview</h2>
+    <table class="claims-table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Passengers</th>
+          <th>Psychological Injury</th>
+          <th>Prognosis (Months)</th>
+          <th>Whiplash</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for claim in claims %}
+          <tr>
+            <td>{{ claim.id }}</td>
+            <td>{{ claim.passengers_involved }}</td>
+            <td>{{ claim.psychological_injury }}</td>
+            <td>{{ claim.injury_prognosis_months }}</td>
+            <td>{{ claim.whiplash }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <form method="POST">
+      {% csrf_token %}
+      <button type="submit" class="btn btn-primary">Generate Invoice</button>
     </form>
-
-    <!-- display claims for specfiic users -->
-    {% if claims %}
-        <h2>Claims Overview</h2>
-        <table>
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Passengers Involved</th>
-                    <th>Psychological Injury</th>
-                    <th>Prognosis Months</th>
-                    <th>Whiplash</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for claim in claims %}
-                    <tr>
-                        <td>{{ claim.id }}</td>
-                        <td>{{ claim.passengers_involved }}</td>
-                        <td>{{ claim.psychological_injury }}</td>
-                        <td>{{ claim.injury_prognosis_months }}</td>
-                        <td>{{ claim.whiplash }}</td>
-                    </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-
-        <!-- gen invoice button -->
-        <form method="POST">
-            {% csrf_token %}
-            <button type="submit">Generate Invoice</button>
-        </form>
-    {% endif %}
+  {% endif %}
+</div>
 {% endblock %}

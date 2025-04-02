@@ -1,71 +1,123 @@
-
 {% extends "base_generic.html" %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/profile.css' %}">
+{% endblock %}
 
 {% block content %}
-    <h1>User Profile</h1>
+<div class="profile-container">
+    <!-- Header Section -->
+    <div class="header-container">
+        <h1>User Profile</h1>
+        <a href="{% url 'login' %}" class="btn switch-account-btn">Switch Account</a>
+    </div>
+    
     {% if user_data.error %}
-        <p style="color: red;">{{ user_data.error }}</p>
+        <p class="error">{{ user_data.error }}</p>
     {% else %}
-        <!-- using form data, display the users details ! -->
-        <p><strong>Username:</strong> {{ user_data.username }}</p>
-        <p><strong>Email:</strong> {{ user_data.email }} </p>
-        <p><strong>Bio:</strong> {{ user_data.bio }}</p>
-        <p><strong>Location:</strong> {{ user_data.location }}</p>
-        <p><strong>Birth Date:</strong> {{ user_data.birth_date }}</p>
+        <!-- User Details -->
+        <div class="profile-bar">
+            <p><strong>Username:</strong> {{ user_data.username }}</p>
+        </div>
+        <div class="profile-bar">
+            <p><strong>Email:</strong> {{ user_data.email }}</p>
+        </div>
+        <div class="profile-bar">
+            <p><strong>Bio:</strong> {{ user_data.bio }}</p>
+        </div>
+        <div class="profile-bar">
+            <p><strong>Location:</strong> {{ user_data.location }}</p>
+        </div>
+        <div class="profile-bar">
+            <p><strong>Birth Date:</strong> {{ user_data.birth_date }}</p>
+        </div>
 
-
-        <!-- logout button -->
-        <a href="{% url 'logout' %}">Logout</a>
+        <!-- Logout Button -->
+        <div class = "logout-container">       
+            <a href="{% url 'logout' %}" class="btn logout-btn">Logout</a>
+        </div>
 
         <hr>
 
-        <!-- Display user's claims -->
+        <!-- Claims Section -->
         <h2>Your Claims</h2>
+
+        <!-- Upload Claim Button -->
+        <div class="upload-claim-container">
+            <a href="{% url 'submit_claim' %}" class="btn upload-claim-btn">Upload Claim</a>
+        </div>
+
+
+
         {% if claims %}
-            <table>
-                <thead>
-                <tr>
-                    <th>Claim_No</th>
-                    <th>Passengers Involved</th>
-                    <th>Psychological Injury</th>
-                    <th>Prognosis</th>
-                    <th>Exceptional Circumstance</th>
-                    <th>Dominant Injury</th>
-                    <th>Whiplash</th>
-                    <th>Driver Age</th>
-                    <th>Vehicle Age</th>
-                    <th>Police Report</th>
-                    <th>Whitness Present</th>
-                    <th>Gender</th>
-                    <th>Evidence Documents</th>
-                    <th>Vehicle</th>
-                    <th>Weather Condition</th>
-                </tr>
-                </thead>
-                <tbody>
+            <div class="claims-container">
                 {% for claim in claims %}
-                    <tr>
-                        <td> {{ claim.id }} </td>
-                        <td>{{ claim.passengers_involved }}</td>
-                        <td>{{ claim.psychological_injury }}</td>
-                        <td>{{ claim.injury_prognosis_months }}</td>
-                        <td>{{ claim.exceptional_circumstance }}</td>
-                        <td>{{ claim.dominant_injury }}</td>
-                        <td>{{ claim.whiplash }}</td>
-                        <td>{{ claim.driver_age }}</td>
-                        <td>{{ claim.vehicle_age }}</td>
-                        <td>{{ claim.police_report }}</td>
-                        <td>{{ claim.witness_present }}</td>
-                        <td>{{ claim.gender }}</td>
-                        <td>{{ claim.supporting_documents }}</td>
-                        <td>{{ claim.vehicle_type }}</td>
-                        <td>{{ claim.weather_condition }}</td>
-                    </tr>
+                    <div class="claim-card">
+                        <div class="claim-bar">
+                            <p><strong>Claim No:</strong> {{ claim.id }}</p>
+                        </div>
+                        <div class="claim-bar">
+                            <p><strong>Passengers Involved:</strong> {{ claim.passengers_involved }}</p>
+                        </div>
+                        <div class="claim-bar">
+                            <p><strong>Psychological Injury:</strong> {{ claim.psychological_injury }}</p>
+                        </div>
+                        <div class="claim-bar">
+                            <p><strong>Prognosis (Months):</strong> {{ claim.injury_prognosis_months }}</p>
+                        </div>
+                        <div class="claim-bar">
+                            <p><strong>Exceptional Circumstance:</strong> {{ claim.exceptional_circumstance }}</p>
+                        </div>
+                        <div class="claim-bar">
+                            <p><strong>Dominant Injury:</strong> {{ claim.dominant_injury }}</p>
+                        </div>
+                        <div class="claim-bar">
+                            <p><strong>Whiplash:</strong> {{ claim.whiplash }}</p>
+                        </div>
+                        <div class="claim-bar">
+                            <p><strong>Driver Age:</strong> {{ claim.driver_age }}</p>
+                        </div>
+                        <div class="claim-bar">
+                            <p><strong>Vehicle Age:</strong> {{ claim.vehicle_age }}</p>
+                        </div>
+                        <div class="claim-bar">
+                            <p><strong>Police Report:</strong> {{ claim.police_report }}</p>
+                        </div>
+                        <div class="claim-bar">
+                            <p><strong>Witness Present:</strong> {{ claim.witness_present }}</p>
+                        </div>
+                        <div class="claim-bar">
+                            <p><strong>Gender:</strong> {{ claim.gender }}</p>
+                        </div>
+                        <div class="claim-bar">
+                            <p><strong>Evidence Documents:</strong> <a href="{{ claim.supporting_documents }}" target="_blank">View</a></p>
+                        </div>
+                        <div class="claim-bar">
+                            <p><strong>Vehicle:</strong> {{ claim.vehicle_type }}</p>
+                        </div>
+                        <div class="claim-bar">
+                            <p><strong>Weather Condition:</strong> {{ claim.weather_condition }}</p>
+                        </div>
+                        <div class="edit-claim-container">
+                            <a href="{% url 'edit_claim' claim.id %}" class="btn edit-claim-btn">Edit</a>
+                        </div>
+                    </div>
                 {% endfor %}
-                </tbody>
-            </table>
+            </div>
+            
         {% else %}
             <p>You have not uploaded any claims yet.</p>
         {% endif %}
+
+
+        <hr>
+
+        <!-- Feedback Button at the Bottom -->
+        <div class="feedback-container">
+            <a href="{% url 'feedback' %}" class="btn feedback-btn">Give Feedback</a>
+        </div>
     {% endif %}
+</div>
+
 {% endblock %}

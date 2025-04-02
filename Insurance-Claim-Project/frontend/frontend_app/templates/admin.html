@@ -1,19 +1,26 @@
 {% extends "base_generic.html" %}
+{% load static %}
+<link rel="stylesheet" href="{% static 'css/admin_dashboard.css' %}">
 
 {% block content %}
-    <h1>Admin Dashboard</h1>
+<h1>Admin Dashboard</h1>
 
-    <!---------- display current User ------------>
-    {% if current_user %}
-        <h2>Currently logged In As: {{ current_user.username }}</h2>
-    {% endif %}
+<p class="text-muted">
+    You are viewing and managing personal data. Actions performed here are subject to GDPR audit and must comply with data protection regulations.
+</p>
 
-    <!------------- display users ------------->
+{% if current_user %}
+    <h2>Currently logged in as: {{ current_user.username }}</h2>
+{% endif %}
+
+{% if error %}
+    <p style="color: red;">{{ error }}</p>
+{% endif %}
+
+<!-- Users Section -->
+<div class="section">
     <h2>Users</h2>
-    {% if error %}
-        <p style="color: red;">{{ error }}</p>
-    {% endif %}
-    <table border="1">
+    <table class="styled-table">
         <thead>
             <tr>
                 <th>ID</th>
@@ -30,11 +37,10 @@
                 <td>{{ user.permission_level }}</td>
                 <td>
                     {% if user.id != current_user.id %}
-                        <!------------- delete users ------------->
-                        <form method="POST" style="display:inline;">
+                        <form method="POST" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete user {{ user.username }}? This action cannot be undone.');">
                             {% csrf_token %}
                             <input type="hidden" name="user_id" value="{{ user.id }}">
-                            <button type="submit">Delete</button>
+                            <button type="submit" style="color: red;">Delete</button>
                         </form>
                     {% else %}
                         <span>(You)</span>
@@ -44,59 +50,59 @@
         {% endfor %}
         </tbody>
     </table>
+</div>
 
-
-
-    </br></br>
-
-    <!--------------- register new user ---------------------->
+<!-- New User Registration Section -->
+<div class="section">
     <h2>Register New User</h2>
     <form method="POST">
         {% csrf_token %}
         {{ form.as_p }}
         <button type="submit">Register</button>
     </form>
+</div>
 
-
-
-    </br></br>
-
-
-
-    <!--------------------- usage logs -------------------------> 
+<!-- Logs Section -->
+<div class="section">
     <h2>Usage Logs</h2>
     <form method="GET" action=".">
         <label for="user_filter">Filter by User:</label>
         <select name="user_filter" id="user_filter">
             <option value="">All Users</option>
             {% for user in users %}
-                <option value="{{ user.id }}" {% if user_filter|add:'0' == user.id|add:'0' %}selected{% endif %}>{{ user.username }}</option>
+                <option value="{{ user.id }}" {% if user_filter|add:'0' == user.id|add:'0' %}selected{% endif %}>
+                    {{ user.username }}
+                </option>
             {% endfor %}
         </select>
         <button type="submit">Filter</button>
     </form>
 
-
-    <table>
+    <table class="styled-table">
         <thead>
             <tr>
-                <th>LogId</th>
-                <th>UserId</th>
+                <th>Log ID</th>
+                <th>User ID</th>
                 <th>Username</th>
                 <th>Action</th>
                 <th>Timestamp</th>
             </tr>
         </thead>
         <tbody>
-            {% for log in logs %}
-                <tr>
-                    <td>{{ log.id }}</td>
-                    <td>{{ log.user }}</td>
-                    <td>{{ log.username }}</td>
-                    <td>{{ log.action_text }}</td>
-                    <td>{{ log.time }}</td>
-                </tr>
-            {% endfor %}
+        {% for log in logs %}
+            <tr>
+                <td>{{ log.id }}</td>
+                <td>{{ log.user }}</td>
+                <td>{{ log.username }}</td>
+                <td>{{ log.action_text }}</td>
+                <td>{{ log.time }}</td>
+            </tr>
+        {% empty %}
+            <tr>
+                <td colspan="5">No logs found for selected user.</td>
+            </tr>
+        {% endfor %}
         </tbody>
     </table>
+</div>
 {% endblock %}
