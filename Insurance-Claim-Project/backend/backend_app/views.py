@@ -17,11 +17,8 @@ from .serializers import (
     InvoiceSerializer, UsageLogSerializer, UserFeedbackSerializer
 )
 from .utils import get_current_user, log_action
+from .permissions import *
 from .ai_model import train_new_model
-from rest_framework.decorators import action 
-from django.core.files.storage import default_storage
-from django.core.files.base import ContentFile
-import os
 
 
 # Home API
@@ -44,6 +41,8 @@ def protected_view(request):
 class UserProfileViewSet(viewsets.ModelViewSet):
     queryset = UserProfile.objects.all()
     serializer_class = UserProfileSerializer
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
 
     def create(self, request):
         user_profile = get_current_user(request)
@@ -51,10 +50,6 @@ class UserProfileViewSet(viewsets.ModelViewSet):
         serializer_class.save()
         log_action("Created a new user profile!", user_profile)
 
-    # authentication_classes = [JWTAuthentication] # could add in future to protect the view
-    # permission_classes = [IsAuthenticated] # checks if anuthenticated
-
-    #  DELETE THE USER
     def destroy(self, request, pk=None):
         try:
             user = UserProfile.objects.get(pk=pk)
@@ -110,6 +105,8 @@ class AdministratorViewSet(viewsets.ModelViewSet):
 class VehicleTypeViewSet(viewsets.ModelViewSet):
     queryset = VehicleType.objects.all()
     serializer_class = VehicleTypeSerializer
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated, IsAdministrator, IsAiEngineer]
 
     def create(self, request):
         serializer_class = VehicleTypeSerializer(data=request.data)
@@ -124,6 +121,8 @@ class VehicleTypeViewSet(viewsets.ModelViewSet):
 class WeatherConditionViewSet(viewsets.ModelViewSet):
     queryset = WeatherCondition.objects.all()
     serializer_class = WeatherConditionSerializer
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated, IsAdministrator, IsAiEngineer]
 
     def create(self, request):
         serializer_class = WeatherConditionSerializer(data=request.data)
@@ -134,39 +133,11 @@ class WeatherConditionViewSet(viewsets.ModelViewSet):
             return Response(serializer_class.data, status=status.HTTP_201_CREATED)
         return Response(serializer_class.errors, status=status.HTTP_400_BAD_REQUEST)
 
-##
-
-UPLOAD_DIR = "uploads/training_data/"  # Directory to save uploaded files
 
 class ClaimTrainingDataViewSet(viewsets.ModelViewSet):
-    queryset = ClaimTrainingData.objects.all()
-    serializer_class = ClaimTrainingDataSerializer
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated, IsAdministrator, IsAiEngineer]
 
-    @action(detail= False, methods=['post'], permission_classes=[IsAuthenticated])
-    def upload_files(self, request):
-        user_profile = get_current_user(request)
-
-        # Check if the user is an AI Engineer
-        if not hasattr(user_profile, 'aiengineer'):
-            return Response({"error": "You do not have persmission to perform this action!"}, status= 403)
-        
-        # Handle file upload
-        uploaded_file = request.FILES.get('file')
-        if not uploaded_file:
-            return Response({"error": "No file uploaded!"}, status=400)
-        
-        # Save the fiel 
-        os.makedirs(UPLOAD_DIR, exist_ok=True)  # Create directory if it doesn't exist
-        file_path = os .path.join(UPLOAD_DIR, uploaded_file.name)
-        path = default_storage.save(file_path, ContentFile(uploaded_file.read()))
-        
-        # Logg the action 
-        log_action ("Uploaded training data file!", user_profile)
-
-        return Response({"message": "File uploaded successfully!", "file_path": path}, status=201)
-
-
-## 
     def create(self, request):
         serializer_class = ClaimTrainingDataSerializer(data=request.data)
         if serializer_class.is_valid():
@@ -182,7 +153,7 @@ class ClaimTrainingDataViewSet(viewsets.ModelViewSet):
         try:
             ClaimTrainingData.objects.all().delete()
             log_action("Deleted all claim training data!", user_profile)
-            return Response({"message": f"Claim training data has been deleted!"})
+            return Response({"message": "Claim training data has been deleted!"})
         except DatabaseError:
             return Response({"error": "Claim training data could not be deleted!"})
 
@@ -190,6 +161,12 @@ class ClaimTrainingDataViewSet(viewsets.ModelViewSet):
 class UserClaimsViewSet(viewsets.ModelViewSet):
     queryset = UserClaims.objects.all()
     serializer_class = UserClaimsSerializer
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        user_profile = get_current_user(self.request)
+        return UserClaims.objects.filter(user=user_profile)
 
     def create(self, request, *args, **kwargs):
         # on creatine of user claim, serialize with request
@@ -208,6 +185,8 @@ class UserClaimsViewSet(viewsets.ModelViewSet):
 class InvoiceViewSet(viewsets.ModelViewSet):
     queryset = Invoice.objects.all()
     serializer_class = InvoiceSerializer
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
 
     def create(self, request):
         user_id = request.data.get("user_id")
@@ -231,32 +210,11 @@ class InvoiceViewSet(viewsets.ModelViewSet):
 
 class TrainModelViewSet(viewsets.ModelViewSet):
     queryset = ClaimTrainingData.objects.all()
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated, IsAdministrator, IsAiEngineer]
 
-    @action(detail=False, methods=['post'], permission_classes=[IsAuthenticated])
+    @action(detail=False, methods=['post'])
     def train_model(self, request):
-        user_profile = get_current_user(request)
-
-        # check if the user is an AI Engineer
-        if not hasattr(user_profile, 'aiengineer'):
-            return Response( {"error": "You do not have permission to perform this action!"}, status=403)
-        
-        # Get the file path from the request
-        file_path = request.data.get('file_path')
-        if not file_path or not os.path.exists(file_path):
-            return Response({"error": "File not found!"}, status=400)
-        
-        # Trigger the retraining process
-        try:
-            train_new_model(file_path)
-            log_action("Model training Triggered!", user_profile)
-            return Response({"message": "Model retraining started successfully!"}, status=200)
-        except Exception as e:
-            return Response({"error": f"Model retraining failed: {str(e)}"}, status=500)
-
-        
-
-
-
         training_data = ClaimTrainingData.objects.all().values()
         train_new_model(training_data)
         # url stuff
@@ -266,6 +224,9 @@ class TrainModelViewSet(viewsets.ModelViewSet):
 # usage logs viewset - to display on the admin dashboard
 
 class UsageLogViewSet(viewsets.ViewSet):
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated, IsAdministrator]
+
     def list(self, request):
         user_id = request.query_params.get('user_id', None)  # get user id
 
@@ -282,7 +243,8 @@ class UsageLogViewSet(viewsets.ViewSet):
 class UserFeedbackViewSet(viewsets.ModelViewSet):
     queryset = UserFeedback.objects.all()
     serializer_class = UserFeedbackSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
