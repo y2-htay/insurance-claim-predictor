@@ -64,6 +64,7 @@ class UserProfileViewSet(viewsets.ModelViewSet):
 
 class EndUserViewSet(viewsets.ModelViewSet):
     queryset = EndUser.objects.all()
+    permission_classes = [IsAuthenticated]
 
     def create(self, request):
         user_profile = get_current_user(request)
@@ -84,6 +85,7 @@ class AiEngineerViewSet(viewsets.ModelViewSet):
 
 class FinanceViewSet(viewsets.ModelViewSet):
     queryset = Finance.objects.all()
+    permission_classes = [IsAuthenticated]
 
     def create(self, request):
         user_profile = get_current_user(request)
@@ -94,6 +96,7 @@ class FinanceViewSet(viewsets.ModelViewSet):
 
 class AdministratorViewSet(viewsets.ModelViewSet):
     queryset = Administrator.objects.all()
+    permission_classes = [IsAuthenticated]
 
     def create(self, request):
         user_profile = get_current_user(request)
@@ -106,7 +109,7 @@ class VehicleTypeViewSet(viewsets.ModelViewSet):
     queryset = VehicleType.objects.all()
     serializer_class = VehicleTypeSerializer
     authentication_classes = [JWTAuthentication]
-    permission_classes = [IsAuthenticated, IsAdministrator, IsAiEngineer]
+    permission_classes = [IsAuthenticated, IsAiEngineer]
 
     def create(self, request):
         serializer_class = VehicleTypeSerializer(data=request.data)
@@ -122,7 +125,7 @@ class WeatherConditionViewSet(viewsets.ModelViewSet):
     queryset = WeatherCondition.objects.all()
     serializer_class = WeatherConditionSerializer
     authentication_classes = [JWTAuthentication]
-    permission_classes = [IsAuthenticated, IsAdministrator, IsAiEngineer]
+    permission_classes = [IsAuthenticated, IsAiEngineer]
 
     def create(self, request):
         serializer_class = WeatherConditionSerializer(data=request.data)
@@ -136,7 +139,7 @@ class WeatherConditionViewSet(viewsets.ModelViewSet):
 
 class ClaimTrainingDataViewSet(viewsets.ModelViewSet):
     authentication_classes = [JWTAuthentication]
-    permission_classes = [IsAuthenticated, IsAdministrator, IsAiEngineer]
+    permission_classes = [IsAuthenticated, IsAiEngineer]
 
     def create(self, request):
         serializer_class = ClaimTrainingDataSerializer(data=request.data)
@@ -211,7 +214,7 @@ class InvoiceViewSet(viewsets.ModelViewSet):
 class TrainModelViewSet(viewsets.ModelViewSet):
     queryset = ClaimTrainingData.objects.all()
     authentication_classes = [JWTAuthentication]
-    permission_classes = [IsAuthenticated, IsAdministrator, IsAiEngineer]
+    permission_classes = [IsAuthenticated, IsAiEngineer]
 
     @action(detail=False, methods=['post'])
     def train_model(self, request):
