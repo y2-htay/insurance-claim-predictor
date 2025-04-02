@@ -7,7 +7,7 @@ from .views import (
     # api_home,  # Home API
     UserProfileViewSet, EndUserViewSet, AiEngineerViewSet,
     FinanceViewSet, AdministratorViewSet, VehicleTypeViewSet,
-    WeatherConditionViewSet, ClaimTrainingDataViewSet, UserClaimsViewSet,
+    WeatherConditionViewSet, ClaimTrainingDataViewSet, TrainModelViewSet, UserClaimsViewSet,
     InvoiceViewSet, UsageLogViewSet, UserFeedbackViewSet
 )
 

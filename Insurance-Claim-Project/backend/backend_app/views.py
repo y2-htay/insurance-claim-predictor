@@ -18,6 +18,10 @@ from .serializers import (
 )
 from .utils import get_current_user, log_action
 from .ai_model import train_new_model
+from rest_framework.decorators import action 
+from django.core.files.storage import default_storage
+from django.core.files.base import ContentFile
+import os
 
 
 # Home API
@@ -130,8 +134,39 @@ class WeatherConditionViewSet(viewsets.ModelViewSet):
             return Response(serializer_class.data, status=status.HTTP_201_CREATED)
         return Response(serializer_class.errors, status=status.HTTP_400_BAD_REQUEST)
 
+##
+
+UPLOAD_DIR = "uploads/training_data/"  # Directory to save uploaded files
 
 class ClaimTrainingDataViewSet(viewsets.ModelViewSet):
+    queryset = ClaimTrainingData.objects.all()
+    serializer_class = ClaimTrainingDataSerializer
+
+    @action(detail= False, methods=['post'], permission_classes=[IsAuthenticated])
+    def upload_files(self, request):
+        user_profile = get_current_user(request)
+
+        # Check if the user is an AI Engineer
+        if not hasattr(user_profile, 'aiengineer'):
+            return Response({"error": "You do not have persmission to perform this action!"}, status= 403)
+        
+        # Handle file upload
+        uploaded_file = request.FILES.get('file')
+        if not uploaded_file:
+            return Response({"error": "No file uploaded!"}, status=400)
+        
+        # Save the fiel 
+        os.makedirs(UPLOAD_DIR, exist_ok=True)  # Create directory if it doesn't exist
+        file_path = os .path.join(UPLOAD_DIR, uploaded_file.name)
+        path = default_storage.save(file_path, ContentFile(uploaded_file.read()))
+        
+        # Logg the action 
+        log_action ("Uploaded training data file!", user_profile)
+
+        return Response({"message": "File uploaded successfully!", "file_path": path}, status=201)
+
+
+## 
     def create(self, request):
         serializer_class = ClaimTrainingDataSerializer(data=request.data)
         if serializer_class.is_valid():
@@ -197,8 +232,31 @@ class InvoiceViewSet(viewsets.ModelViewSet):
 class TrainModelViewSet(viewsets.ModelViewSet):
     queryset = ClaimTrainingData.objects.all()
 
-    @action(detail=False, methods=['post'])
+    @action(detail=False, methods=['post'], permission_classes=[IsAuthenticated])
     def train_model(self, request):
+        user_profile = get_current_user(request)
+
+        # check if the user is an AI Engineer
+        if not hasattr(user_profile, 'aiengineer'):
+            return Response( {"error": "You do not have permission to perform this action!"}, status=403)
+        
+        # Get the file path from the request
+        file_path = request.data.get('file_path')
+        if not file_path or not os.path.exists(file_path):
+            return Response({"error": "File not found!"}, status=400)
+        
+        # Trigger the retraining process
+        try:
+            train_new_model(file_path)
+            log_action("Model training Triggered!", user_profile)
+            return Response({"message": "Model retraining started successfully!"}, status=200)
+        except Exception as e:
+            return Response({"error": f"Model retraining failed: {str(e)}"}, status=500)
+
+        
+
+
+
         training_data = ClaimTrainingData.objects.all().values()
         train_new_model(training_data)
         # url stuff
