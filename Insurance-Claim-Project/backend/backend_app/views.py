@@ -17,6 +17,7 @@ from .serializers import (
     InvoiceSerializer, UsageLogSerializer, UserFeedbackSerializer
 )
 from .utils import get_current_user, log_action
+from .permissions import *
 from .ai_model import train_new_model
 
 
@@ -40,6 +41,8 @@ def protected_view(request):
 class UserProfileViewSet(viewsets.ModelViewSet):
     queryset = UserProfile.objects.all()
     serializer_class = UserProfileSerializer
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
 
     def create(self, request):
         user_profile = get_current_user(request)
@@ -47,14 +50,11 @@ class UserProfileViewSet(viewsets.ModelViewSet):
         serializer_class.save()
         log_action("Created a new user profile!", user_profile)
 
-    # authentication_classes = [JWTAuthentication] # could add in future to protect the view
-    # permission_classes = [IsAuthenticated] # checks if anuthenticated
-
-    #  DELETE THE USER
     def destroy(self, request, pk=None):
         try:
             user = UserProfile.objects.get(pk=pk)
             user.delete()
+            log_action("User profile deleted successfully.", None)
             return Response({'message': 'User deleted successfully.'}, status=status.HTTP_204_NO_CONTENT)
         except UserProfile.DoesNotExist:
             return Response({'error': 'User not found.'}, status=status.HTTP_404_NOT_FOUND)
@@ -105,6 +105,8 @@ class AdministratorViewSet(viewsets.ModelViewSet):
 class VehicleTypeViewSet(viewsets.ModelViewSet):
     queryset = VehicleType.objects.all()
     serializer_class = VehicleTypeSerializer
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated, IsAdministrator, IsAiEngineer]
 
     def create(self, request):
         serializer_class = VehicleTypeSerializer(data=request.data)
@@ -119,6 +121,8 @@ class VehicleTypeViewSet(viewsets.ModelViewSet):
 class WeatherConditionViewSet(viewsets.ModelViewSet):
     queryset = WeatherCondition.objects.all()
     serializer_class = WeatherConditionSerializer
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated, IsAdministrator, IsAiEngineer]
 
     def create(self, request):
         serializer_class = WeatherConditionSerializer(data=request.data)
@@ -131,6 +135,9 @@ class WeatherConditionViewSet(viewsets.ModelViewSet):
 
 
 class ClaimTrainingDataViewSet(viewsets.ModelViewSet):
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated, IsAdministrator, IsAiEngineer]
+
     def create(self, request):
         serializer_class = ClaimTrainingDataSerializer(data=request.data)
         if serializer_class.is_valid():
@@ -146,7 +153,7 @@ class ClaimTrainingDataViewSet(viewsets.ModelViewSet):
         try:
             ClaimTrainingData.objects.all().delete()
             log_action("Deleted all claim training data!", user_profile)
-            return Response({"message": f"Claim training data has been deleted!"})
+            return Response({"message": "Claim training data has been deleted!"})
         except DatabaseError:
             return Response({"error": "Claim training data could not be deleted!"})
 
@@ -154,6 +161,12 @@ class ClaimTrainingDataViewSet(viewsets.ModelViewSet):
 class UserClaimsViewSet(viewsets.ModelViewSet):
     queryset = UserClaims.objects.all()
     serializer_class = UserClaimsSerializer
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        user_profile = get_current_user(self.request)
+        return UserClaims.objects.filter(user=user_profile)
 
     def create(self, request, *args, **kwargs):
         # on creatine of user claim, serialize with request
@@ -172,6 +185,8 @@ class UserClaimsViewSet(viewsets.ModelViewSet):
 class InvoiceViewSet(viewsets.ModelViewSet):
     queryset = Invoice.objects.all()
     serializer_class = InvoiceSerializer
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
 
     def create(self, request):
         user_id = request.data.get("user_id")
@@ -195,6 +210,8 @@ class InvoiceViewSet(viewsets.ModelViewSet):
 
 class TrainModelViewSet(viewsets.ModelViewSet):
     queryset = ClaimTrainingData.objects.all()
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated, IsAdministrator, IsAiEngineer]
 
     @action(detail=False, methods=['post'])
     def train_model(self, request):
@@ -207,6 +224,9 @@ class TrainModelViewSet(viewsets.ModelViewSet):
 # usage logs viewset - to display on the admin dashboard
 
 class UsageLogViewSet(viewsets.ViewSet):
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated, IsAdministrator]
+
     def list(self, request):
         user_id = request.query_params.get('user_id', None)  # get user id
 
@@ -223,7 +243,8 @@ class UsageLogViewSet(viewsets.ViewSet):
 class UserFeedbackViewSet(viewsets.ModelViewSet):
     queryset = UserFeedback.objects.all()
     serializer_class = UserFeedbackSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)

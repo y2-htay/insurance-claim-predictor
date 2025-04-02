@@ -1,0 +1,119 @@
+body {
+    font-family: 'Segoe UI', sans-serif;
+    background: linear-gradient(120deg, #ffffff, #f4f8ff);
+    margin: 0;
+    padding: 40px 12px;
+    color: #1e293b;
+  }
+  
+  .finance-container {
+    max-width: 800px;
+    margin: 0 auto;
+    background-color: #ffffff;
+    padding: 36px 40px;
+    border-radius: 24px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
+    border: 1px solid #e5e7eb;
+  }
+  
+  h1, h2 {
+    text-align: center;
+    color: #1e293b;
+    margin-bottom: 24px;
+  }
+  
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 24px;
+  }
+  
+  label {
+    font-weight: 600;
+    color: #374151;
+    font-size: 14px;
+  }
+  
+  select {
+    padding: 10px;
+    font-size: 14px;
+    border-radius: 10px;
+    border: 1px solid #d1d5db;
+    background-color: #f9fafb;
+  }
+  
+  select:focus {
+    border-color: #f97316;
+    outline: none;
+    background-color: #ffffff;
+  }
+  
+  .claims-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+  }
+  
+  .claims-table th, .claims-table td {
+    padding: 12px;
+    border: 1px solid #e5e7eb;
+    text-align: center;
+    font-size: 13.5px;
+  }
+  
+  .claims-table th {
+    background-color: #f3f4f6;
+    font-weight: 600;
+  }
+  
+  button {
+    padding: 12px;
+    font-size: 14px;
+    font-weight: 600;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  .btn-primary {
+    background-color: #f97316;
+    color: white;
+    box-shadow: 0 3px 10px rgba(249, 115, 22, 0.2);
+  }
+  
+  .btn-primary:hover {
+    background-color: #ea580c;
+  }
+  
+  .success {
+    color: #16a34a;
+    font-weight: 600;
+    text-align: center;
+    margin-bottom: 16px;
+  }
+  
+  .error {
+    color: #dc2626;
+    font-weight: 600;
+    text-align: center;
+    margin-bottom: 16px;
+  }
+  
+  @media (max-width: 640px) {
+    .finance-container {
+      padding: 24px;
+    }
+  
+    .claims-table th,
+    .claims-table td {
+      padding: 8px;
+      font-size: 12.5px;
+    }
+  
+    button {
+      font-size: 13px;
+    }
+  }
+  

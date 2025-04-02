@@ -1,0 +1,222 @@
+/* Global Page Styles */
+body {
+    font-family: 'Segoe UI', sans-serif;
+    background: linear-gradient(120deg, #fefefe, #f4f8ff);
+    margin: 0;
+    padding: 40px 12px;
+    color: #111827;
+  }
+  
+  /* Header and Footer */
+  header, footer {
+    text-align: center;
+    padding: 12px 0;
+    font-size: 15px;
+    color: #6b7280;
+  }
+  
+  /* Back Button */
+  .back-wrapper {
+    display: flex;
+    justify-content: center;
+    max-width: 600px;
+    margin: 0 auto 25px;
+  }
+  
+  .btn-back {
+    display: inline-block;
+    background-color: #ff5b22;
+    color: white;
+    font-size: 14px;
+    font-weight: 600;
+    padding: 8px 20px;
+    border-radius: 9999px;
+    text-decoration: none;
+    box-shadow: 0 2px 6px rgba(255, 91, 34, 0.3);
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+  }
+  
+  .btn-back:hover {
+    background-color: #e34c1c;
+    box-shadow: 0 4px 10px rgba(255, 91, 34, 0.4);
+  }
+  
+  /* Form Container */
+  .edit-container {
+    background: #ffffff;
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 28px 32px;
+    border-radius: 22px;
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.06);
+    border: 1px solid #e5e7eb;
+  }
+  
+  /* Titles */
+  h2, h3 {
+    text-align: center;
+    color: #1e293b;
+    margin-bottom: 20px;
+    font-weight: 700;
+  }
+  
+  hr {
+    margin: 30px 0 20px;
+    border: none;
+    border-top: 1px solid #e5e7eb;
+  }
+  
+  /* Form Groups */
+  .form-group {
+    margin-bottom: 14px;
+    text-align: left;
+  }
+  
+  .form-group > label {
+    display: block;
+    font-weight: 600;
+    font-size: 14px;
+    color: #374151;
+    margin-bottom: 4px;
+  }
+  
+  /* Inputs & Selects */
+  input[type="text"],
+  input[type="number"],
+  select,
+  input[type="file"] {
+    width: 100%;
+    padding: 10px 12px;
+    font-size: 14px;
+    border: 1px solid #d1d5db;
+    border-radius: 10px;
+    background-color: #f9fafb;
+    transition: all 0.25s ease;
+    box-sizing: border-box;
+  }
+  
+  input:focus,
+  select:focus {
+    border-color: #ff5b22;
+    outline: none;
+    background-color: #fff;
+  }
+  .checkbox-group,
+  .form-group.checkbox-inline,
+  .consent {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    font-size: 14px;
+    color: #374151;
+    margin: 10px 0;
+  }
+  
+  /* Checkbox Input */
+  .checkbox-group input[type="checkbox"],
+  .form-group.checkbox-inline input[type="checkbox"],
+  .consent input[type="checkbox"] {
+    margin-top: 4px;
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+    accent-color: #ff5b22;
+  }
+  
+  /* Label Text beside checkbox */
+  .checkbox-group label,
+  .consent label {
+    flex: 1;
+    margin: 0;
+    font-weight: normal;
+    display: inline-block;
+    line-height: 1.5;
+  }
+  
+  /* Allow link inside label to break cleanly */
+  .checkbox-group a,
+  .consent a {
+    color: #f97316;
+    text-decoration: underline;
+    font-weight: 500;
+    word-break: break-word;
+  }
+  
+  
+  /* Error Message */
+  .error {
+    color: #dc2626;
+    font-weight: 600;
+    text-align: center;
+    margin-bottom: 16px;
+  }
+  
+  /* File Name Display */
+  .file-name {
+    font-size: 13px;
+    color: #6b7280;
+    margin-top: 4px;
+  }
+  
+  /* Buttons */
+  button {
+    width: 100%;
+    padding: 12px;
+    font-size: 14px;
+    font-weight: 600;
+    border-radius: 10px;
+    border: none;
+    cursor: pointer;
+    margin-top: 14px;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+  }
+  
+  button:active {
+    transform: scale(0.98);
+  }
+  
+  .btn-primary {
+    background-color: #ff5b22;
+    color: white;
+    box-shadow: 0 4px 10px rgba(255, 91, 34, 0.25);
+  }
+  
+  .btn-primary:hover {
+    background-color: #e34c1c;
+  }
+  
+  .btn-danger {
+    background-color: #f97316;
+    color: white;
+    box-shadow: 0 3px 8px rgba(249, 115, 22, 0.25);
+  }
+  
+  .btn-danger:hover {
+    background-color: #ea580c;
+  }
+  
+  /* Responsive */
+  @media (max-width: 640px) {
+    .edit-container {
+      padding: 20px 18px;
+      border-radius: 18px;
+    }
+  
+    .btn-back {
+      font-size: 13px;
+      padding: 7px 16px;
+    }
+  
+    button {
+      font-size: 13.5px;
+    }
+  
+    .form-group > label {
+      font-size: 13.5px;
+    }
+  
+    .checkbox-group {
+      font-size: 13.5px;
+    }
+  }
+  

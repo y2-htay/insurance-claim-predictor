@@ -1,16 +1,32 @@
-
 {% extends "base_generic.html" %}
+{% load static %}
+<link rel="stylesheet" href="{% static 'css/register.css' %}">
 
 {% block content %}
-    <h2>Register</h2>
-    {% if error %}
-        <p style="color: red;">{{ error }}</p>
-    {% endif %}
-    <form method="post">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit">Register</button>
-    </form>
-    <p>Already have an account? <a href="{% url 'login' %}">Login here</a></p>
+<div class="register-wrapper">
+  <div class="register-container">
 
-  {% endblock %}
+    <h2>Register</h2>
+
+    {% if error %}
+      <p class="error">{{ error }}</p>
+    {% endif %}
+
+    <form method="post">
+      {% csrf_token %}
+      {{ form.as_p }}
+      <button type="submit" class="btn btn-primary">Register</button>
+    </form>
+
+    <p class="switch-auth">
+      Already have an account? <a href="{% url 'login' %}">Login here</a>
+    </p>
+
+    <p class="legal-text">
+      By registering, you agree to our
+      <a href="{% url 'privacy_policy' %}">Privacy Policy</a>.
+    </p>
+
+  </div>
+</div>
+{% endblock %}

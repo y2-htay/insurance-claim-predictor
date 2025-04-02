@@ -3,7 +3,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Submit Insurance Claim</title>
+  <title>Edit Insurance Claim</title>
   <link rel="stylesheet" href="{% static 'css/edit_claim.css' %}">
 </head>
 <body>
@@ -13,42 +13,42 @@
   </div>
 
   <div class="edit-container">
-    <h2>Submit Insurance Claim</h2>
+    <h2>Edit Insurance Claim</h2>
 
     {% if error %}
       <p class="error">{{ error }}</p>
     {% endif %}
 
-    <form method="POST" enctype="multipart/form-data">
+    <form method="POST" enctype="multipart/form-data" id="editClaimForm">
       {% csrf_token %}
 
       <div class="form-group">
         <label>Passengers Involved:</label>
-        <input type="number" name="passengers_involved" required>
+        <input type="number" name="passengers_involved" value="{{ claim.passengers_involved }}" required>
       </div>
 
       <div class="form-group checkbox-group">
-        <input type="checkbox" name="psychological_injury" id="psychological_injury">
+        <input type="checkbox" name="psychological_injury" id="psychological_injury" {% if claim.psychological_injury %}checked{% endif %}>
         <label for="psychological_injury">Psychological Injury</label>
       </div>
 
       <div class="form-group">
         <label>Injury Prognosis (Months):</label>
-        <input type="number" name="injury_prognosis_months">
+        <input type="number" name="injury_prognosis_months" value="{{ claim.injury_prognosis_months }}">
       </div>
 
       <div class="form-group checkbox-group">
-        <input type="checkbox" name="exceptional_circumstance" id="exceptional_circumstance">
+        <input type="checkbox" name="exceptional_circumstance" id="exceptional_circumstance" {% if claim.exceptional_circumstance %}checked{% endif %}>
         <label for="exceptional_circumstance">Exceptional Circumstance</label>
       </div>
 
       <div class="form-group">
         <label>Dominant Injury:</label>
-        <input type="text" name="dominant_injury">
+        <input type="text" name="dominant_injury" value="{{ claim.dominant_injury }}">
       </div>
 
       <div class="form-group checkbox-group">
-        <input type="checkbox" name="whiplash" id="whiplash">
+        <input type="checkbox" name="whiplash" id="whiplash" {% if claim.whiplash %}checked{% endif %}>
         <label for="whiplash">Whiplash</label>
       </div>
 
@@ -56,7 +56,7 @@
         <label>Vehicle Type:</label>
         <select name="vehicle_type">
           {% for vt in vehicle_types %}
-            <option value="{{ vt.id }}">{{ vt.vehicle_name }}</option>
+            <option value="{{ vt.id }}" {% if claim.vehicle_type == vt.id %}selected{% endif %}>{{ vt.vehicle_name }}</option>
           {% endfor %}
         </select>
       </div>
@@ -65,36 +65,36 @@
         <label>Weather Condition:</label>
         <select name="weather_condition">
           {% for wc in weather_conditions %}
-            <option value="{{ wc.id }}">{{ wc.condition }}</option>
+            <option value="{{ wc.id }}" {% if claim.weather_condition == wc.id %}selected{% endif %}>{{ wc.condition }}</option>
           {% endfor %}
         </select>
       </div>
 
       <div class="form-group">
         <label>Driver Age:</label>
-        <input type="number" name="driver_age" required>
+        <input type="number" name="driver_age" value="{{ claim.driver_age }}" required>
       </div>
 
       <div class="form-group">
         <label>Vehicle Age:</label>
-        <input type="number" name="vehicle_age" required>
+        <input type="number" name="vehicle_age" value="{{ claim.vehicle_age }}" required>
       </div>
 
       <div class="form-group checkbox-group">
-        <input type="checkbox" name="police_report" id="police_report">
+        <input type="checkbox" name="police_report" id="police_report" {% if claim.police_report %}checked{% endif %}>
         <label for="police_report">Police Report</label>
       </div>
 
       <div class="form-group checkbox-group">
-        <input type="checkbox" name="witness_present" id="witness_present">
+        <input type="checkbox" name="witness_present" id="witness_present" {% if claim.witness_present %}checked{% endif %}>
         <label for="witness_present">Witness Present</label>
       </div>
 
       <div class="form-group">
         <label>Gender:</label>
         <select name="gender">
-          <option value="0">Male</option>
-          <option value="1">Female</option>
+          <option value="0" {% if claim.gender == "0" or claim.gender == "male" %}selected{% endif %}>Male</option>
+          <option value="1" {% if claim.gender == "1" or claim.gender == "female" %}selected{% endif %}>Female</option>
         </select>
       </div>
 
@@ -112,7 +112,15 @@
         </label>
       </div>
 
-      <button type="submit" class="btn btn-primary">Submit Claim</button>
+      <button type="submit" class="btn btn-primary">Update Claim</button>
+    </form>
+
+    <hr>
+
+    <form method="POST" onsubmit="return confirm('Are you sure you want to delete this claim?');">
+      {% csrf_token %}
+      <input type="hidden" name="delete" value="true">
+      <button type="submit" class="btn btn-danger">Delete Claim</button>
     </form>
   </div>
 
@@ -122,7 +130,7 @@
       fileLabel.innerText = this.files.length ? `Selected file: ${this.files[0].name}` : "";
     });
 
-    document.getElementById("submitClaimForm")?.addEventListener("submit", function (e) {
+    document.getElementById("editClaimForm")?.addEventListener("submit", function (e) {
       if (!document.getElementById("consentCheckbox").checked) {
         alert("You must provide explicit consent to submit this form.");
         e.preventDefault();

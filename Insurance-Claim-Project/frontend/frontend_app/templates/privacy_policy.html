@@ -1,0 +1,59 @@
+{% extends "base_generic.html" %}
+{% load static %}
+<link rel="stylesheet" href="{% static 'css/privacy_policy.css' %}">
+
+{% block content %}
+<div class="policy-container">
+  <h1>Privacy Policy</h1>
+
+  <p>
+    This Privacy Policy explains how we collect, use, and protect your personal data in accordance with the General Data Protection Regulation (GDPR).
+  </p>
+
+  <h2>1. What Data We Collect</h2>
+  <ul>
+    <li>Account details (username, password)</li>
+    <li>Contact details (if applicable)</li>
+    <li>Claim data (including accident details, demographics, injury info)</li>
+    <li>Usage logs and submitted feedback</li>
+  </ul>
+
+  <h2>2. Why We Collect Your Data</h2>
+  <p>We collect data to:</p>
+  <ul>
+    <li>Provide and improve our services</li>
+    <li>Process claims and generate invoices</li>
+    <li>Monitor system usage for security and optimization</li>
+    <li>Comply with legal obligations</li>
+  </ul>
+
+  <h2>3. Legal Basis for Processing</h2>
+  <p>We process personal data based on:</p>
+  <ul>
+    <li>Contractual necessity</li>
+    <li>Legal obligation</li>
+    <li>Legitimate interest</li>
+    <li>Your explicit consent (for sensitive data)</li>
+  </ul>
+
+  <h2>4. Data Storage & Security</h2>
+  <p>Your data is stored securely on our servers and protected through encryption, access control, and secure communication (HTTPS).</p>
+
+  <h2>5. Your Rights</h2>
+  <p>You have the right to:</p>
+  <ul>
+    <li>Access your data</li>
+    <li>Rectify incorrect information</li>
+    <li>Delete your data (right to be forgotten)</li>
+    <li>Restrict or object to processing</li>
+    <li>Download a copy of your data (portability)</li>
+  </ul>
+
+  <h2>6. Contact</h2>
+  <p>If you have any questions or want to exercise your rights, please contact our Data Protection Officer at <a href="mailto:support@example.com">support@example.com</a>.</p>
+
+  <p class="last-updated">
+    Last updated: {{ today|default:"2025-04-01" }}
+  </p>
+</div>
+{% endblock %}
