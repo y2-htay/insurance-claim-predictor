@@ -19,6 +19,11 @@ from .serializers import (
 from .utils import get_current_user, log_action
 from .permissions import *
 from .ai_model import train_new_model
+import csv
+from rest_framework.decorators import action
+from rest_framework.parsers import MultiPartParser
+from rest_framework.response import Response
+from rest_framework import status
 
 
 # Home API
@@ -140,8 +145,12 @@ class WeatherConditionViewSet(viewsets.ModelViewSet):
 class ClaimTrainingDataViewSet(viewsets.ModelViewSet):
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated, IsAiEngineer]
+    queryset = ClaimTrainingData.objects.all()
+    serializer_class = ClaimTrainingDataSerializer
+    parser_classes = (MultiPartParser,)  # Allow file uploads
 
     def create(self, request):
+        """ Default create for adding a single ClaimTrainingData entry."""
         serializer_class = ClaimTrainingDataSerializer(data=request.data)
         if serializer_class.is_valid():
             serializer_class.save()
@@ -152,6 +161,7 @@ class ClaimTrainingDataViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=['delete'])
     def delete(self, request):
+        """ Default delete for removing all ClaimTrainingData entries."""
         user_profile = get_current_user(request)
         try:
             ClaimTrainingData.objects.all().delete()
@@ -159,9 +169,77 @@ class ClaimTrainingDataViewSet(viewsets.ModelViewSet):
             return Response({"message": "Claim training data has been deleted!"})
         except DatabaseError:
             return Response({"error": "Claim training data could not be deleted!"})
+        
+    @action(detail=False, methods=['post'], permission_classes=[IsAuthenticated, IsAiEngineer])
+    def upload_csv(self, request):
+        """ Custom action for uploading a CSV file."""
+        # Check if a file is provided
+        file = request.FILES.get('file')
+        if not file:
+            return Response({"error": "No file provided"}, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Read and process the CSV file
+        try:
+            decoded_file = file.read().decode('utf-8').splitlines()
+            reader = csv.DictReader(decoded_file)
+
+            skipped_rows = [] # To track rows that are skipped
+            for index, row in enumerate(reader, start=1):
+                try:
+                    # Handle missing or invalid vehicle_type
+                    vehicle_type_id = row.get('vehicle_type')
+                    if not vehicle_type_id:
+                        # Skip the row or set a default value
+                        skipped_rows.append({"row": index, "error": "missing vehicle_type"})
+                        continue
+                    vehicle_type = VehicleType.objects.get(pk=vehicle_type_id)
 
 
-class UserClaimsViewSet(viewsets.ModelViewSet):
+                    # Handle missing or invalid weather_condition
+                    weather_condition_id = row.get('weather_condition')
+                    if not weather_condition_id:
+                        # Skip the row or set a default value
+                        skipped_rows.append({"row": index, "error": "missing weather_condition"})
+                        continue
+                    weather_condition = WeatherCondition.objects.get(pk=weather_condition_id)
+           
+                    # Create ClaimTrainingData entry
+                    ClaimTrainingData.objects.create(
+                        settle_value=row.get('settle_value', 0),
+                        accident_type=row.get('accident_type', 0),
+                        injury_prognosis_months=row.get('injury_prognosis_months', 0),
+                        exceptional_circumstance=row.get('exceptional_circumstance', False),
+                        psychological_injury=row.get('psychological_injury', False),
+                        dominant_injury=row.get('dominant_injury', 0),
+                        whiplash=row.get('whiplash', False),
+                        vehicle_type=vehicle_type,
+                        weather_condition=weather_condition,
+                        vehicle_age=row.get('vehicle_age', 0),
+                        driver_age=row.get('driver_age', 0),
+                        num_passengers=row.get('num_passengers', 1),
+                        police_report=row.get('police_report', False),
+                        witness_present=row.get('witness_present', False),
+                        gender=row.get('gender', 0),
+                    )
+                except VehicleType.DoesNotExist:
+                    skipped_rows.append({"row": index, "error": f"VehicleType with id {vehicle_type_id} does not exist"})
+                except WeatherCondition.DoesNotExist:
+                    skipped_rows.append({"row": index, "error": f"WeatherCondition with id {weather_condition_id} does not exist"})
+
+                
+            return Response({
+                "message": "CSV file processed successfully",
+                "skipped_rows": skipped_rows,
+            }, status=status.HTTP_200_OK)
+        
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+                         
+
+
+
+
+class UserClaimsViewSet(viewsets.ModelViewSet):    
     queryset = UserClaims.objects.all()
     serializer_class = UserClaimsSerializer
     authentication_classes = [JWTAuthentication]
