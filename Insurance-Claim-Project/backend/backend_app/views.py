@@ -170,40 +170,44 @@ class ClaimTrainingDataViewSet(viewsets.ModelViewSet):
         except DatabaseError:
             return Response({"error": "Claim training data could not be deleted!"})
         
-    @action(detail=False, methods=['post'], permission_classes=[IsAuthenticated, IsAiEngineer])
+    @action(detail=False, methods=['post'], permission_classes=[IsAuthenticated])
     def upload_csv(self, request):
-        """ Custom action for uploading a CSV file."""
-        # Check if a file is provided
+        """Custom action for uploading a CSV file."""
         file = request.FILES.get('file')
         if not file:
             return Response({"error": "No file provided"}, status=status.HTTP_400_BAD_REQUEST)
-        
+
         # Read and process the CSV file
         try:
             decoded_file = file.read().decode('utf-8').splitlines()
             reader = csv.DictReader(decoded_file)
 
-            skipped_rows = [] # To track rows that are skipped
+            skipped_rows = []  # To track rows that are skipped
             for index, row in enumerate(reader, start=1):
                 try:
-                    # Handle missing or invalid vehicle_type
+                    # Validate vehicle_type
                     vehicle_type_id = row.get('vehicle_type')
                     if not vehicle_type_id:
-                        # Skip the row or set a default value
-                        skipped_rows.append({"row": index, "error": "missing vehicle_type"})
+                        skipped_rows.append({"row": index, "reason": "Missing vehicle_type"})
                         continue
-                    vehicle_type = VehicleType.objects.get(pk=vehicle_type_id)
+                    try:
+                        vehicle_type = VehicleType.objects.get(pk=vehicle_type_id)
+                    except VehicleType.DoesNotExist:
+                        skipped_rows.append({"row": index, "reason": f"Invalid vehicle_type: {vehicle_type_id}"})
+                        continue
 
-
-                    # Handle missing or invalid weather_condition
+                    # Validate weather_condition
                     weather_condition_id = row.get('weather_condition')
                     if not weather_condition_id:
-                        # Skip the row or set a default value
-                        skipped_rows.append({"row": index, "error": "missing weather_condition"})
+                        skipped_rows.append({"row": index, "reason": "Missing weather_condition"})
                         continue
-                    weather_condition = WeatherCondition.objects.get(pk=weather_condition_id)
-           
-                    # Create ClaimTrainingData entry
+                    try:
+                        weather_condition = WeatherCondition.objects.get(pk=weather_condition_id)
+                    except WeatherCondition.DoesNotExist:
+                        skipped_rows.append({"row": index, "reason": f"Invalid weather_condition: {weather_condition_id}"})
+                        continue
+
+                    # Create a new ClaimTrainingData entry
                     ClaimTrainingData.objects.create(
                         settle_value=row.get('settle_value', 0),
                         accident_type=row.get('accident_type', 0),
@@ -221,20 +225,18 @@ class ClaimTrainingDataViewSet(viewsets.ModelViewSet):
                         witness_present=row.get('witness_present', False),
                         gender=row.get('gender', 0),
                     )
-                except VehicleType.DoesNotExist:
-                    skipped_rows.append({"row": index, "error": f"VehicleType with id {vehicle_type_id} does not exist"})
-                except WeatherCondition.DoesNotExist:
-                    skipped_rows.append({"row": index, "error": f"WeatherCondition with id {weather_condition_id} does not exist"})
+                except Exception as e:
+                    skipped_rows.append({"row": index, "reason": str(e)})
 
-                
+            # Return a success message with details of skipped rows
             return Response({
-                "message": "CSV file processed successfully",
-                "skipped_rows": skipped_rows,
-            }, status=status.HTTP_200_OK)
-        
+                "message": "CSV file processed successfully.",
+                "skipped_rows": skipped_rows
+            }, status=status.HTTP_201_CREATED)
+
         except Exception as e:
-            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
-                         
+            return Response({"error": f"Error processing file: {str(e)}"}, status=status.HTTP_400_BAD_REQUEST)
+        
 
 
 
