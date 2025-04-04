@@ -59,21 +59,7 @@ class WeatherCondition(Model):
 
 
 class ClaimTrainingData(Model):
-    settle_value = IntegerField(default=0)
-    accident_type = IntegerField(default=0)
-    injury_prognosis_months = IntegerField(default=0)
-    exceptional_circumstance = BooleanField(default=False)
-    psychological_injury = BooleanField(default=False)
-    dominant_injury = IntegerField(default=0)
-    whiplash = BooleanField(default=False)
-    vehicle_type = ForeignKey(VehicleType, on_delete=CASCADE)
-    weather_condition = ForeignKey(WeatherCondition, on_delete=CASCADE, default=None)
-    vehicle_age = IntegerField(default=0)
-    driver_age = IntegerField(default=0)
-    num_passengers = IntegerField(default=1)
-    police_report = BooleanField(default=False)
-    witness_present = BooleanField(default=False)
-    gender = IntegerField(default=0)
+    data_file = FileField(upload_to='training_data/')
 
 
 class UserClaims(Model):
