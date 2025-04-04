@@ -153,7 +153,7 @@ def submit_claim_view(request):
     vt_response = requests.get(f"{backend_url}/vehicle_types/", headers=headers)
     wc_response = requests.get(f"{backend_url}/weather_conditions/", headers=headers)
     gender_response = requests.get(f"{backend_url}/gender/", headers=headers)
-    injury_response = requests.get(url=f"{backend_url}/injury_description/", headers=headers)
+    injury_response = requests.get(f"{backend_url}/injury_description/", headers=headers)
 
     if vt_response.status_code == 200:
         vehicle_types = vt_response.json()
