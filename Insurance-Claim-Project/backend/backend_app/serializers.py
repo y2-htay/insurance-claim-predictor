@@ -11,16 +11,24 @@ from .models import (
 class UserProfileCreateSerializer(UserCreateSerializer):
     class Meta(UserCreateSerializer.Meta):
         model = UserProfile
+        # Customize the fields by adding permission_level
         fields = ('id', 'username', 'password', 'permission_level')
 
+        # TODO? Check if username already exists (if used for user registration)
+        # def validate_username(self, value):
+        # # Check if the username already exists
+        # if UserProfile.objects.filter(username=value).exists():
+        #     raise serializers.ValidationError("Username already exists.")
+        # return value
 
-# serializer for user retrieval using djoser
+
+# serializer for user retrieval using djoser (handles user authentication)
 class UserProfileAuthSerializer(UserSerializer):
     class Meta(UserSerializer.Meta):
         model = UserProfile
         fields = ('id', 'username', 'password', 'permission_level')
 
-
+# A more detailed serializer for the UserProfile model, which serializes all the fields.
 class UserProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserProfile

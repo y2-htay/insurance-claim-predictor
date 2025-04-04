@@ -7,3 +7,4 @@ joblib
 django-cors-headers
 djangorestframework-simplejwt
 djoser
+django-environ

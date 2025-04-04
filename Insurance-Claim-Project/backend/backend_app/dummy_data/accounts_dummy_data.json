@@ -1,0 +1,10 @@
+[
+    {
+        "model": "accounts.userprofile",
+        "fields": {
+            "username": "user",
+            "password": "needsHash", 
+            "permission_level": 0
+        }
+    }
+]

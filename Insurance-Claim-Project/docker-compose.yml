@@ -9,7 +9,10 @@ services:
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
       - SECRET_KEY=${SECRET_KEY}
     command:
-      bash -c "python manage.py makemigrations backend_app &&
+      bash -c "
+      while ! pg_isready -h db -p 5432; do sleep 1; done &&
+      sleep 5 &&
+      python manage.py makemigrations backend_app &&
       python manage.py migrate &&
       python manage.py runserver 0.0.0.0:8000"
     volumes:
@@ -24,7 +27,8 @@ services:
     environment:
       - SECRET_KEY=${SECRET_KEY}
     command:
-      bash -c "python manage.py makemigrations frontend_app &&
+      bash -c "
+      python manage.py makemigrations frontend_app &&
       python manage.py migrate &&
       python manage.py runserver 0.0.0.0:8000"
     volumes:
@@ -38,10 +42,27 @@ services:
       - "5231:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data/
+      #- ./init-scripts:/docker-entrypoint-initdb.d  # Mount SQL scripts to initialize the DB
     environment:
       - POSTGRES_DB=${POSTGRES_DB}
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    
+  # GUI Tool for PostgreSQL: View database at http://localhost:5050
+  # (Log into pgAdmin) Email: admin@example.com, Password: admin
+  # (Log into Database) POSTGRES_USER, POSTGRES_PASSWORD (in .env)
+
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin
+    restart: always
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@example.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - "5050:80"
+    depends_on:
+      - db
 
 volumes:
   postgres_data:
