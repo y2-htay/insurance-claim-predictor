@@ -169,7 +169,7 @@ class ClaimTrainingDataViewSet(viewsets.ModelViewSet):
             return Response({"message": "Claim training data has been deleted!"})
         except DatabaseError:
             return Response({"error": "Claim training data could not be deleted!"})
-        
+
     @action(detail=False, methods=['post'], permission_classes=[IsAuthenticated])
     def upload_csv(self, request):
         """Custom action for uploading a CSV file."""
@@ -204,7 +204,8 @@ class ClaimTrainingDataViewSet(viewsets.ModelViewSet):
                     try:
                         weather_condition = WeatherCondition.objects.get(pk=weather_condition_id)
                     except WeatherCondition.DoesNotExist:
-                        skipped_rows.append({"row": index, "reason": f"Invalid weather_condition: {weather_condition_id}"})
+                        skipped_rows.append(
+                            {"row": index, "reason": f"Invalid weather_condition: {weather_condition_id}"})
                         continue
 
                     # Create a new ClaimTrainingData entry
@@ -236,12 +237,9 @@ class ClaimTrainingDataViewSet(viewsets.ModelViewSet):
 
         except Exception as e:
             return Response({"error": f"Error processing file: {str(e)}"}, status=status.HTTP_400_BAD_REQUEST)
-        
 
 
-
-
-class UserClaimsViewSet(viewsets.ModelViewSet):    
+class UserClaimsViewSet(viewsets.ModelViewSet):
     queryset = UserClaims.objects.all()
     serializer_class = UserClaimsSerializer
     authentication_classes = [JWTAuthentication]

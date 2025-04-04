@@ -68,7 +68,6 @@ class UserClaims(Model):
     psychological_injury = BooleanField(default=False)
     injury_prognosis_months = IntegerField(default=0)
     exceptional_circumstance = BooleanField(default=False)
-    dominant_injury = CharField()
     whiplash = BooleanField(default=False)
     vehicle_type = ForeignKey(VehicleType, on_delete=CASCADE)
     weather_condition = ForeignKey(WeatherCondition, on_delete=CASCADE)
