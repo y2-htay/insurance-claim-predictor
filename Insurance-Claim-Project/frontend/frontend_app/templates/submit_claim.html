@@ -28,10 +28,10 @@
         </div>
 
         <div class="form-group">
-            <label>InjuryDescription:</label>
+            <label>Injury Description:</label>
             <select name="injury_description">
                 {% for id in injury_descriptions %}
-                    <option value="{{ vt.id }}">{{ vt.vehicle_name }}</option>
+                    <option value="{{ id.id }}">{{ id.description }}</option>
                 {% endfor %}
             </select>
         </div>
