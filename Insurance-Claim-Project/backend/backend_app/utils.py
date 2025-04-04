@@ -1,6 +1,8 @@
 import tempfile
 
-from .models import UserProfile
+from django.db import transaction
+
+from .models import UserProfile, Gender, InjuryDescription, VehicleType, WeatherCondition
 from backend_app.models import Actions, UsageLog
 import pandas as pd
 from sklearn.preprocessing import RobustScaler
@@ -39,6 +41,8 @@ def clean_dataset(data):
 
 
 def categorise_data(data, label):
+    add_category_to_db(data, label)
+
     values = data[label].astype(str).str.lower()
 
     if values.nunique() == 2 and set(values.unique()) <= {'yes', 'no'}:
@@ -62,6 +66,26 @@ def scale_data(data):
     scaler = RobustScaler()
     data[numerical_labels] = scaler.fit_transform(data[numerical_labels])
     return data
+
+
+def add_category_to_db(data, label):
+    unique_values = data[label].unique()
+    with transaction.atomic():
+        for value in unique_values:
+            try:
+                instance = None
+                if label == 'Vehicle Type':
+                    instance = VehicleType(vehicle_name=value)
+                elif label == 'Weather Conditions':
+                    instance = WeatherCondition(condition=value)
+                elif label == 'Injury Description':
+                    instance = InjuryDescription(description=value)
+                elif label == 'Gender':
+                    instance = Gender(gender=value)
+                instance.save()
+                return True
+            except:
+                raise Exception("Failed to add category to database!")
 
 
 def preprocess_data_and_upload(data):

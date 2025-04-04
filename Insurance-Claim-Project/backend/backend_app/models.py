@@ -50,6 +50,14 @@ class Administrator(Model):
         self.user.save()
 
 
+class Gender(Model):
+    gender = CharField(unique=True)
+
+
+class InjuryDescription(Model):
+    description = CharField(unique=True)
+
+
 class VehicleType(Model):
     vehicle_name = CharField(unique=True)
 
@@ -67,6 +75,7 @@ class UserClaims(Model):
     passengers_involved = FloatField(default=0)
     psychological_injury = BooleanField(default=False)
     injury_prognosis = FloatField(default=0)
+    injury_description = ForeignKey(InjuryDescription, on_delete=CASCADE)
     exceptional_circumstance = BooleanField(default=False)
     whiplash = BooleanField(default=False)
     vehicle_type = ForeignKey(VehicleType, on_delete=CASCADE)
@@ -75,7 +84,7 @@ class UserClaims(Model):
     vehicle_age = FloatField(default=0)
     police_report = BooleanField(default=False)
     witness_present = BooleanField(default=False)
-    gender = IntegerField(default=0)
+    gender = ForeignKey(Gender, on_delete=CASCADE)
     supporting_documents = FileField(upload_to='documents/', null=True, blank=True)
 
 

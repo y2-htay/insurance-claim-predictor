@@ -1,10 +1,6 @@
 from rest_framework import serializers
 from djoser.serializers import UserCreateSerializer, UserSerializer
-from .models import (
-    UserProfile, EndUser, AiEngineer, Finance, Administrator,
-    VehicleType, WeatherCondition, ClaimTrainingData, UserClaims, Invoice,
-    UsageLog, Actions, UserFeedback
-)
+from .models import *
 
 
 # serializer for user REGISTRATION
@@ -63,6 +59,18 @@ class WeatherConditionSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+class GenderSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Gender
+        fields = '__all__'
+
+
+class InjuryDescriptionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = InjuryDescription
+        fields = '__all__'
+
+
 class ClaimTrainingDataSerializer(serializers.ModelSerializer):
     class Meta:
         model = ClaimTrainingData
@@ -84,14 +92,16 @@ class InvoiceSerializer(serializers.ModelSerializer):
 
 # usage log serializer 
 class UsageLogSerializer(serializers.ModelSerializer):
-    action_text = serializers.CharField(source='action.action', read_only=True)  # get associated action text to given log
-    username = serializers.CharField(source='user.username', read_only=True) # get associated username to given log
-    
+    action_text = serializers.CharField(source='action.action',
+                                        read_only=True)  # get associated action text to given log
+    username = serializers.CharField(source='user.username', read_only=True)  # get associated username to given log
+
     class Meta:
         model = UsageLog
-        fields = ['id', 'user', 'username', 'action_text', 'time'] # return necessary display detaiils
+        fields = ['id', 'user', 'username', 'action_text', 'time']  # return necessary display detaiils
 
-#feedback serializer
+
+# feedback serializer
 class UserFeedbackSerializer(serializers.ModelSerializer):
     user = serializers.StringRelatedField(read_only=True)  # Shows username in response
 
