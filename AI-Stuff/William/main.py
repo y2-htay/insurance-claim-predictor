@@ -20,13 +20,13 @@ dataset = pd.read_csv('../Dataset/Synthetic_Data_For_Students.csv')
 dataset.head(10)
 tf.config.list_physical_devices('GPU')
 
-redundant_labels = ['Accident Description', 'Claim Date', 'Accident Date',
+redundant_labels = ['AccidentType','Accident Description', 'Claim Date', 'Accident Date',
                     'SpecialHealthExpenses', 'SpecialReduction', 'SpecialOverage', 'GeneralRest',
                     'SpecialAdditionalInjury', 'SpecialEarningsLoss', 'SpecialUsageLoss', 'SpecialMedications',
                     'SpecialAssetDamage', 'SpecialRehabilitation', 'SpecialFixes', 'GeneralFixed', 'GeneralUplift',
-                    'SpecialLoanerVehicle', 'SpecialTripCosts', 'SpecialJourneyExpenses', 'SpecialTherapy']
+                    'SpecialLoanerVehicle', 'SpecialTripCosts', 'SpecialJourneyExpenses', 'SpecialTherapy', 'Dominant injury']
 
-category_labels = ['AccidentType', 'Exceptional_Circumstances', 'Minor_Psychological_Injury', 'Dominant injury',
+category_labels = [ 'Exceptional_Circumstances', 'Minor_Psychological_Injury',
                    'Whiplash', 'Vehicle Type', 'Weather Conditions',
                    'Police Report Filed', 'Witness Present', 'Gender', 'Injury Description']
 
@@ -41,10 +41,24 @@ def clean_dataset(data):
 
 
 def categorise_data(data, label):
-    categories = pd.get_dummies(data[label])
-    data.drop(label, axis=1, inplace=True)
-    data = pd.concat([data, categories], axis=1)
+    values = data[label].astype(str).str.lower()
+
+    if values.nunique() == 2 and set(values.unique()) <= {'yes', 'no'}:
+        # Binary yes/no → boolean
+        data[label] = values.map({'yes': True, 'no': False})
+    
+    elif values.nunique() <= 5:
+        # Small number of categories → label encode
+        data[label], _ = pd.factorize(data[label])
+    
+    else:
+        # High cardinality → one-hot encode with prefix
+        categories = pd.get_dummies(data[label], prefix=label)
+        data.drop(label, axis=1, inplace=True)
+        data = pd.concat([data, categories], axis=1)
+
     return data
+
 
 
 def extract_months(prognosis):
@@ -209,6 +223,8 @@ def plot_predicted_vs_actual(y_actual, y_predicted, title="Predicted vs Actual S
 
 # Preprocess the dataset and get the scaler
 dataset, scaler = preprocess_data(dataset)
+
+dataset.to_csv("pre_processed.csv")
 
 X = dataset.drop('SettlementValue', axis=1)
 y = dataset['SettlementValue']

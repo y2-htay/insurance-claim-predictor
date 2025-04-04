@@ -1,3 +1,4 @@
+import pandas as pd
 from rest_framework import viewsets, status, permissions
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.authentication import JWTAuthentication
@@ -16,9 +17,14 @@ from .serializers import (
     WeatherConditionSerializer, ClaimTrainingDataSerializer, UserClaimsSerializer,
     InvoiceSerializer, UsageLogSerializer, UserFeedbackSerializer
 )
-from .utils import get_current_user, log_action
+from .utils import get_current_user, log_action, preprocess_data_and_upload
 from .permissions import *
 from .ai_model import train_new_model
+import csv
+from rest_framework.decorators import action
+from rest_framework.parsers import MultiPartParser
+from rest_framework.response import Response
+from rest_framework import status
 
 
 # Home API
@@ -75,6 +81,7 @@ class EndUserViewSet(viewsets.ModelViewSet):
 
 class AiEngineerViewSet(viewsets.ModelViewSet):
     queryset = AiEngineer.objects.all()
+    permission_classes = [IsAuthenticated]
 
     def create(self, request):
         user_profile = get_current_user(request)
@@ -140,8 +147,12 @@ class WeatherConditionViewSet(viewsets.ModelViewSet):
 class ClaimTrainingDataViewSet(viewsets.ModelViewSet):
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated, IsAiEngineer]
+    queryset = ClaimTrainingData.objects.all()
+    serializer_class = ClaimTrainingDataSerializer
+    parser_classes = (MultiPartParser,)  # Allow file uploads
 
     def create(self, request):
+        """ Default create for adding a single ClaimTrainingData entry."""
         serializer_class = ClaimTrainingDataSerializer(data=request.data)
         if serializer_class.is_valid():
             serializer_class.save()
@@ -152,6 +163,7 @@ class ClaimTrainingDataViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=['delete'])
     def delete(self, request):
+        """ Default delete for removing all ClaimTrainingData entries."""
         user_profile = get_current_user(request)
         try:
             ClaimTrainingData.objects.all().delete()
@@ -159,6 +171,16 @@ class ClaimTrainingDataViewSet(viewsets.ModelViewSet):
             return Response({"message": "Claim training data has been deleted!"})
         except DatabaseError:
             return Response({"error": "Claim training data could not be deleted!"})
+
+    @action(detail=False, methods=['post'], permission_classes=[IsAuthenticated])
+    def upload_csv(self, request):
+        file = request.FILES.get('file')
+        try:
+            data = pd.read_csv(file)
+            preprocess_data_and_upload(data)
+            return Response({"message": "CSV file uploaded successfully!"})
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class UserClaimsViewSet(viewsets.ModelViewSet):
