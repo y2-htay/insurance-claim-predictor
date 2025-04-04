@@ -1,15 +1,8 @@
 from django.contrib import admin
 from django.urls import path, include
-from .views import api_home, protected_view, TrainModelViewSet
 from rest_framework.routers import DefaultRouter
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView, TokenBlacklistView  # jwt djoser
-from .views import (
-    # api_home,  # Home API
-    UserProfileViewSet, EndUserViewSet, AiEngineerViewSet,
-    FinanceViewSet, AdministratorViewSet, VehicleTypeViewSet,
-    WeatherConditionViewSet, ClaimTrainingDataViewSet, TrainModelViewSet, UserClaimsViewSet,
-    InvoiceViewSet, UsageLogViewSet, UserFeedbackViewSet
-)
+from .views import *
 
 router = DefaultRouter()
 router.register(r'user_profiles', UserProfileViewSet)
@@ -25,6 +18,8 @@ router.register(r'invoices', InvoiceViewSet)
 router.register(r'train_model', TrainModelViewSet, basename='trainmodel')
 router.register(r'usage_logs', UsageLogViewSet, basename='usage_logs')
 router.register(r'user_feedback', UserFeedbackViewSet)
+router.register(r'gender', GenderViewSet, basename='gender')
+router.register(r'injury_description', InjuryDescriptionViewSet, basename='injury_description')
 
 urlpatterns = [
     path('admin/', admin.site.urls),

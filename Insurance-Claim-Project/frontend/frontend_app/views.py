@@ -147,15 +147,25 @@ def submit_claim_view(request):
     # Fetch foreign key options for form
     vehicle_types = []
     weather_conditions = []
+    genders = []
+    injury_descriptions = []
 
     vt_response = requests.get(f"{backend_url}/vehicle_types/", headers=headers)
     wc_response = requests.get(f"{backend_url}/weather_conditions/", headers=headers)
+    gender_response = requests.get(f"{backend_url}/gender/", headers=headers)
+    injury_response = requests.get(url=f"{backend_url}/injury_description/", headers=headers)
 
     if vt_response.status_code == 200:
         vehicle_types = vt_response.json()
 
     if wc_response.status_code == 200:
         weather_conditions = wc_response.json()
+
+    if gender_response.status_code == 200:
+        genders = gender_response.json()
+
+    if injury_response.status_code == 200:
+        injury_descriptions = injury_response.json()
 
     if request.method == "POST":
         data = request.POST
@@ -164,10 +174,10 @@ def submit_claim_view(request):
         payload = {
             # "user": request.user.id,
             "passengers_involved": data.get("passengers_involved"),
+            "injury_description": data.get("injury_description"),
             "psychological_injury": data.get("psychological_injury") == "on",
             "injury_prognosis_months": data.get("injury_prognosis_months"),
             "exceptional_circumstance": data.get("exceptional_circumstance") == "on",
-            "dominant_injury": data.get("dominant_injury"),
             "whiplash": data.get("whiplash") == "on",
             "vehicle_type": data.get("vehicle_type"),
             "weather_condition": data.get("weather_condition"),
@@ -194,17 +204,20 @@ def submit_claim_view(request):
             return render(request, "submit_claim.html", {
                 "error": "Failed to submit claim.",
                 "vehicle_types": vehicle_types,
-                "weather_conditions": weather_conditions
+                "weather_conditions": weather_conditions,
+                "injury_descriptions": injury_descriptions,
+                "genders": genders
             })
 
     return render(request, "submit_claim.html", {
         "vehicle_types": vehicle_types,
-        "weather_conditions": weather_conditions
+        "weather_conditions": weather_conditions,
+        "injury_descriptions": injury_descriptions,
+        "genders": genders
     })
 
 
-
-#-----------------edit/delete claim for GDPR------
+# -----------------edit/delete claim for GDPR------
 @authenticated_required
 def edit_or_delete_claim_view(request, claim_id):
     backend_url = "http://backend:8000/api"
@@ -212,18 +225,20 @@ def edit_or_delete_claim_view(request, claim_id):
         "Authorization": f"Bearer {request.session.get('access_token')}"
     }
 
-   
     claim_response = requests.get(f"{backend_url}/user_claims/{claim_id}/", headers=headers)
     if claim_response.status_code != 200:
         return render(request, "error.html", {"message": "Could not retrieve claim data."})
     claim_data = claim_response.json()
 
-   
     vehicle_types = []
     weather_conditions = []
+    genders = []
+    injury_descriptions = []
 
     vt_response = requests.get(f"{backend_url}/vehicle_types/", headers=headers)
     wc_response = requests.get(f"{backend_url}/weather_conditions/", headers=headers)
+    gender_response = requests.get(f"{backend_url}/gender/", headers=headers)
+    injury_response = requests.get(url=f"{backend_url}/injury_description/", headers=headers)
 
     if vt_response.status_code == 200:
         vehicle_types = vt_response.json()
@@ -231,7 +246,12 @@ def edit_or_delete_claim_view(request, claim_id):
     if wc_response.status_code == 200:
         weather_conditions = wc_response.json()
 
-    
+    if gender_response.status_code == 200:
+        genders = gender_response.json()
+
+    if injury_response.status_code == 200:
+        injury_descriptions = injury_response.json()
+
     if request.method == "POST":
         if "delete" in request.POST:
             delete_response = requests.delete(f"{backend_url}/user_claims/{claim_id}/", headers=headers)
@@ -242,6 +262,8 @@ def edit_or_delete_claim_view(request, claim_id):
                     "claim": claim_data,
                     "vehicle_types": vehicle_types,
                     "weather_conditions": weather_conditions,
+                    "injury_descriptions": injury_descriptions,
+                    "genders": genders,
                     "error": "Failed to delete claim."
                 })
 
@@ -252,9 +274,9 @@ def edit_or_delete_claim_view(request, claim_id):
         payload = {
             "passengers_involved": data.get("passengers_involved"),
             "psychological_injury": data.get("psychological_injury") == "on",
+            "injury_description": data.get("injury_description"),
             "injury_prognosis_months": data.get("injury_prognosis_months"),
             "exceptional_circumstance": data.get("exceptional_circumstance") == "on",
-            "dominant_injury": data.get("dominant_injury"),
             "whiplash": data.get("whiplash") == "on",
             "vehicle_type": data.get("vehicle_type"),
             "weather_condition": data.get("weather_condition"),
@@ -265,7 +287,8 @@ def edit_or_delete_claim_view(request, claim_id):
             "gender": data.get("gender"),
         }
 
-        files_data = {"supporting_documents": files.get("supporting_documents")} if files.get("supporting_documents") else None
+        files_data = {"supporting_documents": files.get("supporting_documents")} if files.get(
+            "supporting_documents") else None
 
         update_response = requests.put(
             f"{backend_url}/user_claims/{claim_id}/",
@@ -281,14 +304,17 @@ def edit_or_delete_claim_view(request, claim_id):
                 "claim": claim_data,
                 "vehicle_types": vehicle_types,
                 "weather_conditions": weather_conditions,
+                "injury_descriptions": injury_descriptions,
+                "genders": genders,
                 "error": "Failed to update claim."
             })
 
-    
     return render(request, "edit_claim.html", {
         "claim": claim_data,
         "vehicle_types": vehicle_types,
-        "weather_conditions": weather_conditions
+        "weather_conditions": weather_conditions,
+        "injury_descriptions": injury_descriptions,
+        "genders": genders,
     })
 
 
@@ -296,7 +322,7 @@ def edit_or_delete_claim_view(request, claim_id):
 
 @authenticated_required
 def admin_dashboard(request):
-    backend_url = "http://backend:8000/api"  
+    backend_url = "http://backend:8000/api"
     headers = {
         "Authorization": f"Bearer {request.session.get('access_token')}"
     }
@@ -337,7 +363,6 @@ def admin_dashboard(request):
                 "user_filter": user_filter
             })
 
-        
         delete_response = requests.delete(f"{backend_url}/user_profiles/{user_id}/", headers=headers)
         if delete_response.status_code == 204:
             return redirect("admin")
@@ -454,10 +479,13 @@ def finance_dashboard(request):
         "claims": claims
     })
 
-#---------------privacy policy-----------
+
+# ---------------privacy policy-----------
 def privacy_policy_view(request):
     return render(request, "privacy_policy.html")
-#---------------terms--------------------
+
+
+# ---------------terms--------------------
 
 def terms_view(request):
     return render(request, "terms.html")
