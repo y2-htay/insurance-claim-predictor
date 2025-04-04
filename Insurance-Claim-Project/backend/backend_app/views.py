@@ -174,6 +174,17 @@ class ClaimTrainingDataViewSet(viewsets.ModelViewSet):
     serializer_class = ClaimTrainingDataSerializer
     parser_classes = (MultiPartParser,)  # Allow file uploads
 
+    def create(self, request):
+        user_profile = get_current_user(request)
+        file = request.FILES.get('file')
+        try:
+            data = pd.read_csv(file)
+            preprocess_data_and_upload(data)
+            log_action("New training data uploaded!", user_profile)
+            return Response({"message": "CSV file uploaded successfully!"})
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
     @action(detail=False, methods=['delete'])
     def delete(self, request):
         """ Default delete for removing all ClaimTrainingData entries."""
@@ -184,18 +195,6 @@ class ClaimTrainingDataViewSet(viewsets.ModelViewSet):
             return Response({"message": "Claim training data has been deleted!"})
         except DatabaseError:
             return Response({"error": "Claim training data could not be deleted!"})
-
-    @action(detail=False, methods=['post'], permission_classes=[IsAuthenticated])
-    def upload_csv(self, request):
-        user_profile = get_current_user(request)
-        file = request.FILES.get('file')
-        try:
-            data = pd.read_csv(file)
-            preprocess_data_and_upload(data)
-            log_action("New training data uploaded!", user_profile)
-            return Response({"message": "CSV file uploaded successfully!"})
-        except Exception as e:
-            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class UserClaimsViewSet(viewsets.ModelViewSet):

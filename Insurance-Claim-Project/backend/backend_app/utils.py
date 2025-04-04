@@ -73,7 +73,6 @@ def add_category_to_db(data, label):
     with transaction.atomic():
         for value in unique_values:
             try:
-                instance = None
                 if label == 'Vehicle Type':
                     instance = VehicleType(vehicle_name=value)
                 elif label == 'Weather Conditions':
@@ -82,16 +81,18 @@ def add_category_to_db(data, label):
                     instance = InjuryDescription(description=value)
                 elif label == 'Gender':
                     instance = Gender(gender=value)
+                else:
+                    continue
                 instance.save()
-                return True
-            except:
-                raise Exception("Failed to add category to database!")
+            except Exception as e:
+                raise Exception(e)
+    return True
 
 
 def preprocess_data_and_upload(data):
     data = clean_dataset(data)
     data['Injury_Prognosis'] = data['Injury_Prognosis'].apply(extract_months)
-    data, scaler = scale_data(data)
+    data = scale_data(data)
     for label in category_labels:
         data = categorise_data(data, label)
 
