@@ -4,6 +4,9 @@ from .models import InsuranceModel
 
 HYPER_PARAMETERS = {}
 
+
+
+
 def train_new_model(training_data):
     # model training code to go here, here is an example of how to save it
     # joblib.dump(model, 'insurance_model_temp.pkl')

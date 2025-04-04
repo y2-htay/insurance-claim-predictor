@@ -1,3 +1,4 @@
+import pandas as pd
 from rest_framework import viewsets, status, permissions
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.authentication import JWTAuthentication
@@ -16,7 +17,7 @@ from .serializers import (
     WeatherConditionSerializer, ClaimTrainingDataSerializer, UserClaimsSerializer,
     InvoiceSerializer, UsageLogSerializer, UserFeedbackSerializer
 )
-from .utils import get_current_user, log_action
+from .utils import get_current_user, log_action, preprocess_data_and_upload
 from .permissions import *
 from .ai_model import train_new_model
 import csv
@@ -80,6 +81,7 @@ class EndUserViewSet(viewsets.ModelViewSet):
 
 class AiEngineerViewSet(viewsets.ModelViewSet):
     queryset = AiEngineer.objects.all()
+    permission_classes = [IsAuthenticated]
 
     def create(self, request):
         user_profile = get_current_user(request)
@@ -172,71 +174,13 @@ class ClaimTrainingDataViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=['post'], permission_classes=[IsAuthenticated])
     def upload_csv(self, request):
-        """Custom action for uploading a CSV file."""
         file = request.FILES.get('file')
-        if not file:
-            return Response({"error": "No file provided"}, status=status.HTTP_400_BAD_REQUEST)
-
-        # Read and process the CSV file
         try:
-            decoded_file = file.read().decode('utf-8').splitlines()
-            reader = csv.DictReader(decoded_file)
-
-            skipped_rows = []  # To track rows that are skipped
-            for index, row in enumerate(reader, start=1):
-                try:
-                    # Validate vehicle_type
-                    vehicle_type_id = row.get('vehicle_type')
-                    if not vehicle_type_id:
-                        skipped_rows.append({"row": index, "reason": "Missing vehicle_type"})
-                        continue
-                    try:
-                        vehicle_type = VehicleType.objects.get(pk=vehicle_type_id)
-                    except VehicleType.DoesNotExist:
-                        skipped_rows.append({"row": index, "reason": f"Invalid vehicle_type: {vehicle_type_id}"})
-                        continue
-
-                    # Validate weather_condition
-                    weather_condition_id = row.get('weather_condition')
-                    if not weather_condition_id:
-                        skipped_rows.append({"row": index, "reason": "Missing weather_condition"})
-                        continue
-                    try:
-                        weather_condition = WeatherCondition.objects.get(pk=weather_condition_id)
-                    except WeatherCondition.DoesNotExist:
-                        skipped_rows.append(
-                            {"row": index, "reason": f"Invalid weather_condition: {weather_condition_id}"})
-                        continue
-
-                    # Create a new ClaimTrainingData entry
-                    ClaimTrainingData.objects.create(
-                        settle_value=row.get('settle_value', 0),
-                        accident_type=row.get('accident_type', 0),
-                        injury_prognosis_months=row.get('injury_prognosis_months', 0),
-                        exceptional_circumstance=row.get('exceptional_circumstance', False),
-                        psychological_injury=row.get('psychological_injury', False),
-                        dominant_injury=row.get('dominant_injury', 0),
-                        whiplash=row.get('whiplash', False),
-                        vehicle_type=vehicle_type,
-                        weather_condition=weather_condition,
-                        vehicle_age=row.get('vehicle_age', 0),
-                        driver_age=row.get('driver_age', 0),
-                        num_passengers=row.get('num_passengers', 1),
-                        police_report=row.get('police_report', False),
-                        witness_present=row.get('witness_present', False),
-                        gender=row.get('gender', 0),
-                    )
-                except Exception as e:
-                    skipped_rows.append({"row": index, "reason": str(e)})
-
-            # Return a success message with details of skipped rows
-            return Response({
-                "message": "CSV file processed successfully.",
-                "skipped_rows": skipped_rows
-            }, status=status.HTTP_201_CREATED)
-
+            data = pd.read_csv(file)
+            preprocess_data_and_upload(data)
+            return Response({"message": "CSV file uploaded successfully!"})
         except Exception as e:
-            return Response({"error": f"Error processing file: {str(e)}"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class UserClaimsViewSet(viewsets.ModelViewSet):
