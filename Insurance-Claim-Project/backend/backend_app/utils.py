@@ -110,10 +110,13 @@ def preprocess_data_and_upload(data):
         csv_content = csv_buffer.getvalue()
         csv_file = ContentFile(csv_content.encode('utf-8'), name='processed.csv')
 
-        instance = ClaimTrainingData()
+        # Retrieve the existing instance if it exists
+        instance = ClaimTrainingData.objects.first()
         if instance and instance.data_file:
             if os.path.isfile(instance.data_file.path):
                 os.remove(instance.data_file.path)
+        else:
+            instance = ClaimTrainingData()
 
         instance.data_file.save('processed.csv', csv_file)
         instance.save()
