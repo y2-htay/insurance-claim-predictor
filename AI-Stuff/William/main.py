@@ -104,24 +104,8 @@ def build_model(hp, input_shape):
     if hp.Boolean('batch_norm'):
         model.add(layers.BatchNormalization())
 
-    model.add(layers.Dropout(hp.Float('dropout_1', 0.2, 0.5, step=0.05)))
-
-    # Additional layers
-    for i in range(hp.Int('num_layers', 1, 3)):
-        act_name = hp.Choice(
-            f'activation_{i+2}', ['relu', 'tanh', 'leaky_relu'])
-        act = layers.LeakyReLU() if act_name == 'leaky_relu' else act_name
-
-        model.add(layers.Dense(hp.Int(f'units_{i+2}', 32, 128, step=32),
-                               activation=act,
-                               kernel_regularizer=tf.keras.regularizers.l2(hp.Float(f'l2_reg_{i+2}', 1e-5, 1e-2, sampling='log'))))
-
-        if hp.Boolean(f'batch_norm_{i+2}'):
-            model.add(layers.BatchNormalization())
-
-        model.add(layers.Dropout(
-            hp.Float(f'dropout_{i+2}', 0.1, 0.3, step=0.05)))
-
+    model.add(layers.Dropout(hp.Float('dropout_1', 0.1, 0.4, step=0.05)))
+    
     model.add(layers.Dense(1))
 
     # Huber loss delta
