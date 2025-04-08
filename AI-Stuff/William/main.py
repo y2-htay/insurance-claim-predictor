@@ -208,8 +208,6 @@ def plot_predicted_vs_actual(y_actual, y_predicted, title="Predicted vs Actual S
 # Preprocess the dataset and get the scaler
 dataset, scaler = preprocess_data(dataset)
 
-dataset.to_csv("pre_processed.csv")
-
 X = dataset.drop('SettlementValue', axis=1)
 y = dataset['SettlementValue']
 
