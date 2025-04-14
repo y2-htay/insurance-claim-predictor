@@ -114,4 +114,8 @@ Average R² Score for un-tuned model: 0.38357127793858736
 Average Mean Absolute Error for tuned model: 174.6350142667366
 Average R² Score for tuned model: 0.3916525902172726
 
-Better outlier removal:
+Min-max scaler:
+Average Mean Absolute Error for un-tuned model: 314.42437143648675
+Average R² Score for un-tuned model: 0.11554166129910196
+Average Mean Absolute Error for tuned model: 310.1801579376433
+Average R² Score for tuned model: 0.16012568689061837
