@@ -33,10 +33,12 @@ category_labels = ['Exceptional_Circumstances', 'Minor_Psychological_Injury',
 numerical_labels = ['SettlementValue', 'Injury_Prognosis',
                     'Vehicle Age', 'Driver Age', 'Number of Passengers']
 
+
 def clean_dataset(data):
     data.dropna(inplace=True)
     data.drop(redundant_labels, axis=1, inplace=True)
     return data
+
 
 def categorise_data(data, label):
     values = data[label].astype(str).str.lower()
@@ -52,8 +54,10 @@ def categorise_data(data, label):
 
     return data
 
+
 def extract_months(prognosis):
     return int(''.join(filter(str.isdigit, prognosis)))
+
 
 def scale_data(data):
     feature_scaler = MinMaxScaler()
@@ -64,6 +68,7 @@ def scale_data(data):
     data['SettlementValue'] = target_scaler.fit_transform(data[['SettlementValue']])
 
     return data, feature_scaler, target_scaler
+
 
 def preprocess_data(data):
     data = clean_dataset(data)
@@ -78,6 +83,7 @@ def preprocess_data(data):
 
     return data, feature_scaler, target_scaler
 
+
 def base_model(X_train_tf):
     model = keras.Sequential([
         layers.Dense(128, activation='relu', input_shape=(X_train_tf.shape[1],)),
@@ -86,6 +92,7 @@ def base_model(X_train_tf):
     ])
     model.compile(optimizer='adam', loss='mae', metrics=['mae'])
     return model
+
 
 def build_model(hp, input_shape):
     model = keras.Sequential()
@@ -101,6 +108,9 @@ def build_model(hp, input_shape):
     if hp.Boolean('batch_norm'):
         model.add(layers.BatchNormalization())
 
+
+
+
     model.add(layers.Dropout(hp.Float('dropout_1', 0.0, 0.3)))
     model.add(layers.Dense(1, activation='softplus'))
     delta_value = hp.Float('huber_delta', 0.5, 5.0, step=0.5)
@@ -114,6 +124,7 @@ def build_model(hp, input_shape):
 
     return model
 
+
 def evaluate_model(model, X_test_tf, y_test_tf, target_scaler):
     y_pred_tf = model.predict(X_test_tf)
     y_pred_np = y_pred_tf.flatten()
@@ -126,6 +137,7 @@ def evaluate_model(model, X_test_tf, y_test_tf, target_scaler):
     test_r2 = r2_score(y_test_unscaled, y_pred_unscaled)
 
     return test_mae, test_r2, y_test_unscaled, y_pred_unscaled
+
 
 def cross_validate_model(model_builder, X_np, y_np, k_fold, target_scaler):
     fold_mae_scores = []
@@ -165,6 +177,7 @@ def cross_validate_model(model_builder, X_np, y_np, k_fold, target_scaler):
 
     return average_mae, average_r2, actual_values, predicted_values
 
+
 def plot_predicted_vs_actual(y_actual, y_predicted, title="Predicted vs Actual Settlement Values"):
     plt.figure(figsize=(8, 6))
     sns.scatterplot(x=y_actual, y=y_predicted, alpha=0.6)
@@ -174,12 +187,14 @@ def plot_predicted_vs_actual(y_actual, y_predicted, title="Predicted vs Actual S
     plt.title(title)
     plt.show()
 
+
 def settlement_value_histogram(data):
     sns.histplot(data['SettlementValue'], bins=50, kde=True)
     plt.title('Distribution of Settlement Values')
     plt.xlabel('Settlement Value')
     plt.ylabel('Frequency')
     plt.show()
+
 
 dataset, feature_scaler, target_scaler = preprocess_data(dataset)
 settlement_value_histogram(dataset)
@@ -214,8 +229,10 @@ tuner.search(X_train_tf, y_train_tf, epochs=75, batch_size=32,
 
 best_hyper_parameters = tuner.get_best_hyperparameters(num_trials=1)[0]
 
+
 def tuned_model_builder(X_train_tf):
     return build_model(best_hyper_parameters, X_train_tf.shape[1])
+
 
 tuned_mae, tuned_r2, tuned_actual, tuned_predicted = cross_validate_model(
     tuned_model_builder, X_np, y_np, k_fold, target_scaler)
