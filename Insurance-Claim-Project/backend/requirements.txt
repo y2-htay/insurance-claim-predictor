@@ -2,6 +2,7 @@ psycopg2
 Django
 djangorestframework
 scikit-learn
+pandas
 tensorflow
 joblib
 django-cors-headers
