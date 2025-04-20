@@ -454,6 +454,33 @@ def finance_dashboard(request):
         "claims": claims
     })
 
+
+# ------------------Ai-Engineer Dashboard---------------------
+@authenticated_required
+def ai_engineer_dashboard(request):
+    backend_url = "http://backend:8000/api"
+    headers = {
+        "Authorization": f"Bearer {request.session.get('access_token')}"
+    }
+
+    # Fetch training data
+    training_data_response = requests.get(f"{backend_url}/claim_training_data/", headers=headers)
+    training_data = training_data_response.json() if training_data_response.status_code == 200 else []
+
+    # Fetch usage logs
+    logs_response = requests.get(f"{backend_url}/usage_logs/", headers=headers)
+    logs = logs_response.json() if logs_response.status_code == 200 else []
+
+    # Fetch models
+    models_response = requests.get(f"{backend_url}/insurance_models/", headers=headers)
+    models = models_response.json() if models_response.status_code == 200 else []
+
+    return render(request, "ai_engineer.html", {
+        "training_data": training_data,
+        "logs": logs,
+        "models": models
+    })
+
 #---------------privacy policy-----------
 def privacy_policy_view(request):
     return render(request, "privacy_policy.html")
