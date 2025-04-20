@@ -1,4 +1,10 @@
 {% extends "base_generic.html" %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/ai_engineer.css' %}">
+{% endblock %}
+
 
 {% block content %}
 <div class="dashboard-container">
