@@ -119,3 +119,9 @@ Average Mean Absolute Error for un-tuned model: 315.335712881178
 Average R² Score for un-tuned model: 0.11638455119848193
 Average Mean Absolute Error for tuned model: 306.4982269854133
 Average R² Score for tuned model: 0.15812598978725378
+
+Adding Transformer layer:
+Average Mean Absolute Error for un-tuned model: 315.3134213835083
+Average R² Score for un-tuned model: 0.10782576060871822
+Average Mean Absolute Error for tuned model: 307.2046684134636
+Average R² Score for tuned model: 0.17488615523642748
