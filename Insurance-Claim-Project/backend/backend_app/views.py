@@ -1,21 +1,18 @@
 import pandas as pd
-from rest_framework import viewsets, status, permissions
-from rest_framework.permissions import IsAuthenticated
-from rest_framework_simplejwt.authentication import JWTAuthentication
-from rest_framework.response import Response
-from rest_framework.decorators import api_view, renderer_classes, permission_classes, authentication_classes, action
-from rest_framework.renderers import JSONRenderer
 from django.db import DatabaseError
-from .models import *
+from rest_framework import status
+from rest_framework import viewsets
+from rest_framework.decorators import action
+from rest_framework.decorators import api_view, renderer_classes, permission_classes, authentication_classes
+from rest_framework.parsers import MultiPartParser
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.renderers import JSONRenderer
+from rest_framework.response import Response
+from rest_framework_simplejwt.authentication import JWTAuthentication
+from .ai_model import train_new_model
+from .permissions import *
 from .serializers import *
 from .utils import get_current_user, log_action, preprocess_data_and_upload
-from .permissions import *
-from .ai_model import train_new_model
-import csv
-from rest_framework.decorators import action
-from rest_framework.parsers import MultiPartParser
-from rest_framework.response import Response
-from rest_framework import status
 
 
 # Home API
@@ -184,6 +181,11 @@ class ClaimTrainingDataViewSet(viewsets.ModelViewSet):
             return Response({"message": "CSV file uploaded successfully!"})
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            try:
+                train_new_model()
+            except Exception as e:
+                return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
     @action(detail=False, methods=['delete'])
     def delete(self, request):
@@ -254,8 +256,7 @@ class TrainModelViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=['post'])
     def train_model(self, request):
-        training_data = ClaimTrainingData.objects.all().values()
-        train_new_model(training_data)
+        train_new_model()
         # url stuff
         return Response({"status": "Model training initiated"})
 
