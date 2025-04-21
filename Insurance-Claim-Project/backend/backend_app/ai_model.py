@@ -5,6 +5,7 @@ from django.core.files import File
 from .models import InsuranceModel
 
 HYPER_PARAMETERS = {}
+MODEL_FILE_NAME = 'insurance_model.tmp'
 
 
 def train_new_model(input_shape):
@@ -25,10 +26,10 @@ def train_new_model(input_shape):
         loss=losses.Huber(delta=0.5359404627944264),
         metrics=['mae'])
 
-    model.save('insurance_model.tmp')
+    model.save(MODEL_FILE_NAME)
     insurance_model = InsuranceModel(name="InsuranceModel")
-    with open('insurance_model.tmp', 'rb') as f:
-        insurance_model.model_file.save('insurance_model.tmp', File(f))
+    with open(MODEL_FILE_NAME, 'rb') as f:
+        insurance_model.model_file.save(MODEL_FILE_NAME, File(f))
         insurance_model.save()
 
 
