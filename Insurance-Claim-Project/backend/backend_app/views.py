@@ -178,14 +178,10 @@ class ClaimTrainingDataViewSet(viewsets.ModelViewSet):
             data = pd.read_csv(file)
             preprocess_data_and_upload(data)
             log_action("New training data uploaded!", user_profile)
+            train_new_model()
             return Response({"message": "CSV file uploaded successfully!"})
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
-        else:
-            try:
-                train_new_model()
-            except Exception as e:
-                return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
     @action(detail=False, methods=['delete'])
     def delete(self, request):
