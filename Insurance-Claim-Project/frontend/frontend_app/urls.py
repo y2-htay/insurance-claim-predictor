@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.urls import path
-from .views import home, profile, login_view, logout_view, register_view, submit_claim_view, admin_dashboard, feedback_view, finance_dashboard, privacy_policy_view, terms_view, edit_or_delete_claim_view
+from .views import home, profile, login_view, logout_view, register_view, reset_password_view, submit_claim_view, admin_dashboard, feedback_view, finance_dashboard, privacy_policy_view, terms_view, edit_or_delete_claim_view
 from django.conf.urls.static import static
 from django.conf import settings
 urlpatterns = [
@@ -9,6 +9,7 @@ urlpatterns = [
     path("login/", login_view, name="login"),
     path("logout/", logout_view, name="logout"),
     path("register/", register_view, name="register"),
+    path('reset_password/', reset_password_view, name='reset_password'),
     path('profile/', profile, name = 'profile'),
     path('submit_claim/', submit_claim_view, name = 'submit_claim'),
     path('admin_dashboard/', admin_dashboard, name = 'admin'),

@@ -108,6 +108,8 @@ def register_view(request):
 
     return render(request, "register.html", {"form": form})
 
+def reset_password_view(request):
+    return render(request, 'reset_password.html')
 
 # --------------------------------------------
 
