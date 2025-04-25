@@ -14,5 +14,10 @@ class ClaimUploadForm(forms.ModelForm):
 class UserRegistrationForm(forms.Form):
     username = forms.CharField(max_length=150, required=True)
     password = forms.CharField(widget=forms.PasswordInput, required=True)
-    permission_level = forms.IntegerField(required=False)
+    permission_level = forms.IntegerField(
+        required=False,
+        min_value=0,
+        max_value=3,
+        widget=forms.NumberInput(attrs={'min': 0, 'max': 3})
+        )
 
