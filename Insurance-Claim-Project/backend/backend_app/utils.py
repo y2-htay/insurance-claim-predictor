@@ -1,11 +1,12 @@
-import tempfile
-
-from .models import UserProfile
+import io
+from django.core.files.base import ContentFile
+from django.db import transaction
+import os
+from .models import UserProfile, Gender, InjuryDescription, VehicleType, WeatherCondition
 from backend_app.models import Actions, UsageLog
 import pandas as pd
 from sklearn.preprocessing import RobustScaler
 from backend_app.models import ClaimTrainingData
-from django.core.files import File
 
 redundant_labels = ['Accident Description', 'Claim Date', 'Accident Date',
                     'SpecialHealthExpenses', 'SpecialReduction', 'SpecialOverage', 'GeneralRest',
@@ -39,6 +40,8 @@ def clean_dataset(data):
 
 
 def categorise_data(data, label):
+    add_category_to_db(data, label)
+
     values = data[label].astype(str).str.lower()
 
     if values.nunique() == 2 and set(values.unique()) <= {'yes', 'no'}:
@@ -64,28 +67,60 @@ def scale_data(data):
     return data
 
 
+def add_category_to_db(data, label):
+    unique_values = data[label].unique()
+    with transaction.atomic():
+        for value in unique_values:
+            instance = None
+            try:
+                if label == 'Vehicle Type':
+                    if not VehicleType.objects.filter(vehicle_name=value).exists():
+                        instance = VehicleType(vehicle_name=value)
+                elif label == 'Weather Conditions':
+                    if not WeatherCondition.objects.filter(condition=value).exists():
+                        instance = WeatherCondition(condition=value)
+                elif label == 'Injury Description':
+                    if not InjuryDescription.objects.filter(description=value).exists():
+                        instance = InjuryDescription(description=value)
+                elif label == 'Gender':
+                    if not Gender.objects.filter(gender=value).exists():
+                        instance = Gender(gender=value)
+                if instance:
+                    instance.save()
+            except Exception as e:
+                raise Exception(e)
+    return True
+
+
 def preprocess_data_and_upload(data):
     data = clean_dataset(data)
     data['Injury_Prognosis'] = data['Injury_Prognosis'].apply(extract_months)
-    data, scaler = scale_data(data)
+    data = scale_data(data)
     for label in category_labels:
         data = categorise_data(data, label)
 
     # outlier removal
     upper_limit = data['SettlementValue'].quantile(0.90)
     lower_limit = data['SettlementValue'].quantile(0.10)
-
-    data['SettlementValue'] = data['SettlementValue'].clip(
-        lower=lower_limit, upper=upper_limit)
+    data['SettlementValue'] = data['SettlementValue'].clip(lower=lower_limit, upper=upper_limit)
 
     try:
-        with tempfile.NamedTemporaryFile(mode='w+b', suffix='.csv', delete=True) as tmp:
-            data.to_csv(tmp.name, index=False)
-            tmp.seek(0)
+        csv_buffer = io.StringIO()
+        data.to_csv(csv_buffer, index=False)
+        csv_content = csv_buffer.getvalue()
+        csv_file = ContentFile(csv_content.encode('utf-8'), name='processed.csv')
+
+        # Retrieve the existing instance if it exists
+        instance = ClaimTrainingData.objects.first()
+        if instance and instance.data_file:
+            if os.path.isfile(instance.data_file.path):
+                os.remove(instance.data_file.path)
+        else:
             instance = ClaimTrainingData()
-            instance.data_file.save('processed.csv', File(tmp))
-            instance.save()
-    except:
-        raise Exception("Could not upload training data!")
+
+        instance.data_file.save('processed.csv', csv_file)
+        instance.save()
+    except Exception as e:
+        raise Exception("Could not upload training data!") from e
     else:
         return True

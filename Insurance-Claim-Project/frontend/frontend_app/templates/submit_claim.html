@@ -2,133 +2,140 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Submit Insurance Claim</title>
-  <link rel="stylesheet" href="{% static 'css/edit_claim.css' %}">
+    <meta charset="UTF-8">
+    <title>Submit Insurance Claim</title>
+    <link rel="stylesheet" href="{% static 'css/edit_claim.css' %}">
 </head>
 <body>
 
-  <div class="back-wrapper">
+<div class="back-wrapper">
     <a href="{% url 'profile' %}" class="btn-back">← Back</a>
-  </div>
+</div>
 
-  <div class="edit-container">
+<div class="edit-container">
     <h2>Submit Insurance Claim</h2>
 
     {% if error %}
-      <p class="error">{{ error }}</p>
+        <p class="error">{{ error }}</p>
     {% endif %}
 
     <form method="POST" enctype="multipart/form-data">
-      {% csrf_token %}
+        {% csrf_token %}
 
-      <div class="form-group">
-        <label>Passengers Involved:</label>
-        <input type="number" name="passengers_involved" required>
-      </div>
+        <div class="form-group">
+            <label>Passengers Involved:</label>
+            <input type="number" name="passengers_involved" required>
+        </div>
 
-      <div class="form-group checkbox-group">
-        <input type="checkbox" name="psychological_injury" id="psychological_injury">
-        <label for="psychological_injury">Psychological Injury</label>
-      </div>
+        <div class="form-group">
+            <label>Injury Description:</label>
+            <select name="injury_description">
+                {% for id in injury_descriptions %}
+                    <option value="{{ id.id }}">{{ id.description }}</option>
+                {% endfor %}
+            </select>
+        </div>
 
-      <div class="form-group">
-        <label>Injury Prognosis (Months):</label>
-        <input type="number" name="injury_prognosis_months">
-      </div>
+        <div class="form-group checkbox-group">
+            <input type="checkbox" name="psychological_injury" id="psychological_injury">
+            <label for="psychological_injury">Psychological Injury</label>
+        </div>
 
-      <div class="form-group checkbox-group">
-        <input type="checkbox" name="exceptional_circumstance" id="exceptional_circumstance">
-        <label for="exceptional_circumstance">Exceptional Circumstance</label>
-      </div>
+        <div class="form-group">
+            <label>Injury Prognosis (Months):</label>
+            <input type="number" name="injury_prognosis_months">
+        </div>
 
-      <div class="form-group">
-        <label>Dominant Injury:</label>
-        <input type="text" name="dominant_injury">
-      </div>
+        <div class="form-group checkbox-group">
+            <input type="checkbox" name="exceptional_circumstance" id="exceptional_circumstance">
+            <label for="exceptional_circumstance">Exceptional Circumstance</label>
+        </div>
 
-      <div class="form-group checkbox-group">
-        <input type="checkbox" name="whiplash" id="whiplash">
-        <label for="whiplash">Whiplash</label>
-      </div>
 
-      <div class="form-group">
-        <label>Vehicle Type:</label>
-        <select name="vehicle_type">
-          {% for vt in vehicle_types %}
-            <option value="{{ vt.id }}">{{ vt.vehicle_name }}</option>
-          {% endfor %}
-        </select>
-      </div>
+        <div class="form-group checkbox-group">
+            <input type="checkbox" name="whiplash" id="whiplash">
+            <label for="whiplash">Whiplash</label>
+        </div>
 
-      <div class="form-group">
-        <label>Weather Condition:</label>
-        <select name="weather_condition">
-          {% for wc in weather_conditions %}
-            <option value="{{ wc.id }}">{{ wc.condition }}</option>
-          {% endfor %}
-        </select>
-      </div>
+        <div class="form-group">
+            <label>Vehicle Type:</label>
+            <select name="vehicle_type">
+                {% for vt in vehicle_types %}
+                    <option value="{{ vt.id }}">{{ vt.vehicle_name }}</option>
+                {% endfor %}
+            </select>
+        </div>
 
-      <div class="form-group">
-        <label>Driver Age:</label>
-        <input type="number" name="driver_age" required>
-      </div>
+        <div class="form-group">
+            <label>Weather Condition:</label>
+            <select name="weather_condition">
+                {% for wc in weather_conditions %}
+                    <option value="{{ wc.id }}">{{ wc.condition }}</option>
+                {% endfor %}
+            </select>
+        </div>
 
-      <div class="form-group">
-        <label>Vehicle Age:</label>
-        <input type="number" name="vehicle_age" required>
-      </div>
+        <div class="form-group">
+            <label>Driver Age:</label>
+            <input type="number" name="driver_age" required>
+        </div>
 
-      <div class="form-group checkbox-group">
-        <input type="checkbox" name="police_report" id="police_report">
-        <label for="police_report">Police Report</label>
-      </div>
+        <div class="form-group">
+            <label>Vehicle Age:</label>
+            <input type="number" name="vehicle_age" required>
+        </div>
 
-      <div class="form-group checkbox-group">
-        <input type="checkbox" name="witness_present" id="witness_present">
-        <label for="witness_present">Witness Present</label>
-      </div>
+        <div class="form-group checkbox-group">
+            <input type="checkbox" name="police_report" id="police_report">
+            <label for="police_report">Police Report</label>
+        </div>
 
-      <div class="form-group">
-        <label>Gender:</label>
-        <select name="gender">
-          <option value="0">Male</option>
-          <option value="1">Female</option>
-        </select>
-      </div>
+        <div class="form-group checkbox-group">
+            <input type="checkbox" name="witness_present" id="witness_present">
+            <label for="witness_present">Witness Present</label>
+        </div>
 
-      <div class="form-group">
-        <label>Upload Supporting Documents:</label>
-        <input type="file" name="supporting_documents" id="supporting_documents">
-        <small id="fileName" class="file-name"></small>
-      </div>
+        <div class="form-group">
+            <label>Gender:</label>
+            <select name="gender">
+                {% for g in genders %}
+                    <option value="{{ g.id }}">{{ g.gender }}</option>
+                {% endfor %}
+            </select>
+        </div>
 
-      <div class="form-group checkbox-group consent">
-        <input type="checkbox" name="consent" id="consentCheckbox" required>
-        <label for="consentCheckbox">
-          I give my explicit consent to the processing of my personal and health-related data in accordance with the
-          <a href="{% url 'privacy_policy' %}" target="_blank">Privacy Policy</a>.
-        </label>
-      </div>
+        <div class="form-group">
+            <label>Upload Supporting Documents:</label>
+            <input type="file" name="supporting_documents" id="supporting_documents">
+            <small id="fileName" class="file-name"></small>
+        </div>
 
-      <button type="submit" class="btn btn-primary">Submit Claim</button>
+        <div class="form-group checkbox-group consent">
+            <input type="checkbox" name="consent" id="consentCheckbox" required>
+            <label for="consentCheckbox">
+                I give my explicit consent to the processing of my personal and health-related data in accordance with
+                the
+                <a href="{% url 'privacy_policy' %}" target="_blank">Privacy Policy</a>.
+            </label>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Submit Claim</button>
     </form>
-  </div>
+</div>
 
-  <script>
+<script>
     document.getElementById("supporting_documents").addEventListener("change", function () {
-      const fileLabel = document.getElementById("fileName");
-      fileLabel.innerText = this.files.length ? `Selected file: ${this.files[0].name}` : "";
+        const fileLabel = document.getElementById("fileName");
+        fileLabel.innerText = this.files.length ? `Selected file: ${this.files[0].name}` : "";
     });
 
     document.getElementById("submitClaimForm")?.addEventListener("submit", function (e) {
-      if (!document.getElementById("consentCheckbox").checked) {
-        alert("You must provide explicit consent to submit this form.");
-        e.preventDefault();
-      }
+        if (!document.getElementById("consentCheckbox").checked) {
+            alert("You must provide explicit consent to submit this form.");
+            e.preventDefault();
+        }
     });
-  </script>
+</script>
 
 </body>
 </html>

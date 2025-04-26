@@ -1,30 +1,18 @@
 import pandas as pd
-from rest_framework import viewsets, status, permissions
-from rest_framework.permissions import IsAuthenticated
-from rest_framework_simplejwt.authentication import JWTAuthentication
-from rest_framework.response import Response
-from rest_framework.decorators import api_view, renderer_classes, permission_classes, authentication_classes, action
-from rest_framework.renderers import JSONRenderer
 from django.db import DatabaseError
-from .models import (
-    UserProfile, EndUser, AiEngineer, Finance, Administrator,
-    VehicleType, WeatherCondition, ClaimTrainingData, UserClaims,
-    Invoice, UsageLog, UserFeedback
-)
-from .serializers import (
-    UserProfileSerializer, EndUserSerializer, AiEngineerSerializer,
-    FinanceSerializer, AdministratorSerializer, VehicleTypeSerializer,
-    WeatherConditionSerializer, ClaimTrainingDataSerializer, UserClaimsSerializer,
-    InvoiceSerializer, UsageLogSerializer, UserFeedbackSerializer
-)
-from .utils import get_current_user, log_action, preprocess_data_and_upload
-from .permissions import *
-from .ai_model import train_new_model
-import csv
-from rest_framework.decorators import action
-from rest_framework.parsers import MultiPartParser
-from rest_framework.response import Response
 from rest_framework import status
+from rest_framework import viewsets
+from rest_framework.decorators import action
+from rest_framework.decorators import api_view, renderer_classes, permission_classes, authentication_classes
+from rest_framework.parsers import MultiPartParser
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.renderers import JSONRenderer
+from rest_framework.response import Response
+from rest_framework_simplejwt.authentication import JWTAuthentication
+from .ai_model import train_new_model
+from .permissions import *
+from .serializers import *
+from .utils import get_current_user, log_action, preprocess_data_and_upload
 
 
 # Home API
@@ -144,6 +132,38 @@ class WeatherConditionViewSet(viewsets.ModelViewSet):
         return Response(serializer_class.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+class GenderViewSet(viewsets.ModelViewSet):
+    queryset = Gender.objects.all()
+    serializer_class = GenderSerializer
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated, IsAiEngineer]
+
+    def create(self, request):
+        serializer_class = GenderSerializer(data=request.data)
+        if serializer_class.is_valid():
+            serializer_class.save()
+            user_profile = get_current_user(request)
+            log_action("Created a new gender!", user_profile)
+            return Response(serializer_class.data, status=status.HTTP_201_CREATED)
+        return Response(serializer_class.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class InjuryDescriptionViewSet(viewsets.ModelViewSet):
+    queryset = InjuryDescription.objects.all()
+    serializer_class = InjuryDescriptionSerializer
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated, IsAiEngineer]
+
+    def create(self, request):
+        serializer_class = InjuryDescriptionSerializer(data=request.data)
+        if serializer_class.is_valid():
+            serializer_class.save()
+            user_profile = get_current_user(request)
+            log_action("Created a new injury description!", user_profile)
+            return Response(serializer_class.data, status=status.HTTP_201_CREATED)
+        return Response(serializer_class.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
 class ClaimTrainingDataViewSet(viewsets.ModelViewSet):
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated, IsAiEngineer]
@@ -152,14 +172,16 @@ class ClaimTrainingDataViewSet(viewsets.ModelViewSet):
     parser_classes = (MultiPartParser,)  # Allow file uploads
 
     def create(self, request):
-        """ Default create for adding a single ClaimTrainingData entry."""
-        serializer_class = ClaimTrainingDataSerializer(data=request.data)
-        if serializer_class.is_valid():
-            serializer_class.save()
-            user_profile = get_current_user(request)
-            log_action("Added to claim training data!", user_profile)
-            return Response(serializer_class.data, status=status.HTTP_201_CREATED)
-        return Response(serializer_class.errors, status=status.HTTP_400_BAD_REQUEST)
+        user_profile = get_current_user(request)
+        file = request.FILES.get('file')
+        try:
+            data = pd.read_csv(file)
+            preprocess_data_and_upload(data)
+            log_action("New training data uploaded!", user_profile)
+            train_new_model()
+            return Response({"message": "CSV file uploaded successfully!"})
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
     @action(detail=False, methods=['delete'])
     def delete(self, request):
@@ -171,16 +193,6 @@ class ClaimTrainingDataViewSet(viewsets.ModelViewSet):
             return Response({"message": "Claim training data has been deleted!"})
         except DatabaseError:
             return Response({"error": "Claim training data could not be deleted!"})
-
-    @action(detail=False, methods=['post'], permission_classes=[IsAuthenticated])
-    def upload_csv(self, request):
-        file = request.FILES.get('file')
-        try:
-            data = pd.read_csv(file)
-            preprocess_data_and_upload(data)
-            return Response({"message": "CSV file uploaded successfully!"})
-        except Exception as e:
-            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class UserClaimsViewSet(viewsets.ModelViewSet):
@@ -240,8 +252,7 @@ class TrainModelViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=['post'])
     def train_model(self, request):
-        training_data = ClaimTrainingData.objects.all().values()
-        train_new_model(training_data)
+        train_new_model()
         # url stuff
         return Response({"status": "Model training initiated"})
 

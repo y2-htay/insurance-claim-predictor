@@ -106,3 +106,22 @@ Average Mean Absolute Error for untuned model: 346.9632
 Average R² Score for untuned model: 0.2750850677490234
 Average Mean Absolute Error for tuned model: 351.1199
 Average R² Score for tuned model: 0.29611810445785525
+
+
+After Pre-processing change and better outlier removal:
+Average Mean Absolute Error for un-tuned model: 173.21470563270472
+Average R² Score for un-tuned model: 0.38357127793858736
+Average Mean Absolute Error for tuned model: 174.6350142667366
+Average R² Score for tuned model: 0.3916525902172726
+
+Min-max scaler:
+Average Mean Absolute Error for un-tuned model: 315.335712881178
+Average R² Score for un-tuned model: 0.11638455119848193
+Average Mean Absolute Error for tuned model: 306.4982269854133
+Average R² Score for tuned model: 0.15812598978725378
+
+Adding Transformer layer:
+Average Mean Absolute Error for un-tuned model: 315.3134213835083
+Average R² Score for un-tuned model: 0.10782576060871822
+Average Mean Absolute Error for tuned model: 307.2046684134636
+Average R² Score for tuned model: 0.17488615523642748
