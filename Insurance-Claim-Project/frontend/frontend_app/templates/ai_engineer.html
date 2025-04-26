@@ -1,0 +1,52 @@
+{% extends "base_generic.html" %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/ai_engineer.css' %}">
+{% endblock %}
+
+
+{% block content %}
+<div class="dashboard-container">
+    <h1>AI Engineer Dashboard</h1>
+
+    <h2>Training Data</h2>
+    <div class="training-data-section">
+        {% if training_data %}
+            <ul>
+                {% for data in training_data %}
+                    <li>{{ data.settle_value }} - {{ data.vehicle_type }} - {{ data.weather_condition }}</li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>No training data available.</p>
+        {% endif %}
+    </div>
+
+    <h2>Usage Logs</h2>
+    <div class="logs-section">
+        {% if logs %}
+            <ul>
+                {% for log in logs %}
+                    <li>{{ log.action }} by {{ log.user }} at {{ log.time }}</li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>No logs available.</p>
+        {% endif %}
+    </div>
+
+    <h2>Models</h2>
+    <div class="models-section">
+        {% if models %}
+            <ul>
+                {% for model in models %}
+                    <li><a href="{{ model.model_file }}" target="_blank">Download Model</a></li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>No models available.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
