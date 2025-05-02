@@ -1,0 +1,11 @@
+Type: <class 'dict'>
+
+
+Dictionary Keys:
+  model → <class 'sklearn.ensemble._stacking.StackingRegressor'>
+  predictions → <class 'numpy.ndarray'>
+  actuals → <class 'pandas.core.series.Series'>
+  mse → <class 'numpy.float64'>
+  r2 → <class 'float'>
+  mae → <class 'numpy.float64'>
+  mape → <class 'numpy.float64'>
