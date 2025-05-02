@@ -51,3 +51,4 @@ __pycache__/
 
 # venv-ai
 venv-ai/
+venv-ai/pyenv.cfg
