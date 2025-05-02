@@ -47,10 +47,17 @@ def process_pickle_file(file_path):
 
 def find_and_process_all_pkls(root_folder):
     for root, _, files in os.walk(root_folder):
+        if 'venv-ai' in root:
+            continue
         for file in files:
             if file.endswith('.pkl'):
                 full_path = os.path.join(root, file)
                 process_pickle_file(full_path)
 
 
-find_and_process_all_pkls('AI-Stuff/Yamin')
+if __name__ == '__main__':
+    print("Script is running...")
+    find_and_process_all_pkls('.')
+
+
+
