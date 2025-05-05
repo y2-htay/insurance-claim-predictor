@@ -28,6 +28,11 @@ ALLOWED_HOSTS = ["frontend", "localhost", "127.0.0.1"]
 
 # Application definition
 
+
+STRIPE_SECRET_KEY = "sk_test_51RLTCUFk6D5RCKRYBFebQ6brhUWnYQvffMSYUTLgFwddCIv9Jhhd9ZXWz1qJCI1J1KkbqZmm8zqVyUp21WC8EsjH00PsYM3C61" # test payments
+STRIPE_PUBLISHABLE_KEY = "pk_test_51RLTCUFk6D5RCKRYjbxZRTFmlArqLZMWn4mpYUTaezsLobNA2iBPb0ElYeq4XBJRivOVNWeIDZFxKg9NI5UP8sgR00J7RpclrK"
+
+
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
