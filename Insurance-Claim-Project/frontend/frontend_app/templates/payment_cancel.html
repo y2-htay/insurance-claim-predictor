@@ -1,0 +1,11 @@
+{% extends "base_generic.html" %}
+{% load static %}
+<link rel="stylesheet" href="{% static 'css/invoice.css' %}">
+
+{% block content %}
+<div class="edit-container">
+    <h1>Payment Canceled</h1>
+    <p>Your payment was canceled. If this was a mistake, you can try again.</p>
+    <a href="{% url 'profile' %}">Return to Profile</a>
+</div>
+{% endblock %}
