@@ -1,11 +1,7 @@
 from django.shortcuts import render, redirect
-from django.contrib.auth.decorators import login_required
-from .forms import UserProfileForm, UserRegistrationForm
-from .models import UserProfile
+from .forms import UserRegistrationForm
 from functools import wraps
 import requests
-from .forms import ClaimUploadForm
-from .models import ClaimUpload
 import pdfkit
 import io
 from django.http import FileResponse
@@ -99,7 +95,8 @@ def register_view(request):
                     return redirect("profile")  # Redirect to profile page
                 else:
                     return render(request, "register.html", {"form": form,
-                                                             "error": "Registration succeeded, but login failed. Please try logging in manually."})
+                                                             "error": "Registration succeeded, but login failed. "
+                                                                      "Please try logging in manually."})
             else:
                 error_message = response.json().get("error", "Registration failed. Please try again.")
                 return render(request, "register.html", {"form": form, "error": error_message})
@@ -332,10 +329,11 @@ def admin_dashboard(request):
     if current_user_response.status_code != 200:
         return HttpResponseForbidden("Authentication failed.")
     current_user = current_user_response.json()
-
     #  Enforce admin access only
-    if current_user.get("permission_level") != "admin":
+    if current_user.get("permission_level") != 0:
         return HttpResponseForbidden("You do not have admin privileges.")
+    elif current_user.get("needs_approval"):
+        return HttpResponseForbidden("Approval needed by administrator needed.")
 
     # Fetch all users and logs
     users_response = requests.get(f"{backend_url}/user_profiles/", headers=headers)
@@ -349,8 +347,8 @@ def admin_dashboard(request):
     logs_response = requests.get(logs_url, headers=headers)
     logs_data = logs_response.json() if logs_response.status_code == 200 else []
 
-    # Handle user deletion
-    if request.method == "POST" and "user_id" in request.POST:
+    # Handle user deletion and approval
+    if request.method == "POST" and "user_id" in request.POST and not "approval" in request.POST:
         user_id = request.POST.get("user_id")
 
         if int(user_id) == current_user.get("id"):
@@ -369,6 +367,20 @@ def admin_dashboard(request):
         else:
             return render(request, "admin.html", {
                 "error": "User deletion failed. Please try again.",
+                "users": users_data,
+                "current_user": current_user,
+                "form": UserRegistrationForm(),
+                "logs": logs_data,
+                "user_filter": user_filter
+            })
+    elif request.method == "POST" and "user_id" in request.POST and "approval" in request.POST:
+        user_id = request.POST.get("user_id")
+        approve_response = requests.patch(f"{backend_url}/user_profiles/{user_id}/", headers=headers)
+        if approve_response.status_code == 204:
+            return redirect("admin")
+        else:
+            return render(request, "admin.html", {
+                "error": "User approval failed. Please try again.",
                 "users": users_data,
                 "current_user": current_user,
                 "form": UserRegistrationForm(),
@@ -506,7 +518,8 @@ def ai_engineer_dashboard(request):
         "models": models
     })
 
-#---------------privacy policy-----------
+
+# ---------------privacy policy-----------
 def privacy_policy_view(request):
     return render(request, "privacy_policy.html")
 

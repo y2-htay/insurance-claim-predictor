@@ -55,6 +55,16 @@ class UserProfileViewSet(viewsets.ModelViewSet):
         except Exception as e:
             return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
+    def update(self, request, pk=None, partial=False):
+        try:
+            user = UserProfile.objects.get(pk=pk)
+            user.needs_approval = False
+            user.save()
+            log_action("User approved.", user)
+            return Response({'message': 'User approved successfully.'}, status=status.HTTP_204_NO_CONTENT)
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
 
 class EndUserViewSet(viewsets.ModelViewSet):
     queryset = EndUser.objects.all()

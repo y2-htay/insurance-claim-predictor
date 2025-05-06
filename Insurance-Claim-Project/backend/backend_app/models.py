@@ -8,6 +8,7 @@ from django.conf import settings
 
 class UserProfile(AbstractUser):
     permission_level = IntegerField(default=0)
+    needs_approval = BooleanField(default=True)
 
 
 class EndUser(Model):
@@ -16,9 +17,9 @@ class EndUser(Model):
     def save(self, *args, **kwargs):
         if not self.user.permission_level:
             self.user.permission_level = 3
+        self.user.needs_approval = False
         super().save(*args, **kwargs)
         self.user.save()
-
 
 class AiEngineer(Model):
     user = OneToOneField(UserProfile, on_delete=CASCADE)
