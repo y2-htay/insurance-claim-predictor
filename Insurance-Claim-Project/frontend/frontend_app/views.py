@@ -6,6 +6,12 @@ import pdfkit
 import io
 from django.http import FileResponse
 from django.http import HttpResponseForbidden
+import stripe
+from django.conf import settings
+from django.http import JsonResponse
+
+stripe.api_key = settings.STRIPE_SECRET_KEY
+
 
 
 # --------- custom decorators ---------
@@ -196,7 +202,9 @@ def submit_claim_view(request):
         )
 
         if response.status_code == 201:
-            return redirect("profile")
+            claim_id = response.json().get("id")
+            return redirect("invoice_page", claim_id=claim_id)
+
         else:
             return render(request, "submit_claim.html", {
                 "error": "Failed to submit claim.",
@@ -313,6 +321,83 @@ def edit_or_delete_claim_view(request, claim_id):
         "injury_descriptions": injury_descriptions,
         "genders": genders,
     })
+
+#USER VIEWS INVOICE
+
+@authenticated_required
+def invoice_page(request, claim_id):
+    backend_url = "http://backend:8000/api"
+    headers = {
+        "Authorization": f"Bearer {request.session.get('access_token')}"
+    }
+
+    response = requests.get(f"{backend_url}/user_claims/{claim_id}/", headers=headers) # get claim details
+
+    if response.status_code == 200:
+        claim_data = response.json()
+
+        if claim_data.get("user_id") != request.user.id: # make sure the logged-in user owns this claim
+            return render(request, "invoice.html", {
+                "error": "You are not authorized to view this invoice."
+            })
+
+        #predicted_value = claim_data.get("predicted_settlement_value")              ####### MOHAMED if you can edit/uncomment this when you get the prediction ? thanks - jack
+        predicted_value = 100
+
+        return render(request, "invoice.html", {
+            "claim": claim_data,
+            "predicted_value": predicted_value,
+            "stripe_publishable_key": settings.STRIPE_PUBLISHABLE_KEY,
+        })
+    else:
+        return render(request, "invoice.html", {
+            "error": "Failed to load invoice."
+        })
+
+#STRIPE CHECKOUT HANDLING
+@authenticated_required
+def create_checkout_session(request, claim_id):
+    if request.method == "POST":
+        backend_url = "http://backend:8000/api" # the usual
+        headers = {
+            "Authorization": f"Bearer {request.session.get('access_token')}"
+        }
+        response = requests.get(f"{backend_url}/user_claims/{claim_id}/", headers=headers) # get the claim from the invoice
+        if response.status_code != 200:
+            return JsonResponse({'error': 'Claim not found.'}, status=404)
+
+        claim_data = response.json()
+        if claim_data.get("user_id") != request.user.id:
+            return JsonResponse({'error': 'Unauthorized.'}, status=403)
+
+        #predicted_value = int(float(claim_data.get("predicted_settlement_value")) * 100)  ####### MOHAMED if you can edit/uncomment this when you get the prediction ? thanks - jack
+        predicted_value = 100 * 100  # in pennies (so * 100 for pounds)
+
+        session = stripe.checkout.Session.create(
+            payment_method_types=['card'],
+            line_items=[{
+                'price_data': {
+                    'currency': 'gbp',
+                    'product_data': {
+                        'name': f"Settlement for Claim #{claim_id}",
+                    },
+                    'unit_amount': predicted_value,
+                },
+                'quantity': 1,
+            }],
+            mode='payment',
+            success_url=request.build_absolute_uri('/payment/success/'),
+            cancel_url=request.build_absolute_uri('/payment/cancel/'),
+        )
+
+        return JsonResponse({'id': session.id})
+
+
+def payment_success(request):
+    return render(request, 'payment_success.html')
+
+def payment_cancel(request):
+    return render(request, 'payment_cancel.html')
 
 
 # -----------------Admin Dash---------------------
