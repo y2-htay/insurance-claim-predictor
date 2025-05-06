@@ -27,15 +27,6 @@
             <input type="number" name="passengers_involved" required>
         </div>
 
-        <div class="form-group">
-            <label>Injury Description:</label>
-            <select name="injury_description">
-                {% for id in injury_descriptions %}
-                    <option value="{{ id.id }}">{{ id.description }}</option>
-                {% endfor %}
-            </select>
-        </div>
-
         <div class="form-group checkbox-group">
             <input type="checkbox" name="psychological_injury" id="psychological_injury">
             <label for="psychological_injury">Psychological Injury</label>
@@ -43,14 +34,13 @@
 
         <div class="form-group">
             <label>Injury Prognosis (Months):</label>
-            <input type="number" name="injury_prognosis_months">
+            <input type="number" name="injury_prognosis" required>
         </div>
 
         <div class="form-group checkbox-group">
             <input type="checkbox" name="exceptional_circumstance" id="exceptional_circumstance">
             <label for="exceptional_circumstance">Exceptional Circumstance</label>
         </div>
-
 
         <div class="form-group checkbox-group">
             <input type="checkbox" name="whiplash" id="whiplash">
@@ -59,7 +49,7 @@
 
         <div class="form-group">
             <label>Vehicle Type:</label>
-            <select name="vehicle_type">
+            <select name="vehicle_type" required>
                 {% for vt in vehicle_types %}
                     <option value="{{ vt.id }}">{{ vt.vehicle_name }}</option>
                 {% endfor %}
@@ -68,7 +58,7 @@
 
         <div class="form-group">
             <label>Weather Condition:</label>
-            <select name="weather_condition">
+            <select name="weather_condition" required>
                 {% for wc in weather_conditions %}
                     <option value="{{ wc.id }}">{{ wc.condition }}</option>
                 {% endfor %}
@@ -86,22 +76,35 @@
         </div>
 
         <div class="form-group checkbox-group">
-            <input type="checkbox" name="police_report" id="police_report">
-            <label for="police_report">Police Report</label>
-        </div>
-
-        <div class="form-group checkbox-group">
             <input type="checkbox" name="witness_present" id="witness_present">
             <label for="witness_present">Witness Present</label>
         </div>
 
         <div class="form-group">
             <label>Gender:</label>
-            <select name="gender">
+            <select name="gender" required>
                 {% for g in genders %}
                     <option value="{{ g.id }}">{{ g.gender }}</option>
                 {% endfor %}
             </select>
+        </div>
+
+        <div class="form-group">
+            <label>Total Special Costs (£):</label>
+            <input type="number" name="total_special_costs" step="0.01" required>
+        </div>
+
+        <div class="form-group">
+        <label>General Rest:</label>
+        <input type="number" step="0.01" name="general_rest" required>
+    </div>
+    <div class="form-group">
+    <label>General Fixed:</label>
+    <input type="number" step="0.01" name="general_fixed" required>
+</div>
+        <div class="form-group">
+            <label>Accident Date:</label>
+            <input type="date" name="accident_date" required>
         </div>
 
         <div class="form-group">
@@ -114,8 +117,7 @@
             <input type="checkbox" name="consent" id="consentCheckbox" required>
             <label for="consentCheckbox">
                 I give my explicit consent to the processing of my personal and health-related data in accordance with
-                the
-                <a href="{% url 'privacy_policy' %}" target="_blank">Privacy Policy</a>.
+                the <a href="{% url 'privacy_policy' %}" target="_blank">Privacy Policy</a>.
             </label>
         </div>
 
@@ -129,7 +131,7 @@
         fileLabel.innerText = this.files.length ? `Selected file: ${this.files[0].name}` : "";
     });
 
-    document.getElementById("submitClaimForm")?.addEventListener("submit", function (e) {
+    document.querySelector("form")?.addEventListener("submit", function (e) {
         if (!document.getElementById("consentCheckbox").checked) {
             alert("You must provide explicit consent to submit this form.");
             e.preventDefault();
