@@ -9,24 +9,30 @@
     {% if error %}
         <p style="color: red;">{{ error }}</p>
     {% else %}
-    <p><strong>Predicted Settlement Amount:</strong> ${{ predicted_value }}</p>
+    <p><strong>Predicted Settlement Amount:</strong> £{{ predicted_value }}</p>
 
     <h3>Claim Details:</h3>
-    <ul>
-        <li>Injury Description: {{ claim.injury_description }}</li>
-        <li>Vehicle Type: {{ claim.vehicle_type }}</li>
-        <li>Weather Condition: {{ claim.weather_condition }}</li>
-        <li>Driver Age: {{ claim.driver_age }}</li>
-        <li>Vehicle Age: {{ claim.vehicle_age }}</li>
-        <li>Passengers Involved: {{ claim.passengers_involved }}</li>
-        <li>Psychological Injury: {{ claim.psychological_injury }}</li>
-        <li>Whiplash: {{ claim.whiplash }}</li>
-        <li>Injury Prognosis (Months): {{ claim.injury_prognosis_months }}</li>
-        <li>Exceptional Circumstance: {{ claim.exceptional_circumstance }}</li>
-        <li>Police Report Filed: {{ claim.police_report }}</li>
-        <li>Witness Present: {{ claim.witness_present }}</li>
-        <li>Gender: {{ claim.gender }}</li>
-    </ul>
+<ul>
+    <li><strong>Vehicle Type:</strong> {{ claim.vehicle_type }}</li>
+    <li><strong>Weather Condition:</strong> {{ claim.weather_condition }}</li>
+    <li><strong>Driver Age:</strong> {{ claim.driver_age }}</li>
+    <li><strong>Vehicle Age:</strong> {{ claim.vehicle_age }}</li>
+    <li><strong>Passengers Involved:</strong> {{ claim.passengers_involved }}</li>
+    <li><strong>Total Special Costs:</strong> £{{ claim.total_special_costs }}</li>
+    <li><strong>General Rest:</strong> £{{ claim.general_rest }}</li>
+    <li><strong>General Fixed:</strong> £{{ claim.general_fixed }}</li>
+    <li><strong>Psychological Injury:</strong> {{ claim.psychological_injury }}</li>
+    <li><strong>Whiplash:</strong> {{ claim.whiplash }}</li>
+    <li><strong>Injury Prognosis (Months):</strong> {{ claim.injury_prognosis }}</li>
+    <li><strong>Exceptional Circumstance:</strong> {{ claim.exceptional_circumstance }}</li>
+    <li><strong>Witness Present:</strong> {{ claim.witness_present }}</li>
+    <li><strong>Gender:</strong> {{ claim.gender }}</li>
+    <li><strong>Accident Date:</strong> {{ claim.accident_date }}</li>
+    <li><strong>Claim Date:</strong> {{ claim.claim_date }}</li>
+    {% if claim.supporting_documents %}
+        <li><strong>Supporting Document:</strong> <a href="{{ claim.supporting_documents }}" target="_blank">View</a></li>
+    {% endif %}
+</ul>
 
     <button id="checkout-button">Pay Now</button>
     <a href="{% url 'profile' %}"><button id="decide-later-button">Decide Later</button></a>
