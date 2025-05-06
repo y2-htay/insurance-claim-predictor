@@ -13,7 +13,7 @@ from django.http import HttpResponseForbidden
 import stripe
 from django.conf import settings
 from django.http import JsonResponse
-
+from datetime import date
 stripe.api_key = settings.STRIPE_SECRET_KEY
 
 
@@ -150,52 +150,48 @@ def submit_claim_view(request):
         "Authorization": f"Bearer {request.session.get('access_token')}"
     }
 
-    # Fetch foreign key options for form
     vehicle_types = []
     weather_conditions = []
     genders = []
-    injury_descriptions = []
 
     vt_response = requests.get(f"{backend_url}/vehicle_types/", headers=headers)
     wc_response = requests.get(f"{backend_url}/weather_conditions/", headers=headers)
     gender_response = requests.get(f"{backend_url}/gender/", headers=headers)
-    injury_response = requests.get(f"{backend_url}/injury_description/", headers=headers)
 
     if vt_response.status_code == 200:
         vehicle_types = vt_response.json()
-
     if wc_response.status_code == 200:
         weather_conditions = wc_response.json()
-
     if gender_response.status_code == 200:
         genders = gender_response.json()
-
-    if injury_response.status_code == 200:
-        injury_descriptions = injury_response.json()
 
     if request.method == "POST":
         data = request.POST
         files = request.FILES
 
         payload = {
-            # "user": request.user.id,
             "passengers_involved": data.get("passengers_involved"),
-            "injury_description": data.get("injury_description"),
             "psychological_injury": data.get("psychological_injury") == "on",
-            "injury_prognosis_months": data.get("injury_prognosis_months"),
+            "injury_prognosis": data.get("injury_prognosis"),
             "exceptional_circumstance": data.get("exceptional_circumstance") == "on",
             "whiplash": data.get("whiplash") == "on",
             "vehicle_type": data.get("vehicle_type"),
             "weather_condition": data.get("weather_condition"),
             "driver_age": data.get("driver_age"),
             "vehicle_age": data.get("vehicle_age"),
-            "police_report": data.get("police_report") == "on",
             "witness_present": data.get("witness_present") == "on",
             "gender": data.get("gender"),
+            "total_special_costs": data.get("total_special_costs"),
+            "general_rest": data.get("general_rest"),  # <-- new field
+            "general_fixed": data.get("general_fixed"),  # <-- new field
+            "accident_date": data.get("accident_date"),
+            "claim_date": date.today().isoformat(),
+            "accident_type": data.get("accident_type"),
+            "dominant_injury": data.get("dominant_injury"),
+            "minor_psychological_injury": data.get("minor_psychological_injury") == "on",
         }
 
-        files_data = {"supporting_documents": files.get("supporting_documents")} if files.get(
-            "supporting_documents") else None
+        files_data = {"supporting_documents": files.get("supporting_documents")} if files.get("supporting_documents") else None
 
         response = requests.post(
             f"{backend_url}/user_claims/",
@@ -208,22 +204,18 @@ def submit_claim_view(request):
             claim_id = response.json().get("id")
             return redirect("invoice_page", claim_id=claim_id)
 
-        else:
-            return render(request, "submit_claim.html", {
-                "error": "Failed to submit claim.",
-                "vehicle_types": vehicle_types,
-                "weather_conditions": weather_conditions,
-                "injury_descriptions": injury_descriptions,
-                "genders": genders
-            })
+        return render(request, "submit_claim.html", {
+            "error": "Failed to submit claim.",
+            "vehicle_types": vehicle_types,
+            "weather_conditions": weather_conditions,
+            "genders": genders
+        })
 
     return render(request, "submit_claim.html", {
         "vehicle_types": vehicle_types,
         "weather_conditions": weather_conditions,
-        "injury_descriptions": injury_descriptions,
         "genders": genders
     })
-
 
 # -----------------edit/delete claim for GDPR------
 @authenticated_required
@@ -241,62 +233,56 @@ def edit_or_delete_claim_view(request, claim_id):
     vehicle_types = []
     weather_conditions = []
     genders = []
-    injury_descriptions = []
 
     vt_response = requests.get(f"{backend_url}/vehicle_types/", headers=headers)
     wc_response = requests.get(f"{backend_url}/weather_conditions/", headers=headers)
     gender_response = requests.get(f"{backend_url}/gender/", headers=headers)
-    injury_response = requests.get(url=f"{backend_url}/injury_description/", headers=headers)
 
     if vt_response.status_code == 200:
         vehicle_types = vt_response.json()
-
     if wc_response.status_code == 200:
         weather_conditions = wc_response.json()
-
     if gender_response.status_code == 200:
         genders = gender_response.json()
-
-    if injury_response.status_code == 200:
-        injury_descriptions = injury_response.json()
 
     if request.method == "POST":
         if "delete" in request.POST:
             delete_response = requests.delete(f"{backend_url}/user_claims/{claim_id}/", headers=headers)
             if delete_response.status_code == 204:
                 return redirect("profile")
-            else:
-                return render(request, "edit_claim.html", {
-                    "claim": claim_data,
-                    "vehicle_types": vehicle_types,
-                    "weather_conditions": weather_conditions,
-                    "injury_descriptions": injury_descriptions,
-                    "genders": genders,
-                    "error": "Failed to delete claim."
-                })
+            return render(request, "edit_claim.html", {
+                "claim": claim_data,
+                "vehicle_types": vehicle_types,
+                "weather_conditions": weather_conditions,
+                "genders": genders,
+                "error": "Failed to delete claim."
+            })
 
-        # Edit claim logic
         data = request.POST
         files = request.FILES
 
         payload = {
             "passengers_involved": data.get("passengers_involved"),
             "psychological_injury": data.get("psychological_injury") == "on",
-            "injury_description": data.get("injury_description"),
-            "injury_prognosis_months": data.get("injury_prognosis_months"),
+            "injury_prognosis": data.get("injury_prognosis"),
             "exceptional_circumstance": data.get("exceptional_circumstance") == "on",
             "whiplash": data.get("whiplash") == "on",
             "vehicle_type": data.get("vehicle_type"),
             "weather_condition": data.get("weather_condition"),
             "driver_age": data.get("driver_age"),
             "vehicle_age": data.get("vehicle_age"),
-            "police_report": data.get("police_report") == "on",
             "witness_present": data.get("witness_present") == "on",
             "gender": data.get("gender"),
+            "total_special_costs": data.get("total_special_costs"),
+            "general_rest": data.get("general_rest"),  # <-- new field
+            "general_fixed": data.get("general_fixed"),  # <-- new field
+            "accident_date": data.get("accident_date"),
+            "claim_date": date.today().isoformat(),
+            "accident_type": data.get("accident_type"),
+            "dominant_injury": data.get("dominant_injury"),
+            "minor_psychological_injury": data.get("minor_psychological_injury") == "on",
         }
-
-        files_data = {"supporting_documents": files.get("supporting_documents")} if files.get(
-            "supporting_documents") else None
+        files_data = {"supporting_documents": files.get("supporting_documents")} if files.get("supporting_documents") else None
 
         update_response = requests.put(
             f"{backend_url}/user_claims/{claim_id}/",
@@ -307,21 +293,18 @@ def edit_or_delete_claim_view(request, claim_id):
 
         if update_response.status_code == 200:
             return redirect("profile")
-        else:
-            return render(request, "edit_claim.html", {
-                "claim": claim_data,
-                "vehicle_types": vehicle_types,
-                "weather_conditions": weather_conditions,
-                "injury_descriptions": injury_descriptions,
-                "genders": genders,
-                "error": "Failed to update claim."
-            })
+        return render(request, "edit_claim.html", {
+            "claim": claim_data,
+            "vehicle_types": vehicle_types,
+            "weather_conditions": weather_conditions,
+            "genders": genders,
+            "error": "Failed to update claim."
+        })
 
     return render(request, "edit_claim.html", {
         "claim": claim_data,
         "vehicle_types": vehicle_types,
         "weather_conditions": weather_conditions,
-        "injury_descriptions": injury_descriptions,
         "genders": genders,
     })
 
@@ -345,7 +328,7 @@ def invoice_page(request, claim_id):
             })
 
         #predicted_value = claim_data.get("predicted_settlement_value")              ####### MOHAMED if you can edit/uncomment this when you get the prediction ? thanks - jack
-        predicted_value = 100
+        predicted_value = claim_data.get("predicted_settlement_value", "Not available")
 
         return render(request, "invoice.html", {
             "claim": claim_data,
