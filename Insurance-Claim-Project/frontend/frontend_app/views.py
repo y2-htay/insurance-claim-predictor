@@ -1,5 +1,6 @@
 import base64
 
+from django.contrib.auth import get_user_model, login
 from django.shortcuts import render, redirect
 from .forms import UserRegistrationForm
 from functools import wraps
@@ -12,7 +13,7 @@ import stripe
 from django.conf import settings
 from django.http import JsonResponse
 from datetime import date
-from .utils import prepare_model_evaluation
+from .utils import prepare_model_evaluation, get_user_perm_level
 
 stripe.api_key = settings.STRIPE_SECRET_KEY
 import os
@@ -42,19 +43,6 @@ def authenticated_required(view_func):
     return wrapper
 
 
-# -------------------------------------
-
-def home(request):
-    try:
-        response = requests.get("http://backend:8000/api/")
-        data = response.json()
-    except Exception as e:
-        data = {"error": str(e)}
-
-    message = data.get("message", "Welcome to the frontend!")
-    return render(request, "home.html", {"message": message})
-
-
 # --------- LOGIN & LOGOUT & REGISTER -----------
 
 def login_view(request):
@@ -72,9 +60,6 @@ def login_view(request):
             tokens = response.json()
             request.session["access_token"] = tokens["access"]  # store access token in user session
             request.session["refresh_token"] = tokens["refresh"]
-
-
-            
 
             # 3) Fetch the user's details from the backend
             user_data_response = requests.get(
@@ -95,9 +80,6 @@ def login_view(request):
                 )
                 # 5) Mark them logged in in Django
                 login(request, user)
-
-
-
 
             return redirect("profile")  # once user logged in, redirect then to their profile
         else:
@@ -132,10 +114,7 @@ def register_view(request):
                 })
 
                 if login_response.status_code == 200:
-                    tokens = login_response.json()
-                    request.session["access_token"] = tokens["access"]  # Store access token in user session
-                    request.session["refresh_token"] = tokens["refresh"]
-                    return redirect("profile")  # Redirect to profile page
+                    return redirect("login")  # Redirect to profile page
                 else:
                     return render(request, "register.html", {"form": form,
                                                              "error": "Registration succeeded, but login failed. "
@@ -158,6 +137,8 @@ def profile(request):
     # get user details from backend
     user_response = requests.get(f"http://backend:8000/api/auth/users/me", headers=headers)
 
+    perm_level = get_user_perm_level(headers)
+
     if user_response.status_code == 200:
         user_data = user_response.json()  # user info
     else:
@@ -172,7 +153,8 @@ def profile(request):
 
     return render(request, "profile.html", {
         "user_data": user_data,
-        "claims": claim_data
+        "claims": claim_data,
+        "permission": perm_level
     })
 
 
@@ -183,6 +165,8 @@ def submit_claim_view(request):
     headers = {
         "Authorization": f"Bearer {request.session.get('access_token')}"
     }
+
+    perm_level = get_user_perm_level(headers)
 
     vehicle_types = []
     weather_conditions = []
@@ -223,6 +207,8 @@ def submit_claim_view(request):
             "accident_type": data.get("accident_type"),
             "dominant_injury": data.get("dominant_injury"),
             "minor_psychological_injury": data.get("minor_psychological_injury") == "on",
+            "permission": perm_level
+
         }
 
         files_data = {"supporting_documents": files.get("supporting_documents")} if files.get(
@@ -237,19 +223,21 @@ def submit_claim_view(request):
 
         if response.status_code == 201:
             claim_id = response.json().get("id")
-            return redirect("invoice_page", claim_id=claim_id)
+            return redirect("invoice_page", claim_id=claim_id, permission=perm_level)
 
         return render(request, "submit_claim.html", {
             "error": "Failed to submit claim.",
             "vehicle_types": vehicle_types,
             "weather_conditions": weather_conditions,
-            "genders": genders
+            "genders": genders,
+            "permission": perm_level
         })
 
     return render(request, "submit_claim.html", {
         "vehicle_types": vehicle_types,
         "weather_conditions": weather_conditions,
-        "genders": genders
+        "genders": genders,
+        "permission": perm_level
     })
 
 
@@ -576,7 +564,6 @@ def finance_dashboard(request):
         claims = claims_response.json() if claims_response.status_code == 200 else []
         claims = [claim for claim in claims if str(claim.get('user')) == str(selected_user_id)]
 
-
     if request.method == "POST" and selected_user_id:
         total_amount = sum(claim['passengers_involved'] for claim in claims) * 5
         invoice_data = {
@@ -588,7 +575,7 @@ def finance_dashboard(request):
         if invoice_response.status_code == 201:
             invoice = invoice_response.json()
 
-            #Total Amount: ${invoice['total_amount']}\n
+            # Total Amount: ${invoice['total_amount']}\n
             pdf_content = f"Invoice ID: {invoice['id']}\nUser ID: {selected_user_id}\nCreated At: {invoice['created_at']}\n\n"
             pdf_content += "Claims:\n\n"
 
@@ -610,7 +597,7 @@ def finance_dashboard(request):
                     f"  Witness Present: {'Yes' if claim.get('witness_present') else 'No'}\n"
                     f"  Gender: {claim.get('gender')}\n"
                 )
-                
+
                 supporting_doc = claim.get('supporting_documents')
                 if supporting_doc:
                     pdf_content += f"  Supporting Documents: Yes\n"
