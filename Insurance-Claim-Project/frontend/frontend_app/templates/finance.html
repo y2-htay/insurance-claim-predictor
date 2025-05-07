@@ -37,9 +37,10 @@
         <tr>
           <th>ID</th>
           <th>Passengers</th>
-          <th>Psychological Injury</th>
-          <th>Prognosis (Months)</th>
-          <th>Whiplash</th>
+          <th>Injury Prognosis</th>
+          <th>Driver Age</th>
+          <th>Vehicle Age</th>
+          <th>Weather</th>
         </tr>
       </thead>
       <tbody>
@@ -47,9 +48,10 @@
           <tr>
             <td>{{ claim.id }}</td>
             <td>{{ claim.passengers_involved }}</td>
-            <td>{{ claim.psychological_injury }}</td>
-            <td>{{ claim.injury_prognosis_months }}</td>
-            <td>{{ claim.whiplash }}</td>
+            <td>{{ claim.injury_prognosis }}</td>
+            <td>{{ claim.driver_age }}</td>
+            <td>{{ claim.vehicle_age }}</td>
+            <td>{{ claim.weather_condition }}</td>
           </tr>
         {% endfor %}
       </tbody>
