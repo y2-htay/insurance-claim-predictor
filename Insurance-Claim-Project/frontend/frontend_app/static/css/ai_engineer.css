@@ -7,6 +7,30 @@ body {
     color: #333;
 }
 
+
+.styled-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+    font-size: 15px;
+}
+
+.styled-table thead {
+    background-color: #ff4d00;
+    color: white;
+}
+
+.styled-table th, .styled-table td {
+    padding: 12px 15px;
+    border-bottom: 1px solid #ddd;
+    text-align: left;
+}
+
+.styled-table tr:hover {
+    background-color: #f3f3f3;
+}
+
+
 /* Dashboard Container */
 .dashboard-container {
     max-width: 1200px;
@@ -28,6 +52,8 @@ h1, h2 {
 /* Section Containers */
 .training-data-section, .logs-section, .models-section {
     margin-bottom: 30px;
+    max-height: 300px;
+    overflow-y: auto;
 }
 
 /* List Styles */
