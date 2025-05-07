@@ -547,6 +547,8 @@ def finance_dashboard(request):
         claims_response = requests.get(f"{backend_url}/user_claims/?user_id={selected_user_id}",
                                        headers=headers)  # list a specific users claims
         claims = claims_response.json() if claims_response.status_code == 200 else []
+        claims = [claim for claim in claims if str(claim.get('user')) == str(selected_user_id)]
+
 
     if request.method == "POST" and selected_user_id:
         total_amount = sum(claim['passengers_involved'] for claim in claims) * 5
@@ -558,10 +560,42 @@ def finance_dashboard(request):
 
         if invoice_response.status_code == 201:
             invoice = invoice_response.json()
-            pdf_content = f"Invoice ID: {invoice['id']}\nTotal Amount: ${invoice['total_amount']}\nCreated At: {invoice['created_at']}"  # make pdf content
+
+            #Total Amount: ${invoice['total_amount']}\n
+            pdf_content = f"Invoice ID: {invoice['id']}\nUser ID: {selected_user_id}\nCreated At: {invoice['created_at']}\n\n"
+            pdf_content += "Claims:\n\n"
+
+            for claim in claims:
+                pdf_content += (
+                    f"--- Claim ID: {claim['id']}\n"
+                    f"  User ID: {claim.get('user')}\n"
+                    f"  Passengers Involved: {claim.get('passengers_involved', 0)}\n"
+                    f"  Psychological Injury: {'Yes' if claim.get('psychological_injury') else 'No'}\n"
+                    f"  Injury Prognosis: {claim.get('injury_prognosis', 0)}\n"
+                    f"  Injury Description: {claim.get('injury_description')}\n"
+                    f"  Exceptional Circumstance: {'Yes' if claim.get('exceptional_circumstance') else 'No'}\n"
+                    f"  Whiplash: {'Yes' if claim.get('whiplash') else 'No'}\n"
+                    f"  Vehicle Type: {claim.get('vehicle_type')}\n"
+                    f"  Weather Condition: {claim.get('weather_condition')}\n"
+                    f"  Driver Age: {claim.get('driver_age', 0)}\n"
+                    f"  Vehicle Age: {claim.get('vehicle_age', 0)}\n"
+                    f"  Police Report: {'Yes' if claim.get('police_report') else 'No'}\n"
+                    f"  Witness Present: {'Yes' if claim.get('witness_present') else 'No'}\n"
+                    f"  Gender: {claim.get('gender')}\n"
+                )
+                
+                supporting_doc = claim.get('supporting_documents')
+                if supporting_doc:
+                    pdf_content += f"  Supporting Documents: Yes\n"
+                else:
+                    pdf_content += f"  Supporting Documents: None\n"
+
+                pdf_content += "\n\n"
 
             # reender and convert to pdf
-            pdf_binary = pdfkit.from_string(pdf_content, output_path=False)
+            html_content = pdf_content.replace('\n', '<br>')
+            pdf_binary = pdfkit.from_string(html_content, output_path=False)
+
             pdf_buffer = io.BytesIO(pdf_binary)
             pdf_buffer.seek(0)
 
