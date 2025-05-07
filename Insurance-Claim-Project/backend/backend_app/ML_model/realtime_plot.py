@@ -6,19 +6,18 @@ import os
 # === Paths ===
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 EVAL_PATH = os.path.join(BASE_DIR, 'evaluation_results.csv')
+GRAPH_PATH = os.path.join(BASE_DIR, 'realtime_graph.png')  # Path to save the graph
 
-def plot_real_time_graph(csv_path, refresh_interval=5):
+def plot_real_time_graph(csv_path, graph_path, refresh_interval=5):
     """
     Real-time plot of settlement values vs. error from the evaluation_results.csv file.
 
     Args:
         csv_path (str): Path to the evaluation_results.csv file.
+        graph_path (str): Path to save the generated graph image.
         refresh_interval (int): Time interval (in seconds) to refresh the graph.
     """
     last_modified_time = None
-
-    plt.ion()  # Turn on interactive mode for real-time updates
-    fig, ax = plt.subplots(figsize=(8, 6))
 
     while True:
         # Check if the file has been modified
@@ -48,24 +47,22 @@ def plot_real_time_graph(csv_path, refresh_interval=5):
             settlement_values = settlement_values.iloc[sorted_indices]
             absolute_errors = absolute_errors.iloc[sorted_indices]
 
-            # Clear the previous plot
-            ax.clear()
+            # Create the plot
+            plt.figure(figsize=(8, 6))
+            plt.plot(settlement_values, absolute_errors, marker="o", linestyle="-", color="green", label="Error vs Settlement")
+            plt.title("Error vs Settlement Value (Real-Time)")
+            plt.xlabel("Settlement Value")
+            plt.ylabel("Error")
+            plt.legend()
+            plt.grid(True)
 
-            # Plot the graph
-            ax.plot(settlement_values, absolute_errors, marker="o", linestyle="-", color="green", label="Error vs Settlement")
-            ax.set_title("Error vs Settlement Value (Real-Time)")
-            ax.set_xlabel("Settlement Value")
-            ax.set_ylabel("Error")
-            ax.legend()
-            ax.grid(True)
-
-            # Redraw the plot
-            plt.draw()
-            plt.pause(0.1)  # Pause to allow the graph to update
+            # Save the plot as an image
+            plt.savefig(graph_path)
+            plt.close()  # Close the plot to free memory
 
         # Wait for the next refresh
         time.sleep(refresh_interval)
 
 # === Run the Real-Time Plot ===
 if __name__ == "__main__":
-    plot_real_time_graph(EVAL_PATH, refresh_interval=5)
+    plot_real_time_graph(EVAL_PATH, GRAPH_PATH, refresh_interval=5)

@@ -3,6 +3,7 @@ from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView, TokenBlacklistView  # jwt djoser
 from .views import *
+from .views import get_graph_data
 
 router = DefaultRouter()
 router.register(r'user_profiles', UserProfileViewSet)
@@ -34,5 +35,8 @@ urlpatterns = [
     path('api/token/logout/', TokenBlacklistView.as_view(), name='token_blacklist'),
     path('api/upload-training-data', include('djoser.urls.jwt'), name="ai_data"),
     path('api/train_model', include('djoser.urls.jwt'), name="ai_train"),
+    path('api/graph-data/', get_graph_data, name='get_graph_data'),
+     path('api/realtime-graph/', serve_realtime_graph, name='serve_realtime_graph'),
+
 
 ]

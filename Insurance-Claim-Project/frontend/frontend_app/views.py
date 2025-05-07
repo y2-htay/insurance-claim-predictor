@@ -15,8 +15,15 @@ from django.conf import settings
 from django.http import JsonResponse
 from datetime import date
 stripe.api_key = settings.STRIPE_SECRET_KEY
+import pandas as pd
+import os
 
 
+# Define the path to the evaluation_results.csv file in the backend app
+EVAL_PATH = os.path.join(
+    os.path.dirname(os.path.abspath(__file__)),  # Current directory of this views.py file
+    "../backend_app/ML_model/evaluation_results.csv"  # Relative path to the CSV file
+)
 
 # --------- custom decorators ---------
 def authenticated_required(view_func):
@@ -568,12 +575,39 @@ def ai_engineer_dashboard(request):
     models_response = requests.get(f"{backend_url}/insurance_models/", headers=headers)
     models = models_response.json() if models_response.status_code == 200 else []
 
+    # Fetch graph data
+    graph_data_response = requests.get(f"{backend_url}/graph-data/", headers=headers)
+    graph_data = graph_data_response.json() if graph_data_response.status_code == 200 else {"settlement_values": [], "absolute_errors": []}
+
     return render(request, "ai_engineer.html", {
         "training_data": training_data,
         "logs": logs,
-        "models": models
+        "models": models,
+        "graph_data": graph_data
+
     })
 
+def get_graph_data(request):
+    """
+    API endpoint to fetch graph data from evaluation_results.csv.
+    """
+    try:
+        print(f"EVAL_PATH: {EVAL_PATH}")  # Debugging: Log the file path
+        eval_df = pd.read_csv(EVAL_PATH, names=["Predicted", "Actual", "AbsoluteError", "PercentError"])
+        eval_df = eval_df.iloc[1:]  # Skip the first row (headers)
+
+        graph_data = {
+            "settlement_values": eval_df["Actual"].astype(float).tolist(),
+            "absolute_errors": eval_df["AbsoluteError"].astype(float).tolist(),
+        }
+        return JsonResponse(graph_data, safe=False)
+
+    except FileNotFoundError:
+        print("FileNotFoundError: evaluation_results.csv not found.")  # Debugging
+        return JsonResponse({"error": "evaluation_results.csv not found."}, status=404)
+    except Exception as e:
+        print(f"Exception: {e}")  # Debugging
+        return JsonResponse({"error": str(e)}, status=500)
 #---------------privacy policy-----------
 def privacy_policy_view(request):
     return render(request, "privacy_policy.html")
