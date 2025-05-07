@@ -1,5 +1,8 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
+
+from django.contrib.auth import login, get_user_model
+
 from .forms import UserProfileForm, UserRegistrationForm
 from .models import UserProfile
 from functools import wraps
@@ -60,6 +63,33 @@ def login_view(request):
             tokens = response.json()
             request.session["access_token"] = tokens["access"]  # store access token in user session
             request.session["refresh_token"] = tokens["refresh"]
+
+
+            
+
+            # 3) Fetch the user's details from the backend
+            user_data_response = requests.get(
+                "http://backend:8000/api/auth/users/me",
+                headers={"Authorization": f"Bearer {tokens['access']}"}
+            )
+
+            if user_data_response.status_code == 200:
+                backend_user = user_data_response.json()
+                User = get_user_model()
+                # 4) Get or create a local Django user
+                user, _ = User.objects.get_or_create(
+                    username=backend_user["username"],
+                    defaults={
+                        # Optionally copy other fields, e.g. email:
+                        "email": backend_user.get("email", "")
+                    }
+                )
+                # 5) Mark them logged in in Django
+                login(request, user)
+
+
+
+
             return redirect("profile")  # once user logged in, redirect then to their profile
         else:
             return render(request, "login.html", {"error": "Invalid credentials"})
