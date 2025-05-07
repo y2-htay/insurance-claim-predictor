@@ -7,6 +7,30 @@ body {
     color: #333;
 }
 
+
+.styled-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+    font-size: 15px;
+}
+
+.styled-table thead {
+    background-color: #ff4d00;
+    color: white;
+}
+
+.styled-table th, .styled-table td {
+    padding: 12px 15px;
+    border-bottom: 1px solid #ddd;
+    text-align: left;
+}
+
+.styled-table tr:hover {
+    background-color: #f3f3f3;
+}
+
+
 /* Dashboard Container */
 .dashboard-container {
     max-width: 1200px;
@@ -28,6 +52,8 @@ h1, h2 {
 /* Section Containers */
 .training-data-section, .logs-section, .models-section {
     margin-bottom: 30px;
+    max-height: 300px;
+    overflow-y: auto;
 }
 
 /* List Styles */
@@ -79,4 +105,18 @@ a:hover {
     li {
         font-size: 12px;
     }
+}
+
+.graph-container {
+    margin-top: 30px;
+    padding: 20px;
+    border: 1px solid #e65c00;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+#realtimeGraph {
+    width: 100%;
+    height: 400px;
 }

@@ -104,6 +104,8 @@ def preprocess_data_and_upload(data):
     lower_limit = data['SettlementValue'].quantile(0.10)
     data['SettlementValue'] = data['SettlementValue'].clip(lower=lower_limit, upper=upper_limit)
 
+    data.columns = data.columns.str.replace(' ', '_')
+
     try:
         csv_buffer = io.StringIO()
         data.to_csv(csv_buffer, index=False)

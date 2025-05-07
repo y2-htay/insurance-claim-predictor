@@ -12,7 +12,21 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 from .ai_model import train_new_model
 from .permissions import *
 from .serializers import *
+
 from .utils import get_current_user, log_action, preprocess_data_and_upload
+from rest_framework.permissions import SAFE_METHODS, BasePermission
+from backend_app.ML_model.model_utils import predict_settlement, preprocess_input
+from backend_app.ML_model.evaluate_model import evaluate_model
+import os
+import csv
+import subprocess
+from django.http import JsonResponse
+from django.http import FileResponse
+
+## --- Paths --
+NEW_CLAIM_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "ML_model", "new_claim.csv")
+
+EVAL_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "ML_model", "evaluation_results.csv")
 
 
 # Home API
@@ -110,11 +124,18 @@ class AdministratorViewSet(viewsets.ModelViewSet):
         log_action("Created a new admin account!", user_profile)
 
 
+class ReadOnlyUnlessAiEngineer(BasePermission):
+    def has_permission(self, request, view):
+        if request.method in SAFE_METHODS:
+            return request.user.is_authenticated
+        return request.user.is_authenticated and IsAiEngineer().has_permission(request, view)
+
+
 class VehicleTypeViewSet(viewsets.ModelViewSet):
     queryset = VehicleType.objects.all()
     serializer_class = VehicleTypeSerializer
     authentication_classes = [JWTAuthentication]
-    permission_classes = [IsAuthenticated, IsAiEngineer]
+    permission_classes = [ReadOnlyUnlessAiEngineer]
 
     def create(self, request):
         serializer_class = VehicleTypeSerializer(data=request.data)
@@ -130,7 +151,7 @@ class WeatherConditionViewSet(viewsets.ModelViewSet):
     queryset = WeatherCondition.objects.all()
     serializer_class = WeatherConditionSerializer
     authentication_classes = [JWTAuthentication]
-    permission_classes = [IsAuthenticated, IsAiEngineer]
+    permission_classes = [ReadOnlyUnlessAiEngineer]
 
     def create(self, request):
         serializer_class = WeatherConditionSerializer(data=request.data)
@@ -146,7 +167,7 @@ class GenderViewSet(viewsets.ModelViewSet):
     queryset = Gender.objects.all()
     serializer_class = GenderSerializer
     authentication_classes = [JWTAuthentication]
-    permission_classes = [IsAuthenticated, IsAiEngineer]
+    permission_classes = [ReadOnlyUnlessAiEngineer]
 
     def create(self, request):
         serializer_class = GenderSerializer(data=request.data)
@@ -204,6 +225,19 @@ class ClaimTrainingDataViewSet(viewsets.ModelViewSet):
         except DatabaseError:
             return Response({"error": "Claim training data could not be deleted!"})
 
+    def list(self, request):
+        try:
+            latest_training_data = ClaimTrainingData.objects.latest('id')
+            file_path = latest_training_data.data_file.path
+            with open(file_path, 'r') as file:
+                csv_reader = csv.DictReader(file)
+                data = [row for row in csv_reader]
+
+                # Return the CSV data as JSON response
+            return JsonResponse(data, safe=False)
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
 
 class UserClaimsViewSet(viewsets.ModelViewSet):
     queryset = UserClaims.objects.all()
@@ -216,16 +250,94 @@ class UserClaimsViewSet(viewsets.ModelViewSet):
         return UserClaims.objects.filter(user=user_profile)
 
     def create(self, request, *args, **kwargs):
-        # on creatine of user claim, serialize with request
         serializer = self.get_serializer(data=request.data)
         user_profile = get_current_user(request)
+
         if serializer.is_valid():
-            # save the user claim request with the associated user !
-            serializer.save(user=request.user)
+            instance = serializer.save(user=user_profile)
+
+            data_for_model = {
+                "Driver Age": float(instance.driver_age),
+                "Vehicle Age": float(instance.vehicle_age),
+                "Injury_Prognosis": float(instance.injury_prognosis),
+                "Vehicle Type": instance.vehicle_type.vehicle_name if instance.vehicle_type else "",
+                "Weather Conditions": instance.weather_condition.condition if instance.weather_condition else "",
+                "Gender": instance.gender.gender if instance.gender else "",
+                "Accident Date": str(instance.accident_date),
+                "Claim Date": str(instance.claim_date),
+                "TotalSpecialCosts": float(instance.total_special_costs),
+                "GeneralRest": float(instance.general_rest),
+                "GeneralFixed": float(instance.general_fixed),
+                "Number of Passengers": float(instance.passengers_involved),
+                "GeneralUplift": 0.0,
+                "Whiplash": int(instance.whiplash),
+                "Exceptional_Circumstances": int(instance.exceptional_circumstance),
+                "Witness Present": int(instance.witness_present),
+                "Minor_Psychological_Injury": int(instance.psychological_injury),
+            }
+
+            try:
+                prediction = predict_settlement(data_for_model)
+                instance.predicted_settlement_value = prediction
+                instance.save(update_fields=["predicted_settlement_value"])
+
+                try:
+                    preprocessed_df = preprocess_input(data_for_model)
+                    os.makedirs(os.path.dirname(NEW_CLAIM_PATH), exist_ok=True)
+
+                    with open(NEW_CLAIM_PATH, "a", newline="") as csvfile:
+                        row_data = preprocessed_df.iloc[0].to_dict()
+                        row_data["PredictedSettlementValue"] = prediction
+                        writer = csv.DictWriter(csvfile, fieldnames=row_data.keys())
+
+                        if csvfile.tell() == 0:
+                            writer.writeheader()
+                        writer.writerow(row_data)
+
+                    print("[DEBUG] Claim written to CSV")
+
+                except Exception as write_err:
+                    print("[ERROR]  Failed to write claim to CSV:", write_err)
+
+                try:
+                    subprocess.run(
+                        ["python", "backend_app/ML_model/evaluate_model.py"],
+                        check=True
+                    )
+                    print("[DEBUG]  Evaluation script ran successfully")
+                except subprocess.CalledProcessError as eval_err:
+                    print("[ERROR]  Evaluation script failed ", eval_err)
+
+            except Exception as e:
+                print("Prediction error:", e)
+
             log_action("User Claim Uploaded!", user_profile)
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+            return Response(self.get_serializer(instance).data, status=status.HTTP_201_CREATED)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+# class UserClaimsViewSet(viewsets.ModelViewSet):
+#     queryset = UserClaims.objects.all()
+#     serializer_class = UserClaimsSerializer
+#     authentication_classes = [JWTAuthentication]
+#     permission_classes = [IsAuthenticated]
+
+#     def get_queryset(self):
+#         user_profile = get_current_user(self.request)
+#         return UserClaims.objects.filter(user=user_profile)
+
+#     def create(self, request, *args, **kwargs):
+#         # on creatine of user claim, serialize with request
+#         serializer = self.get_serializer(data=request.data)
+#         user_profile = get_current_user(request)
+#         if serializer.is_valid():
+#             # save the user claim request with the associated user !
+#             serializer.save(user=request.user)
+#             log_action("User Claim Uploaded!", user_profile)
+#             return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 # invoice view
@@ -265,6 +377,23 @@ class TrainModelViewSet(viewsets.ModelViewSet):
         train_new_model()
         # url stuff
         return Response({"status": "Model training initiated"})
+
+
+# settlement prediction viewset
+
+
+def serve_realtime_graph(request):
+    """
+    Serve the real-time graph generated by realtime_plot.py.
+    """
+    graph_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "ML_model", "realtime_graph.png")
+
+    # Ensure the graph file exists
+    if not os.path.exists(graph_path):
+        return JsonResponse({"error": "Graph not found."}, status=404)
+
+    # Serve the graph as a file response
+    return FileResponse(open(graph_path, "rb"), content_type="image/png")
 
 
 # usage logs viewset - to display on the admin dashboard
@@ -307,3 +436,31 @@ class UserFeedbackViewSet(viewsets.ModelViewSet):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class InsuranceModelViewSet(viewsets.ModelViewSet):
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated, IsAiEngineer]
+
+    def list(self, request):
+        """
+        API endpoint to fetch graph data from evaluation_results.csv.
+        """
+        try:
+            # Read the CSV file
+            eval_df = pd.read_csv(EVAL_PATH, names=["Predicted", "Actual", "AbsoluteError", "PercentError"])
+
+            # Exclude the header row if it exists
+            eval_df = eval_df.iloc[1:]  # Skip the first row (headers)
+
+            # Convert the data to JSON
+            graph_data = {
+                "settlement_values": eval_df["Actual"].astype(float).tolist(),
+                "absolute_errors": eval_df["AbsoluteError"].astype(float).tolist(),
+            }
+            return JsonResponse(graph_data, safe=False)
+
+        except FileNotFoundError:
+            return JsonResponse({"error": "evaluation_results.csv not found."}, status=404)
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=500)

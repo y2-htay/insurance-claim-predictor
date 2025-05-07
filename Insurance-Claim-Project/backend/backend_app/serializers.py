@@ -102,6 +102,7 @@ class UserClaimsSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserClaims
         fields = '__all__'
+        read_only_fields = ['predicted_settlement_value']
 
 
 # invoice
