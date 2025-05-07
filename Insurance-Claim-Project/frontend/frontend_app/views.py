@@ -619,6 +619,16 @@ def ai_engineer_dashboard(request):
         "Authorization": f"Bearer {request.session.get('access_token')}"
     }
 
+    current_user_response = requests.get(f"{backend_url}/auth/users/me/", headers=headers)
+    if current_user_response.status_code != 200:
+        return HttpResponseForbidden("Authentication failed.")
+    current_user = current_user_response.json()
+    #  Enforce admin access only
+    if current_user.get("permission_level") > 2:
+        return HttpResponseForbidden("You do not have ai-engineer privileges.")
+    elif current_user.get("needs_approval"):
+        return HttpResponseForbidden("Approval needed by administrator needed.")
+
     # Fetch training data
     training_data_response = requests.get(f"{backend_url}/claim_training_data/", headers=headers)
     training_data_json = training_data_response.json() if training_data_response.status_code == 200 else []

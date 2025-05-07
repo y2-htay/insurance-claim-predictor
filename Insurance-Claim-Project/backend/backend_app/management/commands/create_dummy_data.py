@@ -41,6 +41,7 @@ class Command(BaseCommand):
             username='drfirst',
             email='dr.first@ufcfur_15_3.com',
             password=make_password('ai123'),
+            needs_approval=False
         )
         AiEngineer.objects.create(user=ai_user)
 
@@ -49,6 +50,7 @@ class Command(BaseCommand):
             username='anadmin',
             email='an.admin@ufcfur_15_3.com',
             password=make_password('admin123'),
+            needs_approval=False
         )
         Administrator.objects.create(user=admin_user)
 
