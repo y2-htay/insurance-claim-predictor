@@ -1,11 +1,9 @@
+import base64
+
 from django.shortcuts import render, redirect
-from django.contrib.auth.decorators import login_required
-from .forms import UserProfileForm, UserRegistrationForm
-from .models import UserProfile
+from .forms import UserRegistrationForm
 from functools import wraps
 import requests
-from .forms import ClaimUploadForm
-from .models import ClaimUpload
 import pdfkit
 import io
 from django.http import FileResponse
@@ -14,8 +12,16 @@ import stripe
 from django.conf import settings
 from django.http import JsonResponse
 from datetime import date
-stripe.api_key = settings.STRIPE_SECRET_KEY
+from .utils import prepare_model_evaluation
 
+stripe.api_key = settings.STRIPE_SECRET_KEY
+import os
+
+# Define the path to the evaluation_results.csv file in the backend app
+EVAL_PATH = os.path.join(
+    os.path.dirname(os.path.abspath(__file__)),  # Current directory of this views.py file
+    "../backend_app/ML_model/evaluation_results.csv"  # Relative path to the CSV file
+)
 
 
 # --------- custom decorators ---------
@@ -191,7 +197,8 @@ def submit_claim_view(request):
             "minor_psychological_injury": data.get("minor_psychological_injury") == "on",
         }
 
-        files_data = {"supporting_documents": files.get("supporting_documents")} if files.get("supporting_documents") else None
+        files_data = {"supporting_documents": files.get("supporting_documents")} if files.get(
+            "supporting_documents") else None
 
         response = requests.post(
             f"{backend_url}/user_claims/",
@@ -216,6 +223,7 @@ def submit_claim_view(request):
         "weather_conditions": weather_conditions,
         "genders": genders
     })
+
 
 # -----------------edit/delete claim for GDPR------
 @authenticated_required
@@ -282,7 +290,8 @@ def edit_or_delete_claim_view(request, claim_id):
             "dominant_injury": data.get("dominant_injury"),
             "minor_psychological_injury": data.get("minor_psychological_injury") == "on",
         }
-        files_data = {"supporting_documents": files.get("supporting_documents")} if files.get("supporting_documents") else None
+        files_data = {"supporting_documents": files.get("supporting_documents")} if files.get(
+            "supporting_documents") else None
 
         update_response = requests.put(
             f"{backend_url}/user_claims/{claim_id}/",
@@ -308,7 +317,8 @@ def edit_or_delete_claim_view(request, claim_id):
         "genders": genders,
     })
 
-#USER VIEWS INVOICE
+
+# USER VIEWS INVOICE
 
 @authenticated_required
 def invoice_page(request, claim_id):
@@ -317,17 +327,17 @@ def invoice_page(request, claim_id):
         "Authorization": f"Bearer {request.session.get('access_token')}"
     }
 
-    response = requests.get(f"{backend_url}/user_claims/{claim_id}/", headers=headers) # get claim details
+    response = requests.get(f"{backend_url}/user_claims/{claim_id}/", headers=headers)  # get claim details
 
     if response.status_code == 200:
         claim_data = response.json()
 
-        if claim_data.get("user_id") != request.user.id: # make sure the logged-in user owns this claim
+        if claim_data.get("user_id") != request.user.id:  # make sure the logged-in user owns this claim
             return render(request, "invoice.html", {
                 "error": "You are not authorized to view this invoice."
             })
 
-        #predicted_value = claim_data.get("predicted_settlement_value")              ####### MOHAMED if you can edit/uncomment this when you get the prediction ? thanks - jack
+        # predicted_value = claim_data.get("predicted_settlement_value")              ####### MOHAMED if you can edit/uncomment this when you get the prediction ? thanks - jack
         predicted_value = claim_data.get("predicted_settlement_value", "Not available")
 
         return render(request, "invoice.html", {
@@ -340,15 +350,17 @@ def invoice_page(request, claim_id):
             "error": "Failed to load invoice."
         })
 
-#STRIPE CHECKOUT HANDLING
+
+# STRIPE CHECKOUT HANDLING
 @authenticated_required
 def create_checkout_session(request, claim_id):
     if request.method == "POST":
-        backend_url = "http://backend:8000/api" # the usual
+        backend_url = "http://backend:8000/api"  # the usual
         headers = {
             "Authorization": f"Bearer {request.session.get('access_token')}"
         }
-        response = requests.get(f"{backend_url}/user_claims/{claim_id}/", headers=headers) # get the claim from the invoice
+        response = requests.get(f"{backend_url}/user_claims/{claim_id}/",
+                                headers=headers)  # get the claim from the invoice
         if response.status_code != 200:
             return JsonResponse({'error': 'Claim not found.'}, status=404)
 
@@ -356,7 +368,7 @@ def create_checkout_session(request, claim_id):
         if claim_data.get("user_id") != request.user.id:
             return JsonResponse({'error': 'Unauthorized.'}, status=403)
 
-        #predicted_value = int(float(claim_data.get("predicted_settlement_value")) * 100)  ####### MOHAMED if you can edit/uncomment this when you get the prediction ? thanks - jack
+        # predicted_value = int(float(claim_data.get("predicted_settlement_value")) * 100)  ####### MOHAMED if you can edit/uncomment this when you get the prediction ? thanks - jack
         predicted_value = 100 * 100  # in pennies (so * 100 for pounds)
 
         session = stripe.checkout.Session.create(
@@ -381,6 +393,7 @@ def create_checkout_session(request, claim_id):
 
 def payment_success(request):
     return render(request, 'payment_success.html')
+
 
 def payment_cancel(request):
     return render(request, 'payment_cancel.html')
@@ -558,7 +571,7 @@ def ai_engineer_dashboard(request):
 
     # Fetch training data
     training_data_response = requests.get(f"{backend_url}/claim_training_data/", headers=headers)
-    training_data = training_data_response.json() if training_data_response.status_code == 200 else []
+    training_data_json = training_data_response.json() if training_data_response.status_code == 200 else []
 
     # Fetch usage logs
     logs_response = requests.get(f"{backend_url}/usage_logs/", headers=headers)
@@ -566,15 +579,24 @@ def ai_engineer_dashboard(request):
 
     # Fetch models
     models_response = requests.get(f"{backend_url}/insurance_models/", headers=headers)
-    models = models_response.json() if models_response.status_code == 200 else []
+    models_raw = models_response.json() if models_response.status_code == 200 else []
+    models = prepare_model_evaluation(models_raw)
+
+    graph_image_uri = None
+    img_resp = requests.get(f"{backend_url}/realtime-graph/", headers=headers, stream=True)
+    if img_resp.status_code == 200:
+        b64 = base64.b64encode(img_resp.content).decode("utf‑8")
+        graph_image_uri = f"data:image/png;base64,{b64}"
 
     return render(request, "ai_engineer.html", {
-        "training_data": training_data,
+        "training_data": training_data_json,
         "logs": logs,
-        "models": models
+        "models": models,
+        "graph_image": graph_image_uri
     })
 
-#---------------privacy policy-----------
+
+# ---------------privacy policy-----------
 def privacy_policy_view(request):
     return render(request, "privacy_policy.html")
 

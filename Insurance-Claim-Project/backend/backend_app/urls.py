@@ -20,6 +20,7 @@ router.register(r'usage_logs', UsageLogViewSet, basename='usage_logs')
 router.register(r'user_feedback', UserFeedbackViewSet)
 router.register(r'gender', GenderViewSet, basename='gender')
 router.register(r'injury_description', InjuryDescriptionViewSet, basename='injury_description')
+router.register(r'insurance_models', InsuranceModelViewSet, basename='insurance_models')
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -34,5 +35,6 @@ urlpatterns = [
     path('api/token/logout/', TokenBlacklistView.as_view(), name='token_blacklist'),
     path('api/upload-training-data', include('djoser.urls.jwt'), name="ai_data"),
     path('api/train_model', include('djoser.urls.jwt'), name="ai_train"),
+    path('api/realtime-graph/', serve_realtime_graph, name='serve_realtime_graph'),
 
 ]

@@ -1,52 +1,133 @@
-{% extends "base_generic.html" %}
 {% load static %}
 
-{% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/ai_engineer.css' %}">
-{% endblock %}
-
 
 {% block content %}
-<div class="dashboard-container">
-    <h1>AI Engineer Dashboard</h1>
+    <div class="dashboard-container">
+        <h1>Insurance Claim Predictor</h1>
+        <h2>AI Engineer Dashboard</h2>
 
-    <h2>Training Data</h2>
-    <div class="training-data-section">
-        {% if training_data %}
-            <ul>
-                {% for data in training_data %}
-                    <li>{{ data.settle_value }} - {{ data.vehicle_type }} - {{ data.weather_condition }}</li>
-                {% endfor %}
-            </ul>
-        {% else %}
-            <p>No training data available.</p>
-        {% endif %}
+        <h2>Training Data</h2>
+        <div class="training-data-section">
+            {% if training_data %}
+                <table class="styled-table">
+                    <thead>
+                    <tr>
+                        <th>Settlement Value</th>
+                        <th>Vehicle Type</th>
+                        <th>Weather Conditions</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+
+                    {% for data in training_data %}
+                        <tr>
+                            <td>{{ data.SettlementValue }}</td>
+                            <td>{{ data.Vehicle_Type }}</td>
+                            <td>{{ data.Weather_Conditions }}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <p>No training data available.</p>
+            {% endif %}
+        </div>
+
+        <h2>Usage Logs</h2>
+        <div class="logs-section">
+            {% if logs %}
+                <table class="styled-table">
+                    <thead>
+                    <tr>
+                        <th> Time of log</th>
+                        <th> Action performed</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for log in logs %}
+                        <tr>
+                            <td>{{ log.time }}</td>
+                            <td>{{ log.action_text }}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+
+
+            {% else %}
+                <p>No logs available.</p>
+            {% endif %}
+        </div>
+
+        <h2>Model Evaluation:</h2>
+        <div class="models-section">
+            <table class="styled-table">
+                <thead>
+                <tr>
+                    <th>Settlement Value</th>
+                    <th>Mean Absolute Error</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% if models %}
+                    {% for model in models %}
+                        <tr>
+                            <td>{{ model.settlement_value }}</td>
+                            <td>{{ model.accuracy }}</td>
+                        </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="2">No models available.</td>
+                    </tr>
+                {% endif %}
+                </tbody>
+            </table>
+        </div>
+
+
+        <h2>Real-Time Graph</h2>
+        <div class="graph-container">
+            <img id="realtimeGraph" src="{{ graph_image }}" alt="Real-Time Graph" style="width: 100%; height: auto;">
+        </div>
     </div>
 
-    <h2>Usage Logs</h2>
-    <div class="logs-section">
-        {% if logs %}
-            <ul>
-                {% for log in logs %}
-                    <li>{{ log.action }} by {{ log.user }} at {{ log.time }}</li>
-                {% endfor %}
-            </ul>
-        {% else %}
-            <p>No logs available.</p>
-        {% endif %}
-    </div>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        async function fetchCSVData() {
+            try {
+                const response = await fetch('/api/graph-data/');
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
 
-    <h2>Models</h2>
-    <div class="models-section">
-        {% if models %}
-            <ul>
-                {% for model in models %}
-                    <li><a href="{{ model.model_file }}" target="_blank">Download Model</a></li>
-                {% endfor %}
-            </ul>
-        {% else %}
-            <p>No models available.</p>
-        {% endif %}
-    </div>
-</div>
+                const data = await response.json();
+                console.log("Fetched Graph Data:", data); // Debugging: Log the fetched data
+
+                const settlementValues = data.settlement_values;
+                const absoluteErrors = data.absolute_errors;
+
+                console.log("Settlement Values:", settlementValues); // Debugging
+                console.log("Absolute Errors:", absoluteErrors); // Debugging
+
+                if (settlementValues.length === 0 || absoluteErrors.length === 0) {
+                    console.error("No valid data found in the response.");
+                    document.getElementById('graph-placeholder').innerText = "No data available for the graph.";
+                    return;
+                }
+
+                document.getElementById('graph-placeholder').style.display = "none";
+                document.getElementById('realtimeGraph').style.display = "block";
+
+                renderGraph(settlementValues, absoluteErrors);
+            } catch (error) {
+                console.error("Error fetching or parsing graph data:", error);
+                document.getElementById('graph-placeholder').innerText = "Error loading graph data.";
+            }
+        }
+
+        // Fetch and render the graph on page load
+        fetchCSVData();
+    </script>
 {% endblock %}
