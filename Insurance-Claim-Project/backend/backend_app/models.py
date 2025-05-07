@@ -4,10 +4,11 @@ from django.db.models import Model, CASCADE, OneToOneField, IntegerField, Boolea
     DateTimeField, Sum, FileField, FloatField
 from django.utils import timezone
 from django.conf import settings
-
+from django.db.models import DateField
 
 class UserProfile(AbstractUser):
     permission_level = IntegerField(default=0)
+    needs_approval = BooleanField(default=True)
 
 
 class EndUser(Model):
@@ -16,9 +17,9 @@ class EndUser(Model):
     def save(self, *args, **kwargs):
         if not self.user.permission_level:
             self.user.permission_level = 3
+        self.user.needs_approval = False
         super().save(*args, **kwargs)
         self.user.save()
-
 
 class AiEngineer(Model):
     user = OneToOneField(UserProfile, on_delete=CASCADE)
@@ -70,22 +71,28 @@ class ClaimTrainingData(Model):
     data_file = FileField(upload_to='training_data/')
 
 
-class UserClaims(Model):
-    user = ForeignKey(UserProfile, default=None, on_delete=CASCADE)
-    passengers_involved = FloatField(default=0)
-    psychological_injury = BooleanField(default=False)
-    injury_prognosis = FloatField(default=0)
-    injury_description = ForeignKey(InjuryDescription, on_delete=CASCADE)
-    exceptional_circumstance = BooleanField(default=False)
-    whiplash = BooleanField(default=False)
-    vehicle_type = ForeignKey(VehicleType, on_delete=CASCADE)
-    weather_condition = ForeignKey(WeatherCondition, on_delete=CASCADE)
-    driver_age = FloatField(default=0)
-    vehicle_age = FloatField(default=0)
-    police_report = BooleanField(default=False)
-    witness_present = BooleanField(default=False)
-    gender = ForeignKey(Gender, on_delete=CASCADE)
-    supporting_documents = FileField(upload_to='documents/', null=True, blank=True)
+class UserClaims(models.Model):
+    user = models.ForeignKey('UserProfile', default=None, on_delete=models.CASCADE)
+    
+    passengers_involved = models.FloatField(default=0)
+    psychological_injury = models.BooleanField(default=False)
+    injury_prognosis = models.FloatField(default=0)
+    exceptional_circumstance = models.BooleanField(default=False)
+    whiplash = models.BooleanField(default=False)
+    witness_present = models.BooleanField(default=False)
+    vehicle_type = models.ForeignKey('VehicleType', on_delete=models.CASCADE)
+    weather_condition = models.ForeignKey('WeatherCondition', on_delete=models.CASCADE)
+    gender = models.ForeignKey('Gender', on_delete=models.CASCADE)
+    driver_age = models.FloatField(default=0)
+    vehicle_age = models.FloatField(default=0)
+    total_special_costs = models.FloatField(default=0)
+    general_rest = models.FloatField(default=0)       
+    general_fixed = models.FloatField(default=0)       
+    accident_date = models.DateField()
+    claim_date = models.DateField()
+    predicted_settlement_value = models.FloatField(null=True, blank=True)
+    supporting_documents = models.FileField(upload_to='documents/', null=True, blank=True)
+
 
 
 class Actions(Model):

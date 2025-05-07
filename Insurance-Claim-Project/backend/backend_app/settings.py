@@ -67,12 +67,14 @@ AUTH_PASSWORD_VALIDATORS = [] # an empty list to disable password validation (an
 
 DJOSER = {
     'LOGIN_FIELD': 'username',
-    'USER_CREATE_PASSWORD_RETYPE': False, # when true requires user to re-enter password
+    'USER_CREATE_PASSWORD_RETYPE': False,
     'SERIALIZERS': {
-        'user_create': 'backend_app.serializers.UserProfileCreateSerializer', # function from serializers.py, allows to create a user
-        'user': 'backend_app.serializers.UserProfileAuthSerializer', # same as above, returns user data
+        'user_create': 'backend_app.serializers.UserProfileCreateSerializer',
+        'user': 'backend_app.serializers.UserProfileAuthSerializer',
+        'current_user': 'backend_app.serializers.UserProfileAuthSerializer',
     },
 }
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',

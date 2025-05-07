@@ -1,9 +1,3 @@
-from django.contrib.sites import requests
-from django.http import HttpResponseForbidden
-
-backend_url = "http://backend:8000/api"
-
-
 def prepare_model_evaluation(data):
     try:
         results = []
@@ -17,11 +11,3 @@ def prepare_model_evaluation(data):
         return None
 
     return results
-
-
-def get_current_permission(headers):
-    current_user_response = requests.get(f"{backend_url}/auth/users/me/", headers=headers)
-    if current_user_response.status_code != 200:
-        return HttpResponseForbidden("Authentication failed.")
-    current_user = current_user_response.json()
-    return current_user.get("permission_level")

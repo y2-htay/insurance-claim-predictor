@@ -4,7 +4,7 @@ body {
     color: #222;
     padding: 20px;
   }
-  
+
   /* Section layout */
   .section {
     background: #ffffff;
@@ -13,28 +13,28 @@ body {
     margin-bottom: 32px;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
   }
-  
+
   /* Headings */
   h1, h2 {
     font-weight: 600;
     margin-bottom: 16px;
   }
-  
+
   h1 {
     font-size: 28px;
   }
-  
+
   h2 {
     font-size: 22px;
   }
-  
+
   /* Text */
   .text-muted {
     color: #888;
     font-size: 14px;
     margin-bottom: 20px;
   }
-  
+
   /* Tables */
   .styled-table {
     width: 100%;
@@ -42,27 +42,27 @@ body {
     margin-top: 10px;
     font-size: 15px;
   }
-  
+
   .styled-table thead {
     background-color: #ff4d00;
     color: white;
   }
-  
+
   .styled-table th, .styled-table td {
     padding: 12px 15px;
     border-bottom: 1px solid #ddd;
     text-align: left;
   }
-  
+
   .styled-table tr:hover {
     background-color: #f3f3f3;
   }
-  
+
   /* Forms */
   form {
     margin-top: 10px;
   }
-  
+
   button {
     padding: 8px 16px;
     background-color: #ff4d00;
@@ -72,11 +72,11 @@ body {
     cursor: pointer;
     font-weight: 500;
   }
-  
+
   button:hover {
     background-color: #e63c00;
   }
-  
+
   button[style*="color: red"] {
     background-color: transparent;
     color: red;
@@ -84,7 +84,7 @@ body {
     padding: 6px 12px;
     border-radius: 6px;
   }
-  
+
   button[style*="color: red"]:hover {
     background-color: red;
     color: white;

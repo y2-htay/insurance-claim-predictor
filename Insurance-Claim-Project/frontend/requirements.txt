@@ -1,4 +1,4 @@
-Django
-django-cors-headers
-requests
-pdfkit
+Django==5.2
+pdfkit==1.0.0
+Requests==2.32.3
+stripe==12.1.0

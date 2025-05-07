@@ -7,14 +7,35 @@ from .models import *
 class UserProfileCreateSerializer(UserCreateSerializer):
     class Meta(UserCreateSerializer.Meta):
         model = UserProfile
-        fields = ('id', 'username', 'password', 'permission_level')
+        fields = ('id', 'username', 'password', 'permission_level', 'needs_approval')
+        extra_kwargs = {
+            'password': {'write_only': True},
+            'needs_approval': {'read_only': True},
+        }
+
+    def create(self, validated_data):
+        user = super().create(validated_data)
+
+        # Role logic
+        if user.permission_level == 3:
+            user.needs_approval = False
+            user.save()
+            EndUser.objects.create(user=user)
+        elif user.permission_level == 2:
+            AiEngineer.objects.create(user=user)
+        elif user.permission_level == 1:
+            Finance.objects.create(user=user)
+        elif user.permission_level == 0:
+            Administrator.objects.create(user=user)
+
+        return user
 
 
 # serializer for user retrieval using djoser
 class UserProfileAuthSerializer(UserSerializer):
     class Meta(UserSerializer.Meta):
         model = UserProfile
-        fields = ('id', 'username', 'password', 'permission_level')
+        fields = ('id', 'username', 'permission_level', 'needs_approval')
 
 
 class UserProfileSerializer(serializers.ModelSerializer):
@@ -81,6 +102,7 @@ class UserClaimsSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserClaims
         fields = '__all__'
+        read_only_fields = ['predicted_settlement_value']
 
 
 # invoice
