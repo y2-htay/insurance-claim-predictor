@@ -1,8 +1,11 @@
 {% extends "base_generic.html" %}
 {% load static %}
-<link rel="stylesheet" href="{% static 'css/invoice.css' %}">
 
+{% block head %}
+<link rel="stylesheet" href="{% static 'css/invoice.css' %}">
+{% endblock %}
 {% block content %}
+
 <h1>Invoice for Claim #{{ claim.id }}</h1>
 
 <div class="edit-container">
@@ -13,6 +16,8 @@
 
     <h3>Claim Details:</h3>
 <ul>
+    <p>DEBUG URL: {% url 'create_checkout_session' claim.id %}</p>
+
     <li><strong>Vehicle Type:</strong> {{ claim.vehicle_type }}</li>
     <li><strong>Weather Condition:</strong> {{ claim.weather_condition }}</li>
     <li><strong>Driver Age:</strong> {{ claim.driver_age }}</li>
@@ -41,10 +46,11 @@
 
 <script src="https://js.stripe.com/v3/"></script>
 <script>
+    const checkoutUrl = "{% url 'create_checkout_session' claim.id %}";
     const stripe = Stripe("{{ stripe_publishable_key }}");
 
     document.getElementById("checkout-button").addEventListener("click", function () {
-        fetch("{% url 'create_checkout_session' claim.id %}", {
+        fetch(checkoutUrl, {
             method: "POST",
             headers: {
                 'X-CSRFToken': '{{ csrf_token }}',
