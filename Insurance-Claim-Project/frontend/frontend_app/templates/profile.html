@@ -20,9 +20,13 @@
         <div class="profile-bar">
             <p><strong>Username:</strong> {{ user_data.username }}</p>
         </div>
-        <div class="profile-bar">
+        <!-- <div class="profile-bar">
             <p><strong>Email:</strong> {{ user_data.email }}</p>
         </div>
+        <div class="profile-bar">
+            <p><strong>Date joined:</strong> {{ user_data.date_joined }}</p>
+        </div> -->
+        <!-- Header Section 
         <div class="profile-bar">
             <p><strong>Bio:</strong> {{ user_data.bio }}</p>
         </div>
@@ -32,6 +36,8 @@
         <div class="profile-bar">
             <p><strong>Birth Date:</strong> {{ user_data.birth_date }}</p>
         </div>
+        -->
+
 
         <!-- Logout Button -->
         <div class = "logout-container">       
@@ -116,6 +122,7 @@
                     </div>
                     <div class="edit-claim-container">
                         <a href="{% url 'edit_claim' claim.id %}" class="btn edit-claim-btn">Edit</a>
+                        <a href="{% url 'invoice_page' claim.id %}" class="btn invoice-btn">View Invoice</a>
                     </div>
                 </div>
                 

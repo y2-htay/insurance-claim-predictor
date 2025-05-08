@@ -99,6 +99,7 @@ def register_view(request):
         if form.is_valid():
             data = {
                 "username": form.data["username"],
+                "email": form.data["email"],  # NEW
                 "password": form.data["password"],
                 "permission_level": form.data["permission_level"]
             }
@@ -206,8 +207,7 @@ def submit_claim_view(request):
             "claim_date": date.today().isoformat(),
             "accident_type": data.get("accident_type"),
             "dominant_injury": data.get("dominant_injury"),
-            "minor_psychological_injury": data.get("minor_psychological_injury") == "on",
-            "permission": perm_level
+            "minor_psychological_injury": data.get("minor_psychological_injury") == "on"
 
         }
 
@@ -223,7 +223,7 @@ def submit_claim_view(request):
 
         if response.status_code == 201:
             claim_id = response.json().get("id")
-            return redirect("invoice_page", claim_id=claim_id, permission=perm_level)
+            return redirect("invoice_page", claim_id=claim_id)
 
         return render(request, "submit_claim.html", {
             "error": "Failed to submit claim.",
@@ -343,24 +343,35 @@ def invoice_page(request, claim_id):
         "Authorization": f"Bearer {request.session.get('access_token')}"
     }
 
+    user_response = requests.get(f"http://backend:8000/api/auth/users/me", headers=headers)
+
+    #perm_level = get_user_perm_level(headers)
+
+    if user_response.status_code == 200:
+        user_data = user_response.json()  # user info
+    else:
+        user_data = None
+
     response = requests.get(f"{backend_url}/user_claims/{claim_id}/", headers=headers)  # get claim details
 
-    if response.status_code == 200:
+    if response.status_code == 200 and user_data != None:
         claim_data = response.json()
 
-        if claim_data.get("user_id") != request.user.id:  # make sure the logged-in user owns this claim
+        claim_user_id = claim_data.get("user")
+        if claim_user_id is None or int(claim_user_id) != user_data["id"]:
             return render(request, "invoice.html", {
                 "error": "You are not authorized to view this invoice."
             })
+        else:
 
-        # predicted_value = claim_data.get("predicted_settlement_value")              ####### MOHAMED if you can edit/uncomment this when you get the prediction ? thanks - jack
-        predicted_value = claim_data.get("predicted_settlement_value", "Not available")
+            # predicted_value = claim_data.get("predicted_settlement_value")              ####### MOHAMED if you can edit/uncomment this when you get the prediction ? thanks - jack
+            predicted_value = claim_data.get("predicted_settlement_value", "Not available")
 
-        return render(request, "invoice.html", {
-            "claim": claim_data,
-            "predicted_value": predicted_value,
-            "stripe_publishable_key": settings.STRIPE_PUBLISHABLE_KEY,
-        })
+            return render(request, "invoice.html", {
+                "claim": claim_data,
+                "predicted_value": predicted_value,
+                "stripe_publishable_key": settings.STRIPE_PUBLISHABLE_KEY,
+            })
     else:
         return render(request, "invoice.html", {
             "error": "Failed to load invoice."
@@ -375,17 +386,25 @@ def create_checkout_session(request, claim_id):
         headers = {
             "Authorization": f"Bearer {request.session.get('access_token')}"
         }
+
+        user_response = requests.get(f"http://backend:8000/api/auth/users/me", headers=headers)
+
+        if user_response.status_code == 200:
+            user_data = user_response.json()  # user info
+        else:
+            user_data = None
+
         response = requests.get(f"{backend_url}/user_claims/{claim_id}/",
                                 headers=headers)  # get the claim from the invoice
-        if response.status_code != 200:
+        if response.status_code != 200 or user_data is None:
             return JsonResponse({'error': 'Claim not found.'}, status=404)
 
         claim_data = response.json()
-        if claim_data.get("user_id") != request.user.id:
+        if claim_data.get("user") != user_data["id"]:
             return JsonResponse({'error': 'Unauthorized.'}, status=403)
 
         # predicted_value = int(float(claim_data.get("predicted_settlement_value")) * 100)  ####### MOHAMED if you can edit/uncomment this when you get the prediction ? thanks - jack
-        predicted_value = 100 * 100  # in pennies (so * 100 for pounds)
+        predicted_value = int(claim_data.get("predicted_settlement_value", "Not available")) * 100
 
         session = stripe.checkout.Session.create(
             payment_method_types=['card'],
